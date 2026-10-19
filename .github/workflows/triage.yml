@@ -17,11 +17,13 @@ jobs:
   label:
     if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0
 
   welcome:
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d # v3.1.0
         with:
