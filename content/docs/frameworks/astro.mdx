@@ -1,0 +1,30 @@
+---
+title: Astro
+description: Islands use the React or Vue guide. A plain page is one script tag.
+icon: Rocket
+---
+
+Astro ships whichever island framework you already use, so for islands follow
+[React](/docs/frameworks/react) or [Vue](/docs/frameworks/vue).
+
+For a plain Astro page, this is the whole integration:
+
+```astro title="src/layouts/Base.astro"
+<script>
+  import { PulseClient } from '@thepulseapi/sdk';
+
+  const pulse = new PulseClient();
+  pulse.init({
+    apiKey: import.meta.env.PUBLIC_PULSE_API_KEY,
+    organizationId: import.meta.env.PUBLIC_PULSE_ORG_ID,
+  });
+</script>
+```
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+Or skip the install entirely and use the CDN build:
+
+```astro
+<script is:inline src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js"></script>
+```

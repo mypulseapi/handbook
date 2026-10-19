@@ -1,0 +1,5 @@
+# Install scripts are blocked by default. Each entry here is a deliberate exception
+# with a reason, the same rule the main repo uses.
+allowBuilds:
+  esbuild: true   # native binary, fetched and linked at install. MDX pipeline needs it.
+  sharp: true     # native image pipeline, used for OG image generation

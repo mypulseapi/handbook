@@ -1,0 +1,23 @@
+---
+title: Record exposure
+description: POST /exposure, which is what makes ranking quality measurable.
+icon: Eye
+---
+
+Ranking cannot be graded without knowing what was actually shown. A click rate over results
+nobody saw is not a measurement.
+
+## `POST /exposure`
+
+```ts
+pulse.exposure(decisionId, items);   // buffered
+await pulse.flushExposures();        // send now
+```
+
+`exposure` buffers, because a product grid renders many items at once and one request per card
+would be absurd. `flushExposures` sends what is pending, and the SDK also flushes on page hide.
+
+<Callout title="Send what rendered, not what you requested">
+  If you asked for 24 and showed 12 above the fold, the honest exposure is what the shopper could
+  actually see. Over-reporting exposure makes your own ranking look worse than it is.
+</Callout>

@@ -1,0 +1,32 @@
+---
+title: Alpine
+description: No build step. The global, used straight from HTML attributes.
+icon: Zap
+---
+
+Alpine is attribute-driven, so the script-tag build is the natural fit. No bundler, no install.
+
+```html title="index.html"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js"></script>
+<script>
+  Pulse.init({ apiKey: 'pk_live_...', organizationId: 'org_...' });
+</script>
+```
+
+The global `Pulse` **is** the client, so call it directly from Alpine:
+
+```html
+<div x-data="{ sku: 'sku-123' }">
+  <button x-on:click="Pulse.track([{ type: 'product_view', value: sku }])">
+    View
+  </button>
+
+  <button x-on:click="Pulse.track([{ type: 'add_to_cart', value: sku }])">
+    Add to cart
+  </button>
+</div>
+```
+
+<Callout>
+  There is no default export on the global. `Pulse.init` resolves; `Pulse.default.init` does not.
+</Callout>

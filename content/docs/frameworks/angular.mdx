@@ -1,0 +1,34 @@
+---
+title: Angular
+description: An injectable service, initialised once the browser is running.
+icon: Shield
+---
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+```ts title="src/app/pulse.service.ts"
+import { Injectable } from '@angular/core';
+import { PulseClient } from '@thepulseapi/sdk';
+
+@Injectable({ providedIn: 'root' })
+export class PulseService extends PulseClient {}
+```
+
+Initialise from `APP_INITIALIZER`, or from the first component that runs in the browser:
+
+```ts title="src/app/app.config.ts"
+import { APP_INITIALIZER } from '@angular/core';
+import { PulseService } from './pulse.service';
+
+export const appConfig = {
+  providers: [
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      deps: [PulseService],
+      useFactory: (pulse: PulseService) => () =>
+        pulse.init({ apiKey: 'pk_live_...', organizationId: 'org_...' }),
+    },
+  ],
+};
+```

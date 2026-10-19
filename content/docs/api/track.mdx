@@ -1,0 +1,42 @@
+---
+title: Send signals
+description: POST /track, the call everything else depends on.
+icon: Radio
+---
+
+## `POST /track`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/track" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "signals": [
+      { "type": "category_view", "value": "helmets-safety" },
+      { "type": "price_filter", "value": "500000-1500000" }
+    ]
+  }'
+```
+
+With the SDK:
+
+```ts
+await pulse.track([
+  { type: 'category_view', value: 'helmets-safety' },
+  { type: 'price_filter', value: '500000-1500000' },
+]);
+```
+
+<Callout>
+  Signals are additive. Send them as they happen rather than batching a whole session at the end:
+  persona scores decay, so ordering carries meaning.
+</Callout>
+
+## `POST /event`
+
+A named event, for things that are not persona signals.
+
+```ts
+await pulse.event('checkout_started', { cartValue: 1250000 });
+```

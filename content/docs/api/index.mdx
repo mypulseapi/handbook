@@ -1,0 +1,46 @@
+---
+title: Authentication
+description: One header, one base URL, and which credential opens what.
+icon: KeyRound
+---
+
+## Base URL
+
+```bash
+https://api.thepulseapi.com/api/v1
+```
+
+## The header
+
+Authenticate with **`x-api-key`**. Not `Authorization: Bearer`.
+
+```bash title="A real request"
+curl -X POST "https://api.thepulseapi.com/api/v1/session" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{}'
+```
+
+## Getting a key
+
+Sign in to the [dashboard](https://app.thepulseapi.com), open **Integration → API keys**, and
+create one.
+
+| | |
+| --- | --- |
+| **Format** | Always `pk_live_` followed by base64url randomness |
+| **Publishable** | Designed to be visible in browser code. It can send signals and read rankings, nothing else |
+| **Scoped** | Belongs to one organization and cannot read another's data |
+| **Shown once** | The full value is returned only at creation. Only the hash is stored |
+| **Revocable** | Revocation is immediate |
+
+<Callout type="warn" title="There is no test key">
+  Every issued key is `pk_live_`. There is no `pk_test_` and no sandbox environment yet. To keep
+  experiments out of your reporting, create a **separate key** for development and revoke it when
+  you are done.
+</Callout>
+
+## What a publishable key cannot do
+
+Catalogue writes (`/products`, `/categories`) authenticate as a signed-in dashboard session, not
+with a publishable key. They are not part of this reference.

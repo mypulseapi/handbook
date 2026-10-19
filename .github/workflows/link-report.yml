@@ -1,0 +1,49 @@
+name: Link report
+
+# External links break on their own. They are checked here once a week, and broken ones
+# are reported in a single open issue instead of failing someone's pull request.
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  links:
+    name: External link check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: lychee
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          # GitHub answers 429 to bursts from runners; that is a rate limit, not a broken link.
+          #
+          # npmjs.com is excluded because it answers 403 to any non-browser request, including a
+          # browser user agent from a runner. Checked 2026-10-19 against our own published
+          # package, which resolves fine on registry.npmjs.org. A 403 there means bot blocking,
+          # never a dead link.
+          args: >-
+            --no-progress --include-fragments --max-retries 3 --retry-wait-time 5
+            --accept 200,429 --exclude-path .github/pull_request_template.md
+            --exclude '^https://(www\.)?npmjs\.com/'
+            "**/*.md"
+          output: lychee/out.md
+          fail: false
+      - name: Open or update the report issue
+        if: steps.lychee.outputs.exit_code != 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TITLE: Broken links report
+        run: |
+          number=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file lychee/out.md
+          else
+            gh issue create --title "$TITLE" --label content-fix --body-file lychee/out.md
+          fi

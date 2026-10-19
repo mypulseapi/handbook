@@ -1,0 +1,44 @@
+---
+title: Signals
+description: What you send, what is captured for you, and what is deliberately not a signal.
+icon: Radio
+---
+
+A signal is one observation about the current session. Send them with
+[`track`](/docs/api/track).
+
+```ts
+await pulse.track([
+  { type: 'category_view', value: 'helmets-safety' },
+  { type: 'product_view', value: 'sku-123' },
+  { type: 'price_filter', value: '500000-1500000' },
+]);
+```
+
+## Captured for you
+
+`init()` sends these once per session, unless `autoTrack: false`:
+
+| | |
+| --- | --- |
+| **Device** | Class and capability, parsed from the user agent |
+| **Referrer** | Where the session came from |
+| **Time of day** | Local hour bucket |
+
+They cost no network beyond the one call, and they are exported individually so a host app can
+re-assert them on a later page load:
+
+```ts
+import { captureDeviceSignal, captureReferrerSignal, captureTimeSignal } from '@thepulseapi/sdk';
+```
+
+## What is not a signal
+
+<Callout type="error" title="anonymousId never reaches inference">
+  `anonymousId` is an identity label. Nothing in the engine matches on it, so labelling a session
+  cannot change what is inferred about it. That separation is deliberate: it makes it possible to
+  attribute a session without contaminating the result.
+</Callout>
+
+Age, gender, job title and income are **not** inputs. The engine reads behaviour. If you hold
+those attributes, they are ground truth to grade against, not features to feed in.
