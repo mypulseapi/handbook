@@ -50,3 +50,5 @@ Invitations are made by the maintainers (@mypulseapi/handbook-maintainers). If y
 ## Code of conduct
 
 Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+<!-- ruleset verification, do not merge -->
