@@ -1,6 +1,7 @@
 {
   "name": "hb-scaffold",
   "version": "0.0.48",
+  "packageManager": "pnpm@12.11.2",
   "private": true,
   "scripts": {
     "build": "next build --webpack",
