@@ -39,7 +39,10 @@ extending them, which silently removes the structured-data extractor and breaks 
 ## Deployment
 
 Pushing to `main` builds and publishes via `.github/workflows/nextjs.yml`, to
-**<https://developer.thepulseapi.com>**.
+**`developer.thepulseapi.com`**.
+
+Written as code rather than a link on purpose: the link check runs on every PR, and a URL that
+only becomes valid after the first deploy would fail it. Make it a link once the site is live.
 
 `public/CNAME` is what claims that domain on each deploy. GitHub Actions deployments do not
 remember a custom domain set only in the repository settings, so removing that file would send
