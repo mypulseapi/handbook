@@ -1,0 +1,27 @@
+---
+title: Read the session
+description: POST /session, which returns the personas inferred so far.
+icon: Clock
+---
+
+## `POST /session`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/session" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{ "sessionId": "sess_abc123" }'
+```
+
+```ts
+const session = await pulse.getSession();
+```
+
+Returns whether the session was found and the personas accumulated against it. A session id that
+has never been written returns `found: false`, which is the quickest way to confirm your signals
+are landing.
+
+<Callout title="Use this while integrating">
+  If `found` is false after a `track` call, the signals are not arriving. That is one request to
+  check, rather than reasoning backwards from a ranking that looks slightly wrong.
+</Callout>

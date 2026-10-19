@@ -1,0 +1,54 @@
+---
+title: React and Next.js
+description: Create the client once, share it, and keep init() in the browser.
+icon: Atom
+---
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+## A provider
+
+```tsx title="app/pulse-provider.tsx"
+'use client';
+import { createContext, useContext, useRef } from 'react';
+import { PulseClient } from '@thepulseapi/sdk';
+
+const PulseContext = createContext<PulseClient | null>(null);
+export const usePulse = () => useContext(PulseContext)!;
+
+export function PulseProvider({ children }: { children: React.ReactNode }) {
+  const pulse = useRef<PulseClient>(null);
+  pulse.current ??= new PulseClient();
+
+  useEffect(() => {
+    pulse.current!.init({
+      apiKey: process.env.NEXT_PUBLIC_PULSE_API_KEY!,
+      organizationId: process.env.NEXT_PUBLIC_PULSE_ORG_ID!,
+    });
+  }, []);
+
+  return <PulseContext.Provider value={pulse.current}>{children}</PulseContext.Provider>;
+}
+```
+
+<Callout title="Next.js specifics">
+  The component that calls `init()` must be a **client component**, because the session lives in
+  the browser. Server Components and SSR are otherwise fine: the import is side-effect free and
+  every browser API is guarded.
+</Callout>
+
+## Using it
+
+```tsx title="components/product-card.tsx"
+'use client';
+import { usePulse } from '@/app/pulse-provider';
+
+export function ProductCard({ sku }: { sku: string }) {
+  const pulse = usePulse();
+  return (
+    <button onClick={() => pulse.track([{ type: 'product_view', value: sku }])}>
+      View
+    </button>
+  );
+}
+```

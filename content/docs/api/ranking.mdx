@@ -1,0 +1,44 @@
+---
+title: Rank products
+description: /catalog/ranked, /search, /rerank and /suggest.
+icon: ListOrdered
+---
+
+## `POST /catalog/ranked`
+
+Ranks the catalogue already synced to PULSE.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/ranked" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{ "sessionId": "sess_abc123", "limit": 24 }'
+```
+
+```ts
+const { items } = await pulse.rankedCatalog({ limit: 24 });
+```
+
+## `POST /search`
+
+Ranks products **you pass in**, against the session.
+
+```ts
+const { results } = await pulse.search(products, { limit: 24 });
+
+results[0].scoreBreakdown; // the signals that matched, and their weights
+```
+
+## `POST /rerank`
+
+Reorders an existing result set you already produced elsewhere, which is the lightest way to put
+PULSE in front of a search engine you are keeping.
+
+## `POST /suggest`
+
+Query suggestions scored against the current session.
+
+<Callout type="warn">
+  `search` and `rankedCatalog` are not interchangeable. One ranks what you hand it, the other
+  ranks what PULSE holds. Sending a catalogue you already synced to `search` is a wasted payload.
+</Callout>

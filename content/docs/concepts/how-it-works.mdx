@@ -1,0 +1,46 @@
+---
+title: How inference works
+description: Signals in, personas out, your catalogue ranked against them.
+icon: Brain
+---
+
+Most search and recommendation tools answer, because answering is all they can do. They rank
+something for any query, including the queries your catalogue has no data to resolve.
+
+PULSE does two things those do not.
+
+<Cards>
+  <Card icon={<Activity />} title="Infers in-session" description="Persona accumulates from behaviour within a single visit, with no identity and no history." />
+  <Card icon={<SearchX />} title="Knows when it cannot answer" description="If the catalogue cannot resolve a requirement, that is a reportable fact rather than a bad ranking." />
+</Cards>
+
+## The loop
+
+<Steps>
+<Step>
+### A signal arrives
+A category view, a price filter, a device class. See [Signals](/docs/concepts/signals).
+</Step>
+<Step>
+### The persona updates
+Each signal moves a set of persona scores. Scores decay, so a session that changes direction
+is followed rather than averaged.
+</Step>
+<Step>
+### Products are scored against it
+`search` ranks products you pass in. `rankedCatalog` ranks the catalogue already synced to PULSE.
+</Step>
+<Step>
+### Exposure is recorded
+What was actually shown is what makes ranking quality measurable later. See
+[`exposure`](/docs/api/exposure).
+</Step>
+</Steps>
+
+## What it is not
+
+<Callout type="warn">
+  PULSE is not a PIM and it replaces nothing you already run. It reads your catalogue and ranks
+  against it. If a field is missing everywhere, ranking cannot invent it, and saying so is the
+  point.
+</Callout>

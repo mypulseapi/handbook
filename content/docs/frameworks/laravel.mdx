@@ -1,0 +1,39 @@
+---
+title: Laravel
+description: A Blade partial for the browser half. Secrets stay on the server.
+icon: Server
+---
+
+Laravel renders on the server, so the browser half is a script tag, usually in a layout.
+
+```php title="config/services.php"
+'pulse' => [
+    'key' => env('PULSE_PUBLISHABLE_KEY'),
+    'org' => env('PULSE_ORGANIZATION_ID'),
+],
+```
+
+```blade title="resources/views/partials/pulse.blade.php"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js"></script>
+<script>
+  Pulse.init({
+    apiKey: @json(config('services.pulse.key')),
+    organizationId: @json(config('services.pulse.org')),
+  });
+</script>
+```
+
+```blade title="resources/views/layouts/app.blade.php"
+@include('partials.pulse')
+```
+
+<Callout type="warn" title="Which key goes in the page">
+  The publishable `pk_live_` key is designed to be visible in browser code. Anything that
+  administers your account is not. Use `@json()` rather than string interpolation so a value
+  containing a quote cannot break out of the script.
+</Callout>
+
+## Calling from PHP
+
+To talk to PULSE from PHP rather than the browser, use the [REST API](/docs/api) directly. There
+is no PHP package yet.

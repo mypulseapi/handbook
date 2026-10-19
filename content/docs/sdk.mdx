@@ -1,0 +1,52 @@
+---
+title: SDK reference
+description: Every method on PulseClient, and the config it takes.
+icon: Package
+---
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+## Session
+
+| Method | Returns | |
+| --- | --- | --- |
+| `init(config)` | `TrackResponse \| null` | Start a session and send the automatic signals once |
+| `getSession()` | `SessionResponse` | Current session and inferred personas |
+| `getSessionId()` | `string` | The current session id |
+| `resetSession()` | `void` | Clear it and start fresh |
+| `onPersona(cb)` | `void` | Subscribe to persona updates |
+
+## Signals and ranking
+
+| Method | Returns | |
+| --- | --- | --- |
+| `track(signals)` | `TrackResponse` | Send shopper signals |
+| `search(products, options?)` | `SearchResponse` | Rank products you pass in |
+| `rankedCatalog(options?)` | `RankedCatalogResponse` | Rank the catalogue already synced to PULSE |
+| `event(type, data?)` | `EventResponse` | Record a named event |
+
+<Callout>
+  `search` and `rankedCatalog` are not interchangeable. `search` ranks what you hand it;
+  `rankedCatalog` ranks what PULSE already holds.
+</Callout>
+
+## Exposure
+
+| Method | | |
+| --- | --- | --- |
+| `exposure(decisionId, items)` | `void` | Record what was actually rendered, buffered |
+| `flushExposures()` | `Promise<void>` | Send buffered exposures now |
+
+## Config
+
+<TypeTable
+  type={{
+    apiKey: { type: 'string', description: 'Publishable key, pk_live_...', required: true },
+    organizationId: { type: 'string', description: 'From the dashboard', required: true },
+    endpoint: { type: 'string', default: 'https://api.thepulseapi.com', description: 'Override only for local development' },
+    autoTrack: { type: 'boolean', default: 'true', description: 'Capture device, referrer and time on init()' },
+    sessionTtlMs: { type: 'number', default: '1800000', description: 'Inactivity before a new session' },
+    anonymousId: { type: 'string', description: 'Identity label only. Never reaches inference.' },
+    debug: { type: 'boolean', default: 'false', description: 'Verbose logging' },
+  }}
+/>
