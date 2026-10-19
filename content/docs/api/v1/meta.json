@@ -1,0 +1,12 @@
+{
+  "title": "v1",
+  "icon": "Terminal",
+  "pages": [
+    "index",
+    "track",
+    "session",
+    "ranking",
+    "exposure",
+    "errors"
+  ]
+}

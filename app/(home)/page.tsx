@@ -41,7 +41,7 @@ const PRIMARY = [
     body: 'React, Next, Vue, Angular, Astro, Alpine, Laravel.',
   },
   {
-    href: '/docs/api',
+    href: '/docs/api/v1',
     icon: Terminal,
     title: 'API reference',
     body: 'Every endpoint a publishable key can call.',
@@ -55,9 +55,9 @@ const FACTS = [
 ];
 
 const SHORTCUTS = [
-  { href: '/docs/api', icon: KeyRound, label: 'Authentication' },
-  { href: '/docs/api/errors', icon: Terminal, label: 'Error codes' },
-  { href: '/docs/api/exposure', icon: Eye, label: 'Exposure tracking' },
+  { href: '/docs/api/v1', icon: KeyRound, label: 'Authentication' },
+  { href: '/docs/api/v1/errors', icon: Terminal, label: 'Error codes' },
+  { href: '/docs/api/v1/exposure', icon: Eye, label: 'Exposure tracking' },
 ];
 
 export default function HomePage() {
@@ -82,7 +82,7 @@ export default function HomePage() {
             Get started <ArrowRight className="size-4" />
           </Link>
           <Link
-            href="/docs/api"
+            href="/docs/api/v1"
             className="border-fd-border hover:bg-fd-accent inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium transition-colors"
           >
             API reference

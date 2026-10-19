@@ -1,0 +1,71 @@
+---
+title: Versioning
+description: What is versioned, what is not, and what happens when something changes.
+icon: GitBranch
+---
+
+## The API is versioned. The guides are not.
+
+| | Versioned | Why |
+| --- | --- | --- |
+| **API reference** | **Yes**, `/docs/api/v1` | It is a contract. A request you wrote last year has to keep working, so the page describing it has to keep existing |
+| Guides, concepts, frameworks | No | They describe behaviour, not a contract. "How inference works" has no v1 and v2 |
+| SDK reference | No | The SDK follows the API. Where a method needs a minimum version, the page says so inline |
+
+The version in the docs URL matches the version in the request URL:
+
+```bash
+https://api.thepulseapi.com/api/v1/track   →   /docs/api/v1/track
+```
+
+<Callout title="Only v1 exists">
+  There has never been another. The path carries the version anyway, because a URL is cheap to
+  choose now and expensive to change once people have linked to it.
+</Callout>
+
+## What counts as a breaking change
+
+A new major version happens only when an existing, correct request would start behaving
+differently.
+
+<Accordions>
+<Accordion title="Breaking: needs a new version">
+- Removing an endpoint, a field, or an accepted value
+- Renaming anything in a request or response
+- Making an optional request field required
+- Narrowing a type, for example a string that becomes an enum
+- Changing the meaning of a field while keeping its name. **This is the worst one**, because nothing fails loudly
+</Accordion>
+
+<Accordion title="Not breaking: ships into the current version">
+- Adding a new endpoint
+- Adding an optional request field
+- Adding a field to a response. **Parse responses permissively**: unknown fields will appear
+- Adding a new value to an output enum, unless the docs say the set is closed
+- Making a validation message clearer
+</Accordion>
+</Accordions>
+
+## What we owe you when a version changes
+
+1. A new path, `/docs/api/v1/v2`, with **v1 still published and still working**
+2. A migration page naming every behavioural difference, not a summary
+3. A deprecation notice on each v1 page pointing at its v2 equivalent
+4. A stated end date for v1, not "eventually"
+
+## The SDK versions separately
+
+[`@thepulseapi/sdk`](https://www.npmjs.com/package/@thepulseapi/sdk) follows
+[semver](https://semver.org) and tracks the API rather than mirroring it.
+
+<Callout type="warn" title="While the SDK is 0.x">
+  Pre-1.0, a **minor** version may contain a breaking change. That is what 0.x means in semver,
+  and it is worth pinning an exact version until 1.0.
+</Callout>
+
+The CDN build is versioned the same way, with an immutable path per release and a floating major:
+
+```
+https://cdn.thepulseapi.com/sdk/v0.1.5/pulse.iife.js   exact, never changes
+https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js       patches arrive here
+```
