@@ -1,6 +1,6 @@
 {
   "title": "API reference",
-  "icon": "Terminal",
+  "icon": "Braces",
   "pages": [
     "versioning",
     "v1"

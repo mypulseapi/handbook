@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {
   ArrowRight,
   Boxes,
+  Braces,
   Brain,
   Eye,
   Feather,
@@ -9,9 +10,10 @@ import {
   Rocket,
   SearchX,
   ShieldCheck,
-  Terminal,
+  TriangleAlert,
 } from 'lucide-react';
 import { apiBaseUrl, npmPackage, siteUrl } from '@/lib/shared';
+import { jsonLdProps, siteLd } from '@/lib/structured-data';
 
 /**
  * The landing page is a router, not a pitch.
@@ -42,7 +44,7 @@ const PRIMARY = [
   },
   {
     href: '/docs/api/v1',
-    icon: Terminal,
+    icon: Braces,
     title: 'API reference',
     body: 'Every endpoint a publishable key can call.',
   },
@@ -56,13 +58,20 @@ const FACTS = [
 
 const SHORTCUTS = [
   { href: '/docs/api/v1', icon: KeyRound, label: 'Authentication' },
-  { href: '/docs/api/v1/errors', icon: Terminal, label: 'Error codes' },
+  { href: '/docs/api/v1/errors', icon: TriangleAlert, label: 'Error codes' },
   { href: '/docs/api/v1/exposure', icon: Eye, label: 'Exposure tracking' },
 ];
 
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col items-center px-4 py-16 sm:py-24">
+      <script
+        {...jsonLdProps(
+          siteLd(
+            'Developer documentation for the PULSE Decision API: SDK, framework guides and the HTTP reference.',
+          ),
+        )}
+      />
       <div className="w-full max-w-5xl">
         <p className="text-fd-muted-foreground mb-3 font-mono text-sm">{npmPackage}</p>
         <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
