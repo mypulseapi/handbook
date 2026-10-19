@@ -39,10 +39,10 @@ icon: Package
 
 ## Config
 
-<TypeTable
-  type={{
-    apiKey: { type: 'string', description: 'Publishable key, pk_live_...', required: true },
-    organizationId: { type: 'string', description: 'From the dashboard', required: true },
+<PropsTable
+  props={{
+    apiKey: { type: 'string', required: true, description: 'Publishable key, pk_live_...' },
+    organizationId: { type: 'string', required: true, description: 'From the dashboard' },
     endpoint: { type: 'string', default: 'https://api.thepulseapi.com', description: 'Override only for local development' },
     autoTrack: { type: 'boolean', default: 'true', description: 'Capture device, referrer and time on init()' },
     sessionTtlMs: { type: 'number', default: '1800000', description: 'Inactivity before a new session' },
