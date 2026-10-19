@@ -13,15 +13,20 @@ import { sidebarSlots } from '@/components/docs-sidebar';
  *
  * The sidebar slot is overridden to add an icon rail beside the collapsed sidebar. See
  * `components/docs-sidebar.tsx`.
+ *
+ * `{...baseOptions()}` has to spread FIRST. It carries its own `nav`, so spreading it last
+ * overwrote `mode: 'top'` with the bare nav and dropped the layout silently back to `auto`,
+ * where the wordmark lives in the sidebar column and disappears the moment the sidebar is
+ * collapsed. The header looked right enough that it went unnoticed through two releases.
  */
 export default function Layout({ children }: LayoutProps<'/docs'>) {
   return (
     <DocsLayout
+      {...baseOptions()}
       tree={source.getPageTree()}
       nav={{ ...baseOptions().nav, mode: 'top' }}
       sidebar={{ collapsible: true }}
       slots={{ sidebar: sidebarSlots }}
-      {...baseOptions()}
     >
       {children}
     </DocsLayout>
