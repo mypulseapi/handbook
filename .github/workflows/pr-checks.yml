@@ -3,7 +3,9 @@ name: Checks
 # Runs on every pull request (including from forks, read-only token) and on develop and main.
 # Markdown lint and Link check are required on develop and main; Source branch on main.
 on:
+  # edited: changing the base branch must re-run Source branch.
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [develop, main]
 
