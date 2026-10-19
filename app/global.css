@@ -2,6 +2,29 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
+/*
+ * PULSE brand, from reference/brand_guidelines.md in the main repo.
+ *
+ * `brand.primary` is #2563EB. Worth recording that three blues are in play and they do not
+ * agree: the guidelines say #2563EB, the wordmark samples at #4540F0 (indigo), and "Facebook
+ * blue" is #1877F2. The written guideline wins, because it is the one thing both the marketing
+ * site and this site can be checked against.
+ *
+ * Fumadocs expects oklch, and these are the hex values converted rather than eyeballed.
+ */
+:root {
+  --color-fd-primary: oklch(0.546 0.215 262.9); /* #2563EB */
+  --color-fd-ring: oklch(0.546 0.215 262.9);
+  --color-fd-accent-foreground: oklch(0.546 0.215 262.9);
+}
+
+.dark {
+  /* Lifted for contrast on dark surfaces; the same hue, not a different blue. */
+  --color-fd-primary: oklch(0.678 0.168 256.7);
+  --color-fd-ring: oklch(0.678 0.168 256.7);
+  --color-fd-accent-foreground: oklch(0.678 0.168 256.7);
+}
+
 html {
   scrollbar-gutter: stable;
 }

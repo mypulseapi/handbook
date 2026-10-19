@@ -1,1 +1,8 @@
-{ "title": "API reference", "icon": "Terminal", "pages": ["index", "track", "session", "ranking", "exposure", "errors"] }
+{
+  "title": "API reference",
+  "icon": "Terminal",
+  "pages": [
+    "versioning",
+    "v1"
+  ]
+}
