@@ -19,7 +19,7 @@ import { sidebarSlots } from '@/components/docs-sidebar';
  * where the wordmark lives in the sidebar column and disappears the moment the sidebar is
  * collapsed. The header looked right enough that it went unnoticed through two releases.
  */
-export default function Layout({ children }: LayoutProps<'/docs'>) {
+export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <DocsLayout
       {...baseOptions()}

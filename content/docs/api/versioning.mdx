@@ -8,14 +8,14 @@ icon: Milestone
 
 | | Versioned | Why |
 | --- | --- | --- |
-| **API reference** | **Yes**, `/docs/api/v1` | It is a contract. A request you wrote last year has to keep working, so the page describing it has to keep existing |
+| **API reference** | **Yes**, `/api/v1` | It is a contract. A request you wrote last year has to keep working, so the page describing it has to keep existing |
 | Guides, concepts, frameworks | No | They describe behaviour, not a contract. "How inference works" has no v1 and v2 |
 | SDK reference | No | The SDK follows the API. Where a method needs a minimum version, the page says so inline |
 
 The version in the docs URL matches the version in the request URL:
 
 ```bash
-https://api.thepulseapi.com/api/v1/track   →   /docs/api/v1/track
+https://api.thepulseapi.com/api/v1/track   →   /api/v1/track
 ```
 
 <Callout title="Only v1 exists">
@@ -48,7 +48,7 @@ differently.
 
 ## What we owe you when a version changes
 
-1. A new path, `/docs/api/v1/v2`, with **v1 still published and still working**
+1. A new path, `/api/v1/v2`, with **v1 still published and still working**
 2. A migration page naming every behavioural difference, not a summary
 3. A deprecation notice on each v1 page pointing at its v2 equivalent
 4. A stated end date for v1, not "eventually"

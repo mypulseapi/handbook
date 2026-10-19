@@ -1,6 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
-import { BookOpen, Globe, LayoutDashboard, Package } from 'lucide-react';
+import { Globe, LayoutDashboard, Package } from 'lucide-react';
 import { appName, dashboardUrl, gitConfig, npmPackage, siteUrl } from './shared';
 
 /**
@@ -41,7 +41,6 @@ export function baseOptions(): BaseLayoutProps {
     },
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
     links: [
-      { icon: <BookOpen />, text: 'Docs', url: '/docs', active: 'nested-url' },
       { icon: <Package />, text: 'npm', url: `https://www.npmjs.com/package/${npmPackage}`, external: true },
       { icon: <LayoutDashboard />, text: 'Dashboard', url: dashboardUrl, external: true },
       { icon: <Globe />, text: 'thepulseapi.com', url: siteUrl, external: true },
