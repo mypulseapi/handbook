@@ -38,7 +38,12 @@ extending them, which silently removes the structured-data extractor and breaks 
 
 ## Deployment
 
-Pushing to `main` builds and publishes via `.github/workflows/nextjs.yml`.
+Pushing to `main` builds and publishes via `.github/workflows/nextjs.yml`, to
+**<https://developer.thepulseapi.com>**.
+
+`public/CNAME` is what claims that domain on each deploy. GitHub Actions deployments do not
+remember a custom domain set only in the repository settings, so removing that file would send
+the site back to `mypulseapi.github.io/handbook` on the next push.
 
 The workflow was adapted from GitHub's Next.js starter, which detects only yarn and npm and falls
 back to `npm ci`. This repo uses pnpm, so pnpm is installed explicitly before `setup-node`,

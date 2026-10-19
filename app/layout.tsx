@@ -9,7 +9,7 @@ import type { Metadata } from 'next';
  * someone posts one.
  */
 export const metadata: Metadata = {
-  metadataBase: new URL('https://mypulseapi.github.io/handbook'),
+  metadataBase: new URL('https://developer.thepulseapi.com'),
   title: { default: 'PULSE Developers', template: '%s - PULSE Developers' },
   description: 'Build with the PULSE Decision API: real-time persona inference for e-commerce.',
 };
