@@ -1,0 +1,83 @@
+---
+title: C# and .NET
+description: A typed HttpClient, registered once, injected where it is needed.
+icon: Hash
+---
+
+No package to install. `HttpClient` and `System.Text.Json` are in the framework.
+
+## A typed client
+
+```csharp title="PulseClient.cs"
+using System.Net.Http.Json;
+
+public sealed record Signal(string Type, string Value);
+
+public sealed class PulseClient(HttpClient http, string organizationId)
+{
+    public Task<JsonElement> TrackAsync(string sessionId, IEnumerable<Signal> signals) =>
+        PostAsync("track", new
+        {
+            sessionId,
+            organizationId,
+            signals = signals.Select(s => new { type = s.Type, value = s.Value }),
+        });
+
+    public Task<JsonElement> RankedCatalogAsync(string sessionId, int limit = 24) =>
+        PostAsync("catalog/ranked", new { sessionId, organizationId, limit });
+
+    public Task<JsonElement> SessionAsync(string sessionId) =>
+        PostAsync("session", new { sessionId });
+
+    private async Task<JsonElement> PostAsync(string path, object body)
+    {
+        var response = await http.PostAsJsonAsync(path, body);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<JsonElement>();
+    }
+}
+```
+
+## Registration
+
+```csharp title="Program.cs"
+builder.Services.AddHttpClient<PulseClient>(client =>
+{
+    // The trailing slash matters. Without it, a relative path replaces the last segment
+    // and every request goes to https://api.thepulseapi.com/api/track instead.
+    client.BaseAddress = new Uri("https://api.thepulseapi.com/api/v1/");
+    client.DefaultRequestHeaders.Add("x-api-key", builder.Configuration["Pulse:ApiKey"]);
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+```
+
+`AddHttpClient` is what you want rather than `new HttpClient()`: it pools handlers and rotates
+them, which is the difference between reusing connections and exhausting sockets under load.
+
+```csharp
+public class CatalogController(PulseClient pulse) : Controller
+{
+    public async Task<IActionResult> Category(string slug)
+    {
+        var sessionId = Request.Cookies["pulse_session"];
+        if (sessionId is null) return View(DefaultOrder(slug));
+
+        try
+        {
+            var ranked = await pulse.RankedCatalogAsync(sessionId);
+            return View(ranked);
+        }
+        catch (HttpRequestException)
+        {
+            // Ranking is an enhancement, never a reason to fail the page.
+            return View(DefaultOrder(slug));
+        }
+    }
+}
+```
+
+<Callout title="Property names">
+  `System.Text.Json` serialises anonymous object members verbatim, so `sessionId` stays
+  `sessionId`. If you swap in a named class with PascalCase properties, set
+  `JsonNamingPolicy.CamelCase` or the API will reject the body as missing its required fields.
+</Callout>

@@ -12,6 +12,7 @@ curl -X POST "https://api.thepulseapi.com/api/v1/track" \
   -H "x-api-key: pk_live_..." \
   -d '{
     "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
     "signals": [
       { "type": "category_view", "value": "helmets-safety" },
       { "type": "price_filter", "value": "500000-1500000" }
@@ -32,6 +33,51 @@ await pulse.track([
   Signals are additive. Send them as they happen rather than batching a whole session at the end:
   persona scores decay, so ordering carries meaning.
 </Callout>
+
+<Callout type="warn" title="organizationId is required">
+  Every endpoint below reads it from the body, not from the API key. Omitting it returns `400`
+  with a validation error naming the field. The SDK sends it for you from `init()`.
+</Callout>
+
+`/track` also captures device, referrer and time from the request itself, so a call with no
+`signals` at all is still worth making: it opens the session with what the request already says.
+
+## `POST /track/behavior`
+
+One behaviour, named, when you have nothing to say about a category or a price.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/track/behavior" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "behavior": "sort_price_asc",
+    "metadata": { "page": "category" }
+  }'
+```
+
+`behavior` is your own slug, capped at 128 characters. Sorting by price ascending says something
+about a shopper that no category view does.
+
+## `POST /track/keywords`
+
+A search query, turned into keyword signals for you.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/track/keywords" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "query": "mu bao hiem fullface"
+  }'
+```
+
+Send the raw query. Extraction happens server-side, and the query is capped at 512 characters
+because the work is linear in its length.
 
 ## `POST /event`
 

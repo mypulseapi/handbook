@@ -1,0 +1,97 @@
+---
+title: Magento 2
+description: Layout XML and a template block, which is how Magento adds a script.
+icon: Boxes
+---
+
+<Callout type="warn" title="Not on the Marketplace">
+  No PULSE extension exists. This is a small module you add yourself, in the shape Magento
+  expects.
+</Callout>
+
+Magento does not take a pasted script tag. Markup belongs to a template, templates are attached
+by layout XML, and both live in a module. That is three files before anything runs, which is the
+platform rather than PULSE.
+
+## The module
+
+```php title="app/code/Pulse/Tracking/registration.php"
+<?php
+\Magento\Framework\Component\ComponentRegistrar::register(
+    \Magento\Framework\Component\ComponentRegistrar::MODULE,
+    'Pulse_Tracking',
+    __DIR__
+);
+```
+
+```xml title="app/code/Pulse/Tracking/etc/module.xml"
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Pulse_Tracking" setup_version="1.0.0"/>
+</config>
+```
+
+## Loading the SDK
+
+`default.xml` applies to every page, which is what you want for `init`.
+
+```xml title="app/code/Pulse/Tracking/view/frontend/layout/default.xml"
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js" src_type="url" async="true"/>
+    </head>
+    <body>
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="pulse.init"
+                   template="Pulse_Tracking::init.phtml"/>
+        </referenceContainer>
+    </body>
+</page>
+```
+
+`src_type="url"` is load bearing. Without it Magento treats the path as a local static asset and
+tries to resolve it inside `pub/static`, where it does not exist.
+
+```php title="app/code/Pulse/Tracking/view/frontend/templates/init.phtml"
+<script>
+    window.addEventListener('load', function () {
+        Pulse.init({
+            apiKey: <?= $block->escapeJs($block->getPulseApiKey()) ?>,
+            organizationId: <?= $block->escapeJs($block->getPulseOrgId()) ?>
+        });
+    });
+</script>
+```
+
+## Page signals
+
+Category and product pages each get their own layout handle, so each can attach its own block
+without any conditional logic.
+
+```xml title="view/frontend/layout/catalog_category_view.xml"
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="before.body.end">
+            <block class="Pulse\Tracking\Block\Category"
+                   name="pulse.category"
+                   template="Pulse_Tracking::category.phtml"/>
+        </referenceContainer>
+    </body>
+</page>
+```
+
+The equivalent file for products is `catalog_product_view.xml`. Each template sends one `track`
+call built from the registry object its block resolves.
+
+<Callout title="Keys belong in system configuration">
+  Hard-coding them in a template means a deployment to change a key. A `system.xml` field read
+  through `ScopeConfigInterface` puts them in the admin, which is also where a store operator
+  expects to find them.
+</Callout>

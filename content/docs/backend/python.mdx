@@ -1,0 +1,130 @@
+---
+title: Python
+description: requests or httpx, plus where the call belongs in Django and FastAPI.
+icon: Feather
+---
+
+<InstallTabs pkg="httpx" />
+
+Or `requests`, if it is already in the project. Both work; `httpx` is here because it gives you
+the async client FastAPI wants without a second dependency.
+
+## A client
+
+```python title="pulse.py"
+import os
+import httpx
+
+BASE = "https://api.thepulseapi.com/api/v1"
+
+
+class Pulse:
+    """Thin wrapper over the HTTP API. Every call is POST and returns JSON."""
+
+    def __init__(self, api_key: str, organization_id: str, timeout: float = 5.0):
+        self._org = organization_id
+        self._client = httpx.Client(
+            base_url=BASE,
+            timeout=timeout,
+            headers={"x-api-key": api_key, "Content-Type": "application/json"},
+        )
+
+    def _post(self, path: str, body: dict) -> dict:
+        # organizationId is required on nearly every endpoint and is read from the body,
+        # not from the key, so it is filled in here rather than at every call site.
+        response = self._client.post(path, json={"organizationId": self._org, **body})
+        response.raise_for_status()
+        return response.json()
+
+    def track(self, session_id: str, signals: list[dict]) -> dict:
+        return self._post("/track", {"sessionId": session_id, "signals": signals})
+
+    def session(self, session_id: str) -> dict:
+        # /session takes only sessionId. Sending organizationId is harmless.
+        return self._post("/session", {"sessionId": session_id})
+
+    def ranked_catalog(self, session_id: str, limit: int = 24, **kwargs) -> dict:
+        return self._post(
+            "/catalog/ranked", {"sessionId": session_id, "limit": limit, **kwargs}
+        )
+
+
+pulse = Pulse(os.environ["PULSE_API_KEY"], os.environ["PULSE_ORG_ID"])
+```
+
+```python
+pulse.track("sess_abc123", [{"type": "category_view", "value": "helmets-safety"}])
+ranked = pulse.ranked_catalog("sess_abc123", limit=24)
+```
+
+## Django
+
+Build the client once at module level, not per request. `httpx.Client` keeps a connection pool
+and creating one per view throws that away.
+
+```python title="catalog/views.py"
+from django.shortcuts import render
+from .pulse import pulse
+
+
+def category(request, slug):
+    # The browser owns the session. Read it rather than minting a second one for the
+    # same shopper: two session ids means the inference starts from nothing twice.
+    session_id = request.COOKIES.get("pulse_session")
+    products = []
+
+    if session_id:
+        try:
+            products = pulse.ranked_catalog(session_id, limit=24, categorySlug=slug)["items"]
+        except Exception:
+            # Ranking is an enhancement. A page that fails to render because personalisation
+            # was slow is worse than a page in catalogue order.
+            products = []
+
+    return render(request, "category.html", {"products": products or default_order(slug)})
+```
+
+## FastAPI
+
+Use the async client, and hold it on the app so it is created once and closed on shutdown.
+
+```python title="main.py"
+import os
+from contextlib import asynccontextmanager
+
+import httpx
+from fastapi import FastAPI
+
+BASE = "https://api.thepulseapi.com/api/v1"
+ORG = os.environ["PULSE_ORG_ID"]
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.pulse = httpx.AsyncClient(
+        base_url=BASE,
+        timeout=5.0,
+        headers={"x-api-key": os.environ["PULSE_API_KEY"]},
+    )
+    yield
+    await app.state.pulse.aclose()
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.get("/ranked/{session_id}")
+async def ranked(session_id: str, limit: int = 24):
+    response = await app.state.pulse.post(
+        "/catalog/ranked",
+        json={"sessionId": session_id, "organizationId": ORG, "limit": limit},
+    )
+    response.raise_for_status()
+    return response.json()
+```
+
+<Callout type="warn" title="Give it a timeout">
+  Neither `requests` nor `httpx` has a default timeout in the shape most people expect. A
+  ranking call that hangs will hold a worker until something else gives up. Five seconds is
+  generous; the call is usually tens of milliseconds.
+</Callout>

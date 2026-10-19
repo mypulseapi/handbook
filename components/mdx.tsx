@@ -7,7 +7,7 @@ import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { PropsTable } from './props-table';
 import { Banner } from 'fumadocs-ui/components/banner';
 import { InstallTabs, RunTabs } from './install-tabs';
-import { Activity, Atom, Boxes, Braces, Brain, Feather, Leaf, Rocket, SearchX, Server, Shield, ShieldCheck, Timer, Zap } from 'lucide-react';
+import { Activity, Atom, Blocks, Boxes, Braces, Brain, ClipboardCheck, Feather, Hash, Leaf, Rocket, SearchX, Server, Shield, ShieldCheck, Timer, Zap } from 'lucide-react';
 import type { MDXComponents } from 'mdx/types';
 
 /**
@@ -34,9 +34,12 @@ export function getMDXComponents(components?: MDXComponents) {
     Activity,
     Atom,
     Boxes,
+    Blocks,
     Braces,
     Brain,
+    ClipboardCheck,
     Feather,
+    Hash,
     Leaf,
     Rocket,
     SearchX,

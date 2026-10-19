@@ -1,0 +1,75 @@
+---
+title: Audit a catalogue
+description: POST /catalog/audit and /catalog/verify, which grade catalogue data rather than rank it.
+icon: ClipboardCheck
+---
+
+The ranking endpoints answer "which products first". These two answer a different question:
+**can this catalogue answer the questions shoppers are asking of it at all.**
+
+Both take a CSV as a string in the body rather than a file upload. An audit is a pure function
+over text, so multipart would add a parser, a temporary file and a cleanup path for no gain at a
+size where a category export is tens of kilobytes.
+
+Neither call stores anything unless you ask it to.
+
+## `POST /catalog/audit`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "csv": "id,category,size,material\n1,helmet,L,abs\n2,helmet,,\n",
+    "source": "merchant",
+    "amortisationHorizon": 5000
+  }'
+```
+
+<PropsTable
+  props={{
+    csv: { type: 'string', required: true, description: 'Header row, then one row per product. Column one is the id; the rest are attributes. Capped at 2 MB, roughly 20,000 products with a dozen columns.' },
+    source: { type: "'merchant' | 'extracted' | 'enriched' | 'inferred'", default: 'merchant', description: 'Where the values came from, which decides how far they are trusted. A catalogue export is the merchant declaring what they stock. An enrichment run auditing its own output should say enriched and take the lower weight that earns.' },
+    amortisationHorizon: { type: 'number', description: 'How many sessions a recorded fact would serve before it goes stale. Supply it to get an action back.' },
+  }}
+/>
+
+<Callout title="Why the horizon is not guessed for you">
+  Without it the response carries no `action`. Comparing "ask the shopper" against "record the
+  fact once" needs to know how many shoppers the fact would serve, and picking a number on your
+  behalf would bury the assumption the whole comparison rests on.
+</Callout>
+
+## `POST /catalog/verify`
+
+The same request does two jobs. Send `before` and `after` on their own and it is a monitor: what
+changed between two exports, with nothing claimed. Add `repairs` and the same diff grades the
+claims.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/verify" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "before": "id,category,size\n1,helmet,\n",
+    "after":  "id,category,size\n1,helmet,L\n",
+    "repairs": [{ "attribute": "size", "method": "manual", "actualHours": 3 }],
+    "category": "Helmets"
+  }'
+```
+
+<PropsTable
+  props={{
+    before: { type: 'string', required: true, description: 'The catalogue before the work, in the same format as the audit.' },
+    after: { type: 'string', required: true, description: 'The catalogue after the work, re-exported.' },
+    repairs: { type: 'RepairClaim[]', description: 'What you claim was fixed. Each needs an attribute; method, estimatedHours and actualHours are optional. Omit the whole array and the call is a monitor instead.' },
+    source: { type: "'merchant' | 'extracted' | 'enriched' | 'inferred'", default: 'merchant', description: 'How far the new values are trusted.' },
+    organizationId: { type: 'string', description: 'Supply it and the result is kept. Omit it and the response says plainly that nothing was stored.' },
+    category: { type: 'string', description: 'Your own name for the shelf. Recorded as given; PULSE does not own your taxonomy.' },
+  }}
+/>
+
+<Callout title="There is no second endpoint for monitoring">
+  Monitor and verification are the same computation over the same diff. The only difference is
+  whether anything was claimed about it.
+</Callout>

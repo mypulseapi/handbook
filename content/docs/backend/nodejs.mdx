@@ -1,0 +1,59 @@
+---
+title: Node.js
+description: The SDK runs on the server too, and fetch is there if you would rather not install it.
+icon: Atom
+---
+
+`@thepulseapi/sdk` is isomorphic. The same package works in Node, so a server-rendered page can
+use the client it already knows.
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+```ts title="pulse.server.ts"
+import { PulseClient } from '@thepulseapi/sdk';
+
+// One client per process. It holds no per-shopper state: the session id is passed per call.
+export const pulse = new PulseClient();
+
+pulse.init({
+  apiKey: process.env.PULSE_API_KEY!,
+  organizationId: process.env.PULSE_ORG_ID!,
+  autoTrack: false, // there is no browser here to capture a device or a referrer from
+});
+```
+
+<Callout type="warn" title="Turn autoTrack off on a server">
+  It exists to capture device, referrer and time from the browser. On a server those describe
+  your datacentre, and sending them pollutes the session with signals about a machine nobody
+  shopped from.
+</Callout>
+
+## Without the package
+
+Node 18 and later ship `fetch`, so the whole integration is one function.
+
+```ts title="pulse.ts"
+const BASE = 'https://api.thepulseapi.com/api/v1';
+
+async function post<T>(path: string, body: Record<string, unknown>): Promise<T> {
+  const response = await fetch(`${BASE}${path}`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': process.env.PULSE_API_KEY!,
+    },
+    body: JSON.stringify({ organizationId: process.env.PULSE_ORG_ID, ...body }),
+    // fetch has no default timeout, and a hung ranking call should not hold a request.
+    signal: AbortSignal.timeout(5000),
+  });
+
+  if (!response.ok) throw new Error(`PULSE ${path}: ${response.status}`);
+  return response.json() as Promise<T>;
+}
+
+export const track = (sessionId: string, signals: unknown[]) =>
+  post('/track', { sessionId, signals });
+
+export const rankedCatalog = (sessionId: string, limit = 24) =>
+  post('/catalog/ranked', { sessionId, limit });
+```

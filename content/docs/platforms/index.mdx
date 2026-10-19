@@ -1,0 +1,45 @@
+---
+title: Overview
+description: What works on a hosted storefront today, and what is still a script tag rather than an app.
+icon: Blocks
+---
+
+<Callout type="warn" title="There is no PULSE app or plugin yet">
+  Not in the Shopify App Store, not on the WordPress plugin directory, not in the Magento
+  Marketplace. Anyone telling you otherwise is describing a plan. What exists today is the
+  script tag, and it works on all three.
+</Callout>
+
+That is less of a limitation than it sounds. PULSE needs three things from a storefront: the
+script, an `init` call with your keys, and signals describing what the shopper is looking at.
+Every platform here can supply all three from its own theme templates, which is also the only
+place that knows what page the shopper is on.
+
+<Cards>
+  <Card icon={<Boxes />} title="Shopify" href="/platforms/shopify" description="theme.liquid, with signals from Liquid objects." />
+  <Card icon={<Boxes />} title="WordPress and WooCommerce" href="/platforms/wordpress" description="wp_enqueue_script, with signals from the WooCommerce conditionals." />
+  <Card icon={<Boxes />} title="Magento 2" href="/platforms/magento" description="Layout XML and a template block." />
+</Cards>
+
+## What an app would add
+
+Worth being precise about what you give up by pasting a script instead:
+
+| | Script tag, today | An app or plugin |
+| --- | --- | --- |
+| Install | Paste into a theme file | One click, no theme edit |
+| Keys | Typed into the theme | Entered in an admin screen |
+| Survives a theme change | No | Yes |
+| Catalogue sync | You send products per request | Pushed and kept current |
+| Signals | You write them per template | Mapped for you |
+
+The first four rows are convenience. The fifth is where the difference actually lives, and it is
+also why a plugin is not just packaging: a good one knows what a "collection page" means on that
+platform and sends the right signal without being told.
+
+## Other platforms
+
+Anything that lets you add a script to a page can run the browser SDK, and anything that can
+make an HTTPS request can call the API directly. If your platform is not listed, the
+[Alpine guide](/frameworks/alpine) is the closest shape: a script tag and HTML attributes, no
+build step. For server-side work, see [Backend](/backend).
