@@ -1,0 +1,19 @@
+# Labels added to pull requests by the files they change.
+community:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "*.md"
+          - ".github/**"
+content:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "content/**"
+          - "docs/**"
+          - "**/*.mdx"
+site:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/**"
+          - "components/**"
+          - "package.json"
+          - "next.config.*"

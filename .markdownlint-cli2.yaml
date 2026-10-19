@@ -1,0 +1,8 @@
+config:
+  default: true
+  MD013: false   # line length: prose wraps naturally
+  MD033: false   # inline HTML is allowed in MDX-style pages
+  MD041: false   # templates and partials may not start with a heading
+ignores:
+  - "node_modules/**"
+  - ".github/pull_request_template.md"
