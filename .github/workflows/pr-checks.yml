@@ -29,8 +29,15 @@ jobs:
         with:
           # The PR template's relative link only resolves when GitHub renders it. GitHub answers
           # 429 to bursts from runners; that is a rate limit, not a broken link.
+          #
+          # npmjs.com is excluded because it answers 403 to any non-browser request, including a
+          # browser user agent from a runner. Checked 2026-10-19 against our own published
+          # package, which resolves fine on registry.npmjs.org. A 403 there means bot blocking,
+          # never a dead link, and without this the first PR touching README.md fails for a
+          # reason nobody would guess from the output.
           args: >-
             --no-progress --include-fragments --max-retries 3 --retry-wait-time 5
             --accept 200,429 --exclude-path .github/pull_request_template.md
+            --exclude '^https://(www\.)?npmjs\.com/'
             "**/*.md"
           fail: true
