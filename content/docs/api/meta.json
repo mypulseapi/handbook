@@ -2,6 +2,7 @@
   "title": "API reference",
   "icon": "Braces",
   "pages": [
+    "index",
     "versioning",
     "v1"
   ]

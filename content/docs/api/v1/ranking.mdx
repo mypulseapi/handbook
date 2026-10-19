@@ -12,7 +12,11 @@ Ranks the catalogue already synced to PULSE.
 curl -X POST "https://api.thepulseapi.com/api/v1/catalog/ranked" \
   -H "Content-Type: application/json" \
   -H "x-api-key: pk_live_..." \
-  -d '{ "sessionId": "sess_abc123", "limit": 24 }'
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "limit": 24
+  }'
 ```
 
 ```ts

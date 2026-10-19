@@ -1,0 +1,120 @@
+---
+title: WordPress and WooCommerce
+description: wp_enqueue_script in a small plugin, with signals from the WooCommerce conditionals.
+icon: Boxes
+---
+
+<Callout type="warn" title="Not on the plugin directory">
+  There is no PULSE plugin to install. What follows is a short one you write yourself, which is
+  perhaps twenty lines and does not need to be anything more.
+</Callout>
+
+## Write it as a plugin, not a theme edit
+
+Put it in `wp-content/plugins/pulse-tracking/pulse-tracking.php`. A theme edit disappears the
+next time the theme updates; a plugin does not, and a child theme is more work than this.
+
+```php title="wp-content/plugins/pulse-tracking/pulse-tracking.php"
+<?php
+/**
+ * Plugin Name: PULSE tracking
+ * Description: Loads the PULSE SDK and sends signals from WooCommerce templates.
+ * Version: 1.0.0
+ */
+
+defined('ABSPATH') || exit;
+
+add_action('wp_enqueue_scripts', function () {
+    wp_enqueue_script(
+        'pulse-sdk',
+        'https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js',
+        [],
+        null,   // the CDN path is already versioned; a ?ver= query would only break caching
+        true    // in the footer, so it never blocks the first paint
+    );
+
+    // wp_add_inline_script with 'after' guarantees this runs once the SDK has loaded,
+    // which is what makes the global `Pulse` safe to touch here.
+    wp_add_inline_script('pulse-sdk', sprintf(
+        'Pulse.init({ apiKey: %s, organizationId: %s });',
+        wp_json_encode(PULSE_API_KEY),
+        wp_json_encode(PULSE_ORG_ID)
+    ), 'after');
+
+    $signals = pulse_signals_for_current_page();
+    if ($signals) {
+        wp_add_inline_script('pulse-sdk', 'Pulse.track(' . wp_json_encode($signals) . ');', 'after');
+    }
+});
+```
+
+Keys go in `wp-config.php`, not in the plugin file:
+
+```php title="wp-config.php"
+define('PULSE_API_KEY', 'pk_live_...');
+define('PULSE_ORG_ID', 'org_...');
+```
+
+## The signals
+
+WooCommerce already answers "what is this page" through its conditional tags. The whole mapping
+is one function.
+
+```php title="wp-content/plugins/pulse-tracking/pulse-tracking.php"
+function pulse_signals_for_current_page(): array
+{
+    if (!function_exists('is_product')) {
+        return [];   // WooCommerce is not active; nothing here applies
+    }
+
+    if (is_product()) {
+        $product = wc_get_product(get_the_ID());
+        if (!$product) {
+            return [];
+        }
+
+        $terms = get_the_terms($product->get_id(), 'product_cat');
+        $signals = [['type' => 'product_view', 'value' => (string) $product->get_id()]];
+
+        if (is_array($terms) && $terms) {
+            $signals[] = ['type' => 'category_view', 'value' => $terms[0]->slug];
+        }
+
+        return $signals;
+    }
+
+    if (is_product_category()) {
+        $term = get_queried_object();
+        return [['type' => 'category_view', 'value' => $term->slug]];
+    }
+
+    if (is_search()) {
+        return [['type' => 'search', 'value' => get_search_query()]];
+    }
+
+    return [];
+}
+```
+
+<Callout title="wp_json_encode, every time">
+  It is WordPress's `json_encode` with the flags already set for embedding in HTML. Building the
+  JavaScript by string concatenation breaks on the first product category with a quote in its
+  name, and only for that category.
+</Callout>
+
+## Outcomes
+
+```php
+add_action('woocommerce_add_to_cart', function ($cart_item_key, $product_id) {
+    // Fires server-side, so this records the outcome where it actually happened
+    // rather than guessing from a click in the page.
+    wp_add_inline_script('pulse-sdk', sprintf(
+        'Pulse.event("add_to_cart", { productId: %s });',
+        wp_json_encode((string) $product_id)
+    ), 'after');
+}, 10, 2);
+```
+
+For a purchase, `woocommerce_thankyou` runs on the order received page and has the order, which
+is the right place to record revenue. Orders that complete off-site need the
+[server-side call](/backend/php) instead.

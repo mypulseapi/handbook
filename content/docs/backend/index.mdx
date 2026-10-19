@@ -1,0 +1,58 @@
+---
+title: Overview
+description: PULSE from a server, in any language that can send JSON over HTTPS.
+icon: Server
+---
+
+There is no PULSE library for your backend language, and you do not need one. Every endpoint is
+`POST`, every body is JSON, and authentication is one header.
+
+```
+POST https://api.thepulseapi.com/api/v1/<endpoint>
+Content-Type: application/json
+x-api-key: pk_live_...
+```
+
+That is the whole integration surface. The guides in this section are the same three calls
+written idiomatically per language, so you can copy one and delete the rest.
+
+## Which calls belong on a server
+
+Most of PULSE is designed for the browser, where the SDK already handles sessions, batching and
+exposure buffering. Reach for the HTTP API directly when the work is genuinely server-side:
+
+<Cards>
+  <Card icon={<Server />} title="Server-rendered pages" description="Ranking a grid during SSR, where there is no browser yet to hold a session." />
+  <Card icon={<ClipboardCheck />} title="Catalogue audits" description="A scheduled job grading an export. Nothing about it belongs in a page." />
+  <Card icon={<Activity />} title="Backfills and pipelines" description="Replaying events you already collected, or recording outcomes your payment webhook knows about and the browser does not." />
+</Cards>
+
+## One thing to get right first
+
+`sessionId` and `organizationId` are required on nearly every call, and both come from the body
+rather than from the API key. A request without them returns `400` with the field named. See
+[Send signals](/api/v1/track).
+
+A session is yours to name. It is a string you generate, up to 128 characters, and the only rule
+is that the same shopper keeps the same one. If the browser is already running the SDK, read it
+with `pulse.getSessionId()` and pass it to your server rather than inventing a second session for
+the same person.
+
+<Callout type="warn" title="There is one kind of key">
+  Keys are `pk_live_`, publishable, and the same key works from a browser and from a server.
+  There is no separate secret key today, which means a key leaked from your server is no worse
+  and no better than one read out of your page source. Scope and rotate accordingly.
+</Callout>
+
+## The languages
+
+<Cards>
+  <Card icon={<Feather />} title="Python" href="/backend/python" description="requests or httpx, with Django and FastAPI notes." />
+  <Card icon={<Hash />} title="C# and .NET" href="/backend/csharp" description="HttpClient, typed, with the DI registration." />
+  <Card icon={<Zap />} title="Go" href="/backend/go" description="net/http and encoding/json. No dependencies." />
+  <Card icon={<Shield />} title="Rust" href="/backend/rust" description="reqwest and serde." />
+  <Card icon={<Server />} title="Java" href="/backend/java" description="java.net.http, built in since 11." />
+  <Card icon={<Leaf />} title="Ruby" href="/backend/ruby" description="net/http from the standard library." />
+  <Card icon={<Boxes />} title="PHP" href="/backend/php" description="cURL, and Guzzle for Laravel." />
+  <Card icon={<Atom />} title="Node.js" href="/backend/nodejs" description="The SDK runs server-side too." />
+</Cards>

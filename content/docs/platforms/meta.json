@@ -1,0 +1,10 @@
+{
+  "title": "Platforms",
+  "icon": "Blocks",
+  "pages": [
+    "index",
+    "shopify",
+    "wordpress",
+    "magento"
+  ]
+}

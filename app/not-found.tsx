@@ -29,13 +29,13 @@ export default function NotFound() {
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link
-          href="/docs"
+          href="/"
           className="bg-fd-primary text-fd-primary-foreground inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
         >
           <ArrowLeft className="size-4" /> Documentation
         </Link>
         <Link
-          href="/docs/api/v1"
+          href="/api/v1"
           className="border-fd-border hover:bg-fd-accent inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium transition-colors"
         >
           <Search className="size-4" /> API reference
