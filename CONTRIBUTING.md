@@ -22,7 +22,7 @@ Both are protected and both require a review from
 
 ## Making a change
 
-1. Create a branch **from `develop`** (`fix/typo-onboarding`, `topic/release-process`).
+1. Create a branch **from `develop`** (`fix/typo-onboarding`, `topic/release-process`). `main` is the default branch, so when you fork, untick **Copy the `main` branch only**, and pick `develop` as the base when you open the pull request.
 2. Make the change. Keep a pull request to one topic.
 3. Open a pull request **against `develop`** and fill in the template. Link the issue it resolves (`Closes #12`).
 4. The checks run on your pull request: Markdown lint and a link check. A maintainer approves the first run for new contributors.
