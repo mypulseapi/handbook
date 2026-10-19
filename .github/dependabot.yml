@@ -3,6 +3,8 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
+    # main is the default branch, but changes land on develop first.
+    target-branch: develop
     schedule:
       interval: weekly
     groups:
