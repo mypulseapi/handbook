@@ -36,7 +36,7 @@ merge their own pull requests once the checks pass. A review is welcome but not 
 Publishing is a separate, deliberate step, so that merging a typo fix does not deploy on its own.
 
 1. A maintainer opens a pull request from **`develop` into `main`**. That pull request *is* the release. It is merged with a merge commit, not squashed, so the two branches stay in sync. A pull request into `main` from any other branch fails the **Source branch** check.
-2. Once it is merged, `.github/workflows/nextjs.yml` builds the site and publishes it to `developer.thepulseapi.com`.
+2. The pull request builds the site (**Build site**). If the build and every other required check pass, the workflow merges it and publishes the site to `developer.thepulseapi.com`. If anything fails, it comments on the pull request and stops: nothing is merged or deployed.
 
 Nothing else deploys. A push to `develop` changes no live page.
 
