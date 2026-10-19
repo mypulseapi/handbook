@@ -1,21 +1,33 @@
 name: Checks
 
-# Runs on every pull request (including from forks, read-only token) and on main.
-# These two jobs are the required status checks on main.
+# Runs on every pull request (including from forks, read-only token) and on develop and main.
+# Markdown lint and Link check are required on develop and main; Source branch on main.
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [develop, main]
 
 permissions:
   contents: read
 
-# A new push to a pull request cancels its older run; runs on main always finish.
+# A new push to a pull request cancels its older run; runs on develop and main always finish.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  source:
+    name: Source branch
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Only develop may be merged into main
+        if: github.base_ref == 'main' && (github.head_ref != 'develop' || github.event.pull_request.head.repo.full_name != github.repository)
+        run: |
+          echo "::error::Pull requests into main must come from develop. Open this one against develop instead."
+          exit 1
+
   markdown:
     name: Markdown lint
     runs-on: ubuntu-24.04
