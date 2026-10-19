@@ -1,0 +1,36 @@
+name: Checks
+
+# Runs on every pull request (including from forks, read-only token) and on main.
+# These two jobs are the required status checks on main.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  markdown:
+    name: Markdown lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24.2.0
+        with:
+          globs: "**/*.md"
+
+  links:
+    name: Link check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          # The PR template's relative link only resolves when GitHub renders it. GitHub answers
+          # 429 to bursts from runners; that is a rate limit, not a broken link.
+          args: >-
+            --no-progress --include-fragments --max-retries 3 --retry-wait-time 5
+            --accept 200,429 --exclude-path .github/pull_request_template.md
+            "**/*.md"
+          fail: true

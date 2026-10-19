@@ -1,0 +1,45 @@
+name: Something is wrong or out of date
+description: A page says something incorrect, unclear or no longer true.
+title: "[Content]: "
+labels: ["content-fix", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping keep the handbook accurate. One problem per issue, please.
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Link to the page, or its path in the repository.
+      placeholder: https://mypulseapi.github.io/handbook/...
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What the page says now
+      description: Quote the sentence or section that is wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it should say
+      description: Your suggested correction, as precisely as you can.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Source or evidence
+      description: A link, document or explanation that backs the correction.
+    validations:
+      required: false
+  - type: checkboxes
+    id: pr
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd like to open a pull request with the fix myself.
+          required: false

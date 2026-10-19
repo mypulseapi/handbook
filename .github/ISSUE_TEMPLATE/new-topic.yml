@@ -1,0 +1,46 @@
+name: Suggest a new topic
+description: Something the handbook should cover but doesn't.
+title: "[Topic]: "
+labels: ["new-topic", "needs-triage"]
+body:
+  - type: input
+    id: topic
+    attributes:
+      label: Topic
+      description: A short name for the page or section.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it's needed
+      description: What question does it answer, or what goes wrong today without it?
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Who it's for
+      multiple: true
+      options:
+        - New team members
+        - Engineers
+        - Product and design
+        - Operations
+        - Everyone
+    validations:
+      required: true
+  - type: textarea
+    id: outline
+    attributes:
+      label: Suggested outline
+      description: Headings or bullet points, if you have them in mind.
+    validations:
+      required: false
+  - type: checkboxes
+    id: pr
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd like to write the first draft myself.
+          required: false

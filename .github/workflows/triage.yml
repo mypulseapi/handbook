@@ -1,0 +1,33 @@
+name: Triage
+
+# pull_request_target runs with the base repository's workflow and token, so it can
+# label pull requests from forks. It never checks out or runs the pull request's code.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  label:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0
+
+  welcome:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d # v3.1.0
+        with:
+          issue_message: |
+            Thanks for opening your first issue here. A maintainer will triage it soon.
+            If you'd like to fix it yourself, see [CONTRIBUTING.md](https://github.com/mypulseapi/handbook/blob/main/CONTRIBUTING.md).
+          pr_message: |
+            Thanks for your first pull request. A maintainer will approve the checks and review it soon.
+            The steps are in [CONTRIBUTING.md](https://github.com/mypulseapi/handbook/blob/main/CONTRIBUTING.md).

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://github.com/mypulseapi/handbook/discussions/categories/q-a
+    about: Questions about the handbook or how something works go to Discussions, not issues.
+  - name: Share an idea
+    url: https://github.com/mypulseapi/handbook/discussions/categories/ideas
+    about: Early ideas and open-ended proposals. Open an issue once there is something concrete to change.
+  - name: Report a security problem
+    url: https://github.com/mypulseapi/handbook/security/advisories/new
+    about: Please report security problems privately, never in a public issue.
