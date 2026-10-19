@@ -1,19 +1,39 @@
 name: Checks
 
-# Runs on every pull request (including from forks, read-only token) and on main.
-# These two jobs are the required status checks on main.
+# Runs on every pull request (including from forks, read-only token) and on develop and main.
+# Markdown lint and Link check are required on develop and main; Source branch on main.
 on:
+  # edited: changing the base branch must re-run Source branch.
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
-    branches: [main]
+    branches: [develop, main]
 
 permissions:
   contents: read
 
+# A new push to a pull request cancels its older run; runs on develop and main always finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  source:
+    name: Source branch
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Only develop may be merged into main
+        if: github.base_ref == 'main' && (github.head_ref != 'develop' || github.event.pull_request.head.repo.full_name != github.repository)
+        run: |
+          echo "::error::Pull requests into main must come from develop. Open this one against develop instead."
+          exit 1
+
   markdown:
     name: Markdown lint
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24.2.0
@@ -23,21 +43,16 @@ jobs:
   links:
     name: Link check
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
-          # The PR template's relative link only resolves when GitHub renders it. GitHub answers
-          # 429 to bursts from runners; that is a rate limit, not a broken link.
-          #
-          # npmjs.com is excluded because it answers 403 to any non-browser request, including a
-          # browser user agent from a runner. Checked 2026-10-19 against our own published
-          # package, which resolves fine on registry.npmjs.org. A 403 there means bot blocking,
-          # never a dead link, and without this the first PR touching README.md fails for a
-          # reason nobody would guess from the output.
+          # Links inside the repository only, so a pull request never fails because some
+          # other site is down. External links are checked weekly by link-report.yml.
+          # The PR template's relative link only resolves when GitHub renders it.
           args: >-
-            --no-progress --include-fragments --max-retries 3 --retry-wait-time 5
-            --accept 200,429 --exclude-path .github/pull_request_template.md
-            --exclude '^https://(www\.)?npmjs\.com/'
+            --no-progress --offline --include-fragments
+            --exclude-path .github/pull_request_template.md
             "**/*.md"
           fail: true
