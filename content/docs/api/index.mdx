@@ -1,0 +1,80 @@
+---
+title: What PULSE offers
+description: Every API sold as a product, which calls count toward usage, and where the SDK stops.
+icon: Braces
+---
+
+PULSE publishes **two separate interfaces**, and they are not the same size.
+
+<Cards>
+  <Card icon={<Braces />} title="The HTTP API" description="Twelve endpoints. One header. Callable from a browser, a server, a cron job or curl. This is the product." />
+  <Card icon={<Atom />} title="The browser SDK" description="A convenience layer over six of them, which also manages the session id, buffers exposures and captures device and referrer for you." />
+</Cards>
+
+<Callout type="warn" title="The SDK is a subset, not the whole product">
+  `@thepulseapi/sdk` has a method for six of the twelve endpoints. Everything else, including
+  the Decision Audit, is HTTP only. If you are evaluating what PULSE can do, read this page
+  rather than the [SDK reference](/sdk).
+</Callout>
+
+## The product surface
+
+Every row below is reachable with a publishable key and the `x-api-key` header. Nothing here
+needs a login.
+
+| Endpoint | What it is for | Counts toward usage | SDK method |
+| --- | --- | --- | --- |
+| `POST /track` | Signals in, personas out | Yes | `track()` |
+| `POST /track/behavior` | One named behaviour | Yes | none |
+| `POST /track/keywords` | A raw search query, extracted for you | Yes | none |
+| `POST /session` | The personas inferred so far | Yes | `getSession()` |
+| `POST /catalog/ranked` | Rank the catalogue PULSE holds | Yes | `rankedCatalog()` |
+| `POST /search` | Rank products you pass in | Yes | `search()` |
+| `POST /rerank` | Reorder a result set from your own engine | Yes | none |
+| `POST /suggest` | Query suggestions, scored on the session | **No** | none |
+| `POST /catalog/audit` | What a catalogue cannot answer | Yes | none |
+| `POST /catalog/verify` | What a repair actually changed | Yes | none |
+| `POST /event` | A named outcome | **No** | `event()` |
+| `POST /exposure` | What was actually rendered | **No** | `exposure()` |
+
+### Why three of them are free
+
+`/event` and `/exposure` are how you prove the ranking worked. Charging for measurement makes
+switching it off the rational move, which blinds the learning loop and destroys the value case
+in the same stroke.
+
+`/suggest` fires on every keystroke. Metering it like `/search` would bill per character typed,
+so someone spelling out a query would pay ten times for one search.
+
+<Callout title="Usage is grouped by the first path segment">
+  `/track` and `/track/behavior` are both billed as `track`, and `/catalog/ranked`,
+  `/catalog/audit` and `/catalog/verify` are all billed as `catalog`. Your invoice shows a line
+  per operation rather than one total, because `/search` costs real compute and `/session`
+  costs almost nothing.
+</Callout>
+
+## The four products, and the calls behind them
+
+<Cards>
+  <Card icon={<ClipboardCheck />} title="Decision Audit" href="/api/v1/audit" description="POST /catalog/audit. Which missing field to record first, ranked, in your own catalogue." />
+  <Card icon={<GitCompare />} title="Decision Verification" href="/api/v1/audit" description="POST /catalog/verify with repairs. Recompute after the work and see what moved." />
+  <Card icon={<BellRing />} title="Decision Monitor" href="/api/v1/audit" description="The same call without repairs. Catalogues decay; this is what notices." />
+  <Card icon={<Activity />} title="Decision API" href="/api/v1" description="track, session, ranked, search, rerank, suggest. The live runtime." />
+</Cards>
+
+Audit, Verification and Monitor are **one computation over a diff**. There is no third endpoint
+for Monitor because there is no third thing to compute: the only difference is whether anything
+was claimed about the change.
+
+## What is not on this page
+
+There is a second, much larger API behind a **JWT**, not an API key: organizations, users,
+roles, API keys, catalogue management, billing and subscriptions. That is the management plane
+the [merchant portal](https://app.thepulseapi.com) is built on. It is not metered, it is not
+sold as a product, and it is not documented here yet.
+
+<Callout type="warn" title="Treat anything undocumented as unsupported">
+  Routes exist that are not on this page. Some are internal, some are reachable only with a
+  login, and some resolve at the gateway and are not served downstream. If it is not written
+  down here, do not build on it.
+</Callout>

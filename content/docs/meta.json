@@ -1,4 +1,16 @@
 {
   "title": "Documentation",
-  "pages": ["index", "quickstart", "---Concepts---", "concepts", "---Build---", "frameworks", "---Reference---", "api", "sdk"]
+  "pages": [
+    "index",
+    "quickstart",
+    "---Concepts---",
+    "concepts",
+    "---Build---",
+    "frameworks",
+    "platforms",
+    "backend",
+    "---Reference---",
+    "api",
+    "sdk"
+  ]
 }

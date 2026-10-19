@@ -5,7 +5,14 @@ export const appName = 'PULSE Developers';
 /** Where this site is served from. Canonical URLs, the sitemap and JSON-LD all build on it. */
 export const siteOrigin = 'https://developer.thepulseapi.com';
 export const companyName = 'PULSE';
-export const docsRoute = '/docs';
+/**
+ * The documentation is the site, so it is served from the root.
+ *
+ * It lived under /docs until 2026-10-19. A developer portal whose every page sat one segment
+ * deeper than it needed to was spending that segment on a word every page on the site already
+ * implies.
+ */
+export const docsRoute = '/';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';
 

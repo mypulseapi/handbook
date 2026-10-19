@@ -1,0 +1,84 @@
+---
+title: Shopify
+description: One script tag in theme.liquid, and signals built from Liquid objects.
+icon: Boxes
+---
+
+<Callout type="warn" title="Not an App Store app">
+  This is a theme edit. It does not survive switching themes, and it puts your keys in a theme
+  file that anyone with theme access can read. Publishable keys are designed to be visible in
+  page source, so that is a housekeeping problem rather than a security one.
+</Callout>
+
+## 1. Add the script
+
+**Online Store → Themes → Edit code → `layout/theme.liquid`**, just before `</head>`:
+
+```liquid title="layout/theme.liquid"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js" async></script>
+<script>
+  window.addEventListener('load', function () {
+    Pulse.init({
+      apiKey: 'pk_live_...',
+      organizationId: 'org_...',
+    });
+  });
+</script>
+```
+
+The script tag exposes the client as the global `Pulse`. `async` means it may not have loaded
+when inline script runs, which is why `init` goes inside a `load` listener rather than being
+called immediately.
+
+## 2. Send signals from the templates
+
+Liquid already knows what the shopper is looking at. Each template sends what it knows.
+
+```liquid title="sections/main-collection-banner.liquid"
+<script>
+  window.addEventListener('load', function () {
+    Pulse.track([
+      { type: 'category_view', value: {{ collection.handle | json }} }
+    ]);
+  });
+</script>
+```
+
+```liquid title="sections/main-product.liquid"
+<script>
+  window.addEventListener('load', function () {
+    Pulse.track([
+      { type: 'product_view',  value: {{ product.id | json }} },
+      { type: 'category_view', value: {{ product.type | handleize | json }} },
+      { type: 'brand_view',    value: {{ product.vendor | handleize | json }} }
+    ]);
+  });
+</script>
+```
+
+<Callout title="Use the json filter, not quotes">
+  `{{ product.vendor | json }}` escapes the value properly. Wrapping it in your own quotes breaks
+  on the first vendor with an apostrophe in the name, and does it only for that vendor, which is
+  the kind of bug that reaches production.
+</Callout>
+
+## 3. Record outcomes
+
+Shopify fires its own events. Forward the ones that mean something.
+
+```liquid title="layout/theme.liquid"
+<script>
+  document.addEventListener('cart:item-added', function (event) {
+    Pulse.event('add_to_cart', { productId: event.detail?.id });
+  });
+</script>
+```
+
+The event name varies by theme: Dawn and its descendants publish `cart:item-added`, older themes
+publish their own. Check what your theme dispatches before trusting this one.
+
+## What is not covered
+
+Checkout. Shopify does not let a theme script run on checkout pages outside Plus, so purchase
+outcomes have to come from your server via a webhook, not from the browser. See
+[Backend](/backend) for the call to make when the webhook arrives.

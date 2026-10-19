@@ -12,13 +12,10 @@ import { siteOrigin } from '@/lib/shared';
 export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    { url: `${siteOrigin}/`, changeFrequency: 'weekly', priority: 1 },
-    ...source.getPages().map((page) => ({
-      url: `${siteOrigin}${page.url}`,
-      changeFrequency: 'weekly' as const,
-      // The entry points people land on from search rank above the pages they reach from there.
-      priority: ['/docs', '/docs/quickstart'].includes(page.url) ? 0.9 : 0.7,
-    })),
-  ];
+  return source.getPages().map((page) => ({
+    url: `${siteOrigin}${page.url}`,
+    changeFrequency: 'weekly' as const,
+    // The entry points people land on from search rank above the pages they reach from there.
+    priority: page.url === '/' ? 1 : page.url === '/quickstart' ? 0.9 : 0.7,
+  }));
 }
