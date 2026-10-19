@@ -1,6 +1,10 @@
 import { createGetUrl } from 'fumadocs-core/source';
 
 export const appName = 'PULSE Developers';
+
+/** Where this site is served from. Canonical URLs, the sitemap and JSON-LD all build on it. */
+export const siteOrigin = 'https://developer.thepulseapi.com';
+export const companyName = 'PULSE';
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';

@@ -33,3 +33,61 @@ html > body[data-scroll-locked] {
   margin-right: 0px !important;
   --removed-body-scroll-bar-size: 0px !important;
 }
+
+/*
+ * Pointer cursor on anything clickable.
+ *
+ * Tailwind v4 dropped the v3 Preflight rule that gave `button` and `[role="button"]` a pointer
+ * cursor, so every copy button, theme toggle and collapsible section in Fumadocs inherits the
+ * browser default arrow. Links already get it; the rest have to be asked. Unlayered on purpose:
+ * `@layer base` would lose to Fumadocs' own layered rules.
+ */
+button:not(:disabled):not([aria-disabled='true']),
+[role='button']:not([aria-disabled='true']),
+[role='tab'],
+[role='option'],
+summary,
+select,
+label[for] {
+  cursor: pointer;
+}
+
+/*
+ * Code blocks are dark in both themes.
+ *
+ * Shiki emits both palettes on every token as --shiki-light and --shiki-dark; Fumadocs picks one
+ * with `.dark`. Pointing light mode at the dark palette is enough for the tokens, and the rest of
+ * the figure (title bar, copy button, border) is Fumadocs' own colour tokens, redefined here so
+ * the chrome around the code follows it. Scoped to `figure.shiki`, which is the block: inline
+ * `code` inside a paragraph stays with the page theme, where it belongs.
+ */
+figure.shiki:not(.not-fumadocs-codeblock *) {
+  --color-fd-card: hsl(215, 14%, 16%);
+  --color-fd-foreground: hsl(210, 17%, 90%);
+  --color-fd-muted-foreground: hsl(213, 12%, 68%);
+  --color-fd-border: hsla(0, 0%, 100%, 12%);
+  --color-fd-accent: hsla(0, 0%, 100%, 8%);
+  --color-fd-accent-foreground: hsl(210, 17%, 96%);
+  --color-fd-ring: hsla(0, 0%, 100%, 40%);
+  --color-fd-secondary: hsla(0, 0%, 100%, 8%);
+  --color-fd-secondary-foreground: hsl(210, 17%, 90%);
+  --color-fd-muted: hsla(0, 0%, 100%, 6%);
+
+  code span {
+    color: var(--shiki-dark);
+    font-style: var(--shiki-dark-font-style);
+  }
+}
+
+/*
+ * Room for the icon rail when the sidebar is collapsed.
+ *
+ * `--fd-sidebar-col` is written inline by Fumadocs' container (0px when collapsed), so an
+ * inline style is the only thing there is to beat. Desktop only: below md the sidebar is a
+ * drawer and there is no rail to make room for.
+ */
+@media (min-width: 48rem) {
+  #nd-notebook-layout[data-sidebar-collapsed='true'] {
+    --fd-sidebar-col: 3.5rem !important;
+  }
+}
