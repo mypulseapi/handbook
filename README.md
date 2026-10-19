@@ -38,8 +38,9 @@ extending them, which silently removes the structured-data extractor and breaks 
 
 ## Deployment
 
-Pushing to `main` builds and publishes via `.github/workflows/nextjs.yml`, to
-**`developer.thepulseapi.com`**.
+Work lands on `develop` first. Merging **`develop` into `main`** is the release: that is what
+runs `.github/workflows/nextjs.yml` and publishes to **`developer.thepulseapi.com`**. A push to
+`develop` deploys nothing, which is the point. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 Written as code rather than a link on purpose: the link check runs on every PR, and a URL that
 only becomes valid after the first deploy would fail it. Make it a link once the site is live.
