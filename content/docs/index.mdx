@@ -1,0 +1,42 @@
+---
+title: Introduction
+description: Real-time persona inference for e-commerce. Send what a shopper does, rank your catalogue against who they are turning out to be.
+icon: Sparkles
+---
+
+PULSE infers from **behaviour, not identity**. There is no login to warm up, no purchase history to
+accumulate, and no cookie to match against a profile. A first-time anonymous visitor is ranked on
+the third click of their first session.
+
+<Callout title="What leaves the browser">
+  Signals and a session id. Not names, not emails, not payment data.
+</Callout>
+
+## Install
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+Or drop it on the page, which is what the storefront integrations use:
+
+```html title="index.html"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js" async></script>
+```
+
+The script tag exposes the client as the global `Pulse`, so `Pulse.init(...)` works directly.
+
+## Where to go next
+
+<Cards>
+  <Card icon={<Rocket />} title="Quick start" href="/docs/quickstart" description="Three endpoints and about ten lines." />
+  <Card icon={<Brain />} title="How inference works" href="/docs/concepts/how-it-works" description="Signals in, personas out, ranking against them." />
+  <Card icon={<Boxes />} title="Framework guides" href="/docs/frameworks" description="React, Next, Vue, Angular, Astro, Alpine, Laravel." />
+  <Card icon={<Terminal />} title="API reference" href="/docs/api" description="Every endpoint a publishable key can call." />
+</Cards>
+
+## The numbers that matter
+
+<Cards>
+  <Card icon={<Feather />} title="3.2 KB gzipped" description="The script-tag build, with zero runtime dependencies." />
+  <Card icon={<Timer />} title="One session" description="No history required. Ranking starts on the first visit." />
+  <Card icon={<ShieldCheck />} title="MIT licensed" description="The client is open. Read every line before you ship it." />
+</Cards>

@@ -1,0 +1,23 @@
+---
+title: Overview
+description: One core, no framework coupling. Three need an adapter pattern, three need nothing.
+icon: Boxes
+---
+
+The client is plain TypeScript with no runtime dependencies and no framework coupling. Every
+browser API it touches sits behind a `typeof` guard, so importing it during server rendering is
+safe. Only `init()` needs a browser.
+
+<Cards>
+  <Card icon={<Atom />} title="React and Next.js" href="/docs/frameworks/react" description="Provider and hooks. SSR-safe." />
+  <Card icon={<Leaf />} title="Vue and Nuxt" href="/docs/frameworks/vue" description="Plugin and provide/inject." />
+  <Card icon={<Shield />} title="Angular" href="/docs/frameworks/angular" description="An injectable service." />
+  <Card icon={<Rocket />} title="Astro" href="/docs/frameworks/astro" description="Islands or a script tag." />
+  <Card icon={<Zap />} title="Alpine" href="/docs/frameworks/alpine" description="The global, straight from HTML." />
+  <Card icon={<Server />} title="Laravel" href="/docs/frameworks/laravel" description="Blade partial, keys stay server-side." />
+</Cards>
+
+<Callout>
+  Astro, Alpine and Laravel need no adapter at all. Astro ships whichever island framework you
+  already use, and the other two are a script tag.
+</Callout>

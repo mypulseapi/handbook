@@ -1,0 +1,90 @@
+---
+title: Quick start
+description: From nothing to a ranked catalogue in about ten lines.
+icon: Rocket
+---
+
+<Steps>
+
+<Step>
+
+### Get your keys
+
+Sign in to the [dashboard](https://app.thepulseapi.com) and open **Integration → API keys**.
+Create a key, name it for where it will run, and copy it immediately.
+
+<Callout type="warn" title="Shown once">
+  The full key is returned only at creation. Only its hash is stored. If you lose it, revoke it
+  and create another.
+</Callout>
+
+Your **organization id** is on the same page. You need both.
+
+</Step>
+
+<Step>
+
+### Install
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+</Step>
+
+<Step>
+
+### Start a session
+
+```ts title="pulse.ts"
+import { PulseClient } from '@thepulseapi/sdk';
+
+export const pulse = new PulseClient();
+
+await pulse.init({
+  apiKey: 'pk_live_...',
+  organizationId: 'org_...',
+});
+```
+
+`init()` also captures device, referrer and time of day once per session, unless you pass
+`autoTrack: false`.
+
+</Step>
+
+<Step>
+
+### Send what the shopper did
+
+```ts
+await pulse.track([
+  { type: 'category_view', value: 'helmets-safety' },
+  { type: 'price_filter', value: '500000-1500000' },
+]);
+```
+
+</Step>
+
+<Step>
+
+### Rank your catalogue
+
+```ts
+const { results } = await pulse.search(products);
+
+results[0].scoreBreakdown; // why this one came first
+```
+
+Every result carries the signals that matched it, so you can show a shopper why, or show
+yourself why when it looks wrong.
+
+</Step>
+
+</Steps>
+
+## Without a bundler
+
+```html title="index.html"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js"></script>
+<script>
+  Pulse.init({ apiKey: 'pk_live_...', organizationId: 'org_...' });
+</script>
+```

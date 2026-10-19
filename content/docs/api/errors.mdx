@@ -1,0 +1,51 @@
+---
+title: Errors
+description: The real response shape, and what each code means.
+icon: TriangleAlert
+---
+
+Every error has the same envelope.
+
+```json title="401 Unauthorized"
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid or revoked API key"
+  },
+  "timestamp": "2026-10-19T08:27:01.722Z",
+  "path": "/api/v1/session",
+  "correlationId": "a4cc87c6bf160f30"
+}
+```
+
+<Callout title="correlationId is the useful field">
+  Quote it when you report a problem. It is how a single request is found in the logs, and it
+  turns "ranking looked wrong yesterday" into one lookup.
+</Callout>
+
+## Codes
+
+| Code | HTTP | What it usually means |
+| --- | --- | --- |
+| `BAD_REQUEST` | 400 | Malformed body, or an empty body with a JSON content type |
+| `UNAUTHORIZED` | 401 | Missing, wrong, or revoked key. Check the header is `x-api-key` |
+| `FORBIDDEN` | 403 | The key is valid but not for this organization's data |
+| `NOT_FOUND` | 404 | No such route. Check the `/api/v1` prefix |
+| `TOO_MANY_REQUESTS` | 429 | Rate limited at the gateway |
+| `SERVICE_UNAVAILABLE` | 503 | A downstream service is failing fast behind its circuit breaker |
+
+## Two that are worth knowing apart
+
+<Accordions>
+<Accordion title="401 on every request, including ones that worked yesterday">
+A revoked or expired key returns 401 exactly like a typo. Keys can be given an expiry at
+creation. Check the dashboard before debugging your code.
+</Accordion>
+
+<Accordion title="404 on a path that exists in the docs">
+The base URL includes the version: `https://api.thepulseapi.com/api/v1`. A request to
+`thepulseapi.com/v1/...` reaches the marketing site, not the API, and will not look like an
+API error at all.
+</Accordion>
+</Accordions>

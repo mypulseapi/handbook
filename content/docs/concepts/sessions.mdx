@@ -1,0 +1,31 @@
+---
+title: Sessions
+description: How long a session lives, what identifies it, and how to reset one.
+icon: Clock
+---
+
+A session is the unit everything attaches to. It is created by `init()` and held in browser
+storage.
+
+```ts
+pulse.getSessionId();  // 'sess_...'
+pulse.resetSession();  // start clean
+await pulse.getSession(); // current personas, server side
+```
+
+## Lifetime
+
+| | Default | |
+| --- | --- | --- |
+| `sessionTtlMs` | 30 minutes | Inactivity before a new session starts |
+
+## Watching the persona change
+
+```ts
+pulse.onPersona((update) => {
+  console.log(update.primary, update.confidence);
+});
+```
+
+Useful during integration: if personas never move, the signals are not arriving, and that is
+visible in two lines rather than in a ranking that looks vaguely wrong.
