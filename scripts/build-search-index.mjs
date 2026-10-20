@@ -20,6 +20,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(here, '..');
 const CONTENT = join(ROOT, 'content', 'docs');
 const OUT = join(ROOT, 'lib', 'assistant', 'search-index.json');
+/* Also published, so the MCP server can fetch the current index instead of bundling a stale one. */
+const PUBLIC_OUT = join(ROOT, 'public', 'search-index.json');
 
 export const MODEL = 'Xenova/all-MiniLM-L6-v2';
 
@@ -109,6 +111,8 @@ async function main() {
 
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify(index));
+  mkdirSync(dirname(PUBLIC_OUT), { recursive: true });
+  writeFileSync(PUBLIC_OUT, JSON.stringify(index));
   const kb = (Buffer.byteLength(JSON.stringify(index)) / 1024).toFixed(0);
   console.log(`wrote ${relative(ROOT, OUT)} — ${chunks.length} chunks, ${dims} dims, ${kb} KB`);
 }

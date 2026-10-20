@@ -1,0 +1,77 @@
+---
+title: MCP for agents
+description: Connect the PULSE documentation to Claude, Cursor or any MCP client, so an agent can search and read every page instead of guessing.
+icon: Terminal
+---
+
+Every page on this site is available to an agent over the Model Context Protocol. An assistant
+with this connected searches the documentation and quotes it, instead of recalling an endpoint
+that may not exist.
+
+## How do I connect it?
+
+<InstallTabs pkg="@thepulseapi/docs-mcp" />
+
+Or point your client at it directly, with no install:
+
+```json title="claude_desktop_config.json"
+{
+  "mcpServers": {
+    "pulse-docs": {
+      "command": "npx",
+      "args": ["-y", "@thepulseapi/docs-mcp"]
+    }
+  }
+}
+```
+
+The same block works in Claude Code (`.mcp.json`), Cursor and anything else that speaks MCP over
+stdio.
+
+<Callout title="It runs on your machine, not ours">
+  This site is a static export, so there is no server here to host an HTTP endpoint on. The
+  package runs wherever your agent runs and fetches the published documentation index, which
+  means nothing about your prompts or your code reaches us.
+</Callout>
+
+## What tools does it expose?
+
+| Tool | What it does |
+| --- | --- |
+| `search_docs` | Full-text search across every page. Returns the matching section, its URL and a score |
+| `get_page` | One page as Markdown, by path, such as `/quickstart` or `/api/v1/audit` |
+| `list_pages` | Every page with its title, for orienting before a search |
+
+All three take a `lang` of `en` or `vi`.
+
+## Why is the search lexical rather than semantic?
+
+The website embeds your question with a model it has already downloaded. Making an agent download
+one to ask a question is a poor trade, because the agent is itself a language model: it can read
+three candidate sections and decide which is right far better than a cosine can.
+
+It also matters that an agent asking about `/catalog/audit` wants the page containing that exact
+string, and lexical scoring is precise about that where an embedding blurs it.
+
+## What if I want it pointed somewhere else?
+
+Set `PULSE_DOCS_ORIGIN` to serve from a different origin, which is mostly useful when you are
+working on the documentation itself:
+
+```bash
+PULSE_DOCS_ORIGIN=http://localhost:3000 npx @thepulseapi/docs-mcp
+```
+
+## Can I just read the Markdown?
+
+Yes, and you do not need MCP for it.
+
+| | |
+| --- | --- |
+| [`/llms.txt`](/llms.txt) | Every page, titled and linked, in one file |
+| [`/llms-full.txt`](/llms-full.txt) | The whole documentation as one Markdown document |
+| `/llms.mdx/docs/<path>/content.md` | Any single page as Markdown |
+| [`/search-index.json`](/search-index.json) | The chunked corpus with its embeddings |
+
+Each page also carries a **Copy Markdown** button, which is the fastest route when you just want
+to paste one page into a conversation.
