@@ -14,6 +14,7 @@ import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { appName, getPageImageUrl, getPageMarkdownUrl, gitConfig } from '@/lib/shared';
 import { docPageLd, jsonLdProps } from '@/lib/structured-data';
 import { i18n, type Language } from '@/lib/i18n';
+import { PageHistory } from '@/components/page-history';
 
 /**
  * One document page, rendered for a given language.
@@ -54,6 +55,7 @@ export async function renderDocPage(lang: Language, slug: string[] | undefined) 
       </div>
       <DocsBody>
         <MDX components={getMDXComponents({ a: createRelativeLink(source, page) })} />
+        <PageHistory contentPath={page.path} lang={lang} />
       </DocsBody>
     </DocsPage>
   );

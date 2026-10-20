@@ -7,6 +7,7 @@ import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { PropsTable } from './props-table';
 import { Banner } from 'fumadocs-ui/components/banner';
 import { InstallTabs, RunTabs } from './install-tabs';
+import { DocsChangelog } from './docs-changelog';
 import { Activity, Atom, BellRing, Blocks, Boxes, Braces, Brain, ClipboardCheck, Feather, GitCompare, Hash, Leaf, Rocket, SearchX, Server, Shield, ShieldCheck, Timer, Zap } from 'lucide-react';
 import type { MDXComponents } from 'mdx/types';
 
@@ -30,6 +31,7 @@ export function getMDXComponents(components?: MDXComponents) {
     Banner,
     InstallTabs,
     RunTabs,
+    DocsChangelog,
     // Icons used inline in MDX. Registered by name so a typo fails the build.
     Activity,
     Atom,
