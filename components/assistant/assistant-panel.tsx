@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { usePathname } from 'next/navigation';
 import { ArrowUp, Bot, RotateCcw, Sparkles, X } from 'lucide-react';
 import { useAssistant, type Message } from './use-assistant';
 import {
@@ -71,31 +72,98 @@ function stable(text: string): string {
   return text;
 }
 
-/** Markdown, only the subset the composed answers actually use. */
-function Rendered({ text, streaming = false }: { text: string; streaming?: boolean }) {
-  const html = (streaming ? stable(text) : text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code class="rounded bg-fd-muted px-1 py-0.5 text-[0.85em]">$1</code>')
-    .replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" class="text-fd-primary underline underline-offset-4">$1</a>',
-    )
-    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
-    /*
-     * Bare URLs become links. The chunks now carry their targets as `label (https://...)`, which
-     * is right for an agent reading plain text and wrong for a person looking at a chat bubble
-     * that they cannot click. Run after the markdown link pass so an href is not linked twice.
-     */
-    .replace(
-      /(^|[\s(])(https?:\/\/[^\s<)]+)/g,
-      '$1<a href="$2" class="text-fd-primary underline underline-offset-4">$2</a>',
-    )
-    .replace(/\n{2,}/g, '<br/><br/>')
-    .replace(/\n/g, '<br/>');
+/**
+ * Inline formatting for one line: bold, code, links, bare URLs.
+ *
+ * Kept separate from the block pass because the two cannot be done in one sweep. The old version
+ * tried, by replacing every newline with `<br/>`, which put a stray break after every list item
+ * and left the `<li>` elements with no `<ul>` around them. The result had the right words and
+ * visibly wrong spacing.
+ */
+function inline(text: string): string {
+  return (
+    text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(
+        /`([^`]+)`/g,
+        '<code class="bg-fd-muted rounded px-1 py-0.5 text-[0.85em]">$1</code>',
+      )
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" class="text-fd-primary underline underline-offset-2">$1</a>',
+      )
+      /*
+       * Bare URLs become links. The chunks carry their targets as `label (https://...)`, which is
+       * right for an agent reading plain text and unusable in a bubble nobody can click. Runs
+       * after the markdown pass so an href is not linked twice, and the label is the host and
+       * path rather than the whole string, because a full URL on its own line is what was
+       * pushing the parenthesis onto a line of its own.
+       */
+      .replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, (_m, lead: string, url: string) => {
+        const shown = url.replace(/^https?:\/\//, '');
+        return `${lead}<a href="${url}" class="text-fd-primary underline underline-offset-2 break-all">${shown}</a>`;
+      })
+  );
+}
 
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+/**
+ * Markdown, only the subset the composed answers use, parsed as blocks.
+ *
+ * Blocks rather than a string of `<br/>`: a list is a `<ul>` with its own spacing, a paragraph
+ * is a `<p>`, and the gaps come from CSS instead of from stray line breaks.
+ */
+function Rendered({ text, streaming = false }: { text: string; streaming?: boolean }) {
+  const source = streaming ? stable(text) : text;
+  const out: string[] = [];
+  let list: string[] = [];
+  let para: string[] = [];
+
+  const flushList = () => {
+    if (list.length === 0) return;
+    out.push(
+      `<ul class="my-2 space-y-1 pl-4">${list
+        .map((i) => `<li class="list-disc leading-snug">${i}</li>`)
+        .join('')}</ul>`,
+    );
+    list = [];
+  };
+
+  const flushPara = () => {
+    if (para.length === 0) return;
+    // A lone bold line is a label for whatever follows it ("Related pages"), so it keeps its
+    // top margin and drops the bottom one rather than floating between two blocks.
+    const only = para.length === 1 ? para[0] ?? '' : '';
+    const isLabel = /^<strong>[^<]*<\/strong>$/.test(only);
+    const cls = isLabel ? 'mt-3 mb-1 first:mt-0' : 'my-2 first:mt-0 last:mb-0';
+    out.push(`<p class="${cls}">${para.join(' ')}</p>`);
+    para = [];
+  };
+
+  for (const raw of source.split('\n')) {
+    const line = raw.trim();
+
+    if (line.length === 0) {
+      flushPara();
+      flushList();
+      continue;
+    }
+
+    const item = /^[-*]\s+(.*)$/.exec(line);
+    if (item) {
+      flushPara();
+      list.push(inline(item[1] ?? ''));
+      continue;
+    }
+
+    flushList();
+    para.push(inline(line));
+  }
+  flushPara();
+  flushList();
+
+  return <div dangerouslySetInnerHTML={{ __html: out.join('') }} />;
 }
 
 function Bubble({ message, lang }: { message: Message; lang: 'en' | 'vi' }) {
@@ -107,7 +175,7 @@ function Bubble({ message, lang }: { message: Message; lang: 'en' | 'vi' }) {
         className={
           mine
             ? 'bg-fd-primary max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm text-white'
-            : 'bg-fd-card border-fd-border max-w-[92%] rounded-2xl rounded-bl-md border px-4 py-3 text-sm leading-relaxed'
+            : 'bg-fd-card border-fd-border max-w-[92%] rounded-2xl rounded-bl-md border px-4 py-3 text-sm leading-[1.6]'
         }
       >
         <Rendered text={message.text} streaming={message.streaming} />
@@ -120,15 +188,17 @@ function Bubble({ message, lang }: { message: Message; lang: 'en' | 'vi' }) {
           <span className="pulse-caret bg-fd-primary ml-0.5 inline-block h-[1em] w-[2px] translate-y-[2px]" />
         )}
         {!message.streaming && message.sources.length > 0 && (
-          <div className="border-fd-border mt-3 border-t pt-3">
+          <div className="border-fd-border mt-3 space-y-1 border-t pt-2.5">
             {message.sources.map((s) => (
               <a
                 key={s.url}
                 href={s.url}
-                className="text-fd-muted-foreground hover:text-fd-accent-foreground flex items-baseline gap-2 text-xs"
+                className="text-fd-muted-foreground hover:text-fd-accent-foreground flex items-baseline gap-1.5 text-xs leading-snug"
               >
-                <span className="shrink-0">{lang === 'vi' ? 'Nguồn' : 'Source'}</span>
-                <span className="underline underline-offset-4">
+                <span className="shrink-0 opacity-70">
+                  {lang === 'vi' ? 'Nguồn' : 'Source'}
+                </span>
+                <span className="underline underline-offset-2">
                   {s.title}
                   {s.heading && s.heading !== s.title ? ` · ${s.heading}` : ''}
                 </span>
@@ -173,7 +243,9 @@ export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
   const open = useSyncExternalStore(subscribeOpen, getOpen, getOpenOnServer);
   const setOpen = writeOpen;
   const [draft, setDraft] = useState('');
-  const { status, progress, messages, pending, ask, reset } = useAssistant(lang);
+  const { status, progress, messages, pending, ask, reset, note } = useAssistant(lang);
+  const pathname = usePathname();
+  const firstPath = useRef<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
 
@@ -230,6 +302,23 @@ export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' });
   }, [messages, pending]);
+
+  /*
+   * Follow the reader.
+   *
+   * Only while the panel is open, so a note always appears somewhere the reader can see it
+   * happen. Arriving on a page is not a navigation, so the first path is recorded and skipped;
+   * otherwise opening the docs would start every conversation with a note nobody asked for.
+   */
+  useEffect(() => {
+    if (firstPath.current === null) {
+      firstPath.current = pathname;
+      return;
+    }
+    if (pathname === firstPath.current) return;
+    firstPath.current = pathname;
+    if (open) note(pathname);
+  }, [pathname, open, note]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

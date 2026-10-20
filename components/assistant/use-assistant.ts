@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadMessages, saveMessages } from '@/lib/assistant/session';
+import notes from '@/lib/assistant/page-notes.json';
 
 export type Status = 'idle' | 'loading' | 'ready' | 'failed';
 
@@ -19,7 +20,16 @@ export interface Message {
   full: string;
   sources: Source[];
   code?: { lang: string; source: string };
+  /** Set when this message was produced by the reader navigating, not by them asking. */
+  noteFor?: string;
   streaming: boolean;
+}
+
+interface PageNote {
+  title: string;
+  lang: string;
+  summary: string;
+  topics: { heading: string; anchor: string }[];
 }
 
 /**
@@ -64,11 +74,11 @@ export function useAssistant(lang: string) {
   /** A question asked before the model finished loading, sent as soon as it is ready. */
   const queued = useRef<string | null>(null);
   /*
-   * `start` has to send the queued question when the worker reports ready, and `submit` is
-   * declared below it. A ref keeps `start`'s dependency list empty and honest: listing `submit`
+   * `start` has to send the queued question when the worker reports ready, and `send` is
+   * declared below it. A ref keeps `start`'s dependency list empty and honest: listing `send`
    * would rebuild the worker callback every render for a function that never changes.
    */
-  const submitRef = useRef<(q: string) => void>(() => {});
+  const sendRef = useRef<(q: string) => void>(() => {});
 
   const start = useCallback(() => {
     if (worker.current) return;
@@ -97,7 +107,7 @@ export function useAssistant(lang: string) {
         setStatus('ready');
         const q = queued.current;
         queued.current = null;
-        if (q !== null) submitRef.current(q);
+        if (q !== null) sendRef.current(q);
       }
       else if (msg.type === 'progress') setProgress(Math.min(1, msg.loaded / Math.max(1, msg.total)));
       else if (msg.type === 'failed') setStatus('failed');
@@ -156,20 +166,23 @@ export function useAssistant(lang: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.find((m) => m.streaming)?.id]);
 
-  const submit = useCallback(
+  /**
+   * Hand a question to the worker. Nothing else.
+   *
+   * It used to also append the user's message, which double-echoed every first question: `ask`
+   * appended it, queued it because the model was still loading, and the ready handler then
+   * called this, which appended it again. One function appends, one function sends, and the two
+   * are not the same function.
+   */
+  const send = useCallback(
     (trimmed: string) => {
-      const id = nextId.current++;
-      setMessages((prev) => [
-        ...prev,
-        { id, role: 'you', text: trimmed, full: trimmed, sources: [], streaming: false },
-      ]);
       setPending(true);
       worker.current?.postMessage({ type: 'ask', id: nextId.current++, query: trimmed, lang });
     },
     [lang],
   );
 
-  submitRef.current = submit;
+  sendRef.current = send;
 
   /**
    * Ask a question, starting the model if this is the first one.
@@ -180,25 +193,37 @@ export function useAssistant(lang: string) {
    * still arriving is queued and sent the moment it is ready, so the wait is visible but never
    * loses the question.
    */
+  /**
+   * Ask a question: record it once, then either send it or hold it until the model is ready.
+   *
+   * **The download begins on the first question, not when the panel opens.** The panel opens by
+   * itself on a first visit, and charging every reader 23 MB for something they have not asked
+   * for would be the opposite of leaving them free to just read. A question asked while the
+   * model is still arriving is queued and sent the moment it is ready, so the wait is visible
+   * but never loses the question.
+   */
   const ask = useCallback(
     (query: string) => {
       const trimmed = query.trim();
       if (trimmed.length === 0) return;
 
+      // Appended here and nowhere else, so a question appears exactly once whether it was sent
+      // immediately or queued behind the model.
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: nextId.current++,
+          role: 'you',
+          text: trimmed,
+          full: trimmed,
+          sources: [],
+          streaming: false,
+        },
+      ]);
+      setPending(true);
+
       if (!worker.current) {
         queued.current = trimmed;
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: nextId.current++,
-            role: 'you',
-            text: trimmed,
-            full: trimmed,
-            sources: [],
-            streaming: false,
-          },
-        ]);
-        setPending(true);
         start();
         return;
       }
@@ -208,17 +233,69 @@ export function useAssistant(lang: string) {
         return;
       }
 
-      submit(trimmed);
+      send(trimmed);
     },
-    [start, status, submit],
+    [send, start, status],
   );
 
-  useEffect(
-    () => () => {
-      worker.current?.terminate();
-      worker.current = null;
+  /**
+   * Notice where the reader just went, and say something useful about it.
+   *
+   * This is the assistant paying attention rather than waiting to be spoken to: click a link in
+   * the sidebar and it tells you what that page covers, with its sections, so the next question
+   * is one word away.
+   *
+   * It is an assistant message, never a user one. Putting "you opened Quick start" in a blue
+   * bubble on the right would be the assistant putting words in the reader's mouth.
+   *
+   * It needs no model, which is the point: the summaries are a 12 KB map that ships with the
+   * page, so this works from the very first click and long before anyone asks a question.
+   */
+  const note = useCallback(
+    (rawUrl: string) => {
+      /*
+       * A static export serves `/quickstart/` with a trailing slash while the index keys it as
+       * `/quickstart`, so a straight lookup missed every page but the root. Normalise before
+       * looking up, and keep the normalised form for the links below it.
+       */
+      const url = rawUrl.length > 1 ? rawUrl.replace(/\/+$/, '') : '/';
+      const page = (notes as Record<string, PageNote | undefined>)[url];
+      if (!page) return;
+
+      const lead = lang === 'vi' ? 'Bạn đang xem' : 'You opened';
+      const covers = lang === 'vi' ? 'Trang này nói về' : 'This page covers';
+      const invite =
+        lang === 'vi' ? 'Hỏi tôi bất cứ điều gì về trang này.' : 'Ask me anything about it.';
+
+      const parts = [`**${lead}: ${page.title}**`, page.summary];
+      if (page.topics.length > 0) {
+        parts.push(
+          `${covers}:\n` +
+            page.topics.map((t) => `- [${t.heading}](${url}#${t.anchor})`).join('\n'),
+        );
+      }
+      parts.push(invite);
+
+      setMessages((prev) => {
+        // Never twice in a row for the same page, so a re-render or a hash change is not an
+        // event, and never directly after the reader has just spoken.
+        const last = prev[prev.length - 1];
+        if (last?.role === 'assistant' && last.noteFor === url) return prev;
+        return [
+          ...prev,
+          {
+            id: nextId.current++,
+            role: 'assistant',
+            text: parts.join('\n\n'),
+            full: parts.join('\n\n'),
+            sources: [],
+            noteFor: url,
+            streaming: false,
+          },
+        ];
+      });
     },
-    [],
+    [lang],
   );
 
   const reset = useCallback(() => {
@@ -227,5 +304,5 @@ export function useAssistant(lang: string) {
     queued.current = null;
   }, []);
 
-  return { status, progress, messages, pending, start, ask, reset };
+  return { status, progress, messages, pending, start, ask, reset, note };
 }
