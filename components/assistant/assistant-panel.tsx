@@ -1,7 +1,14 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { ArrowUp, Bot, Sparkles, X } from 'lucide-react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { ArrowUp, Bot, RotateCcw, Sparkles, X } from 'lucide-react';
 import { useAssistant, type Message } from './use-assistant';
+import {
+  clearMessages,
+  getOpen,
+  getOpenOnServer,
+  setOpen as writeOpen,
+  subscribeOpen,
+} from '@/lib/assistant/session';
 
 const SEEN_KEY = 'pulse-assistant-greeted';
 
@@ -16,6 +23,7 @@ const COPY = {
     thinking: 'Searching the documentation',
     send: 'Send',
     close: 'Close',
+    restart: 'Start a new conversation',
     suggestions: [
       'How do I run a catalogue audit?',
       'What does the audit measure?',
@@ -33,6 +41,7 @@ const COPY = {
     thinking: 'Đang tìm trong tài liệu',
     send: 'Gửi',
     close: 'Đóng',
+    restart: 'Bắt đầu cuộc trò chuyện mới',
     suggestions: [
       'Làm sao để chạy một bản kiểm tra danh mục?',
       'Bản kiểm tra đo những gì?',
@@ -74,6 +83,15 @@ function Rendered({ text, streaming = false }: { text: string; streaming?: boole
       '<a href="$2" class="text-fd-primary underline underline-offset-4">$1</a>',
     )
     .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
+    /*
+     * Bare URLs become links. The chunks now carry their targets as `label (https://...)`, which
+     * is right for an agent reading plain text and wrong for a person looking at a chat bubble
+     * that they cannot click. Run after the markdown link pass so an href is not linked twice.
+     */
+    .replace(
+      /(^|[\s(])(https?:\/\/[^\s<)]+)/g,
+      '$1<a href="$2" class="text-fd-primary underline underline-offset-4">$2</a>',
+    )
     .replace(/\n{2,}/g, '<br/><br/>')
     .replace(/\n/g, '<br/>');
 
@@ -93,6 +111,11 @@ function Bubble({ message, lang }: { message: Message; lang: 'en' | 'vi' }) {
         }
       >
         <Rendered text={message.text} streaming={message.streaming} />
+        {!message.streaming && message.code && (
+          <pre className="bg-fd-muted mt-3 overflow-x-auto rounded-lg p-3 text-[0.8rem] leading-[1.8]">
+            <code>{message.code.source}</code>
+          </pre>
+        )}
         {message.streaming && (
           <span className="pulse-caret bg-fd-primary ml-0.5 inline-block h-[1em] w-[2px] translate-y-[2px]" />
         )}
@@ -146,9 +169,11 @@ function Typing({ label }: { label: string }) {
  */
 export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
   const t = COPY[lang];
-  const [open, setOpen] = useState(false);
+  // Read straight from the store, so a navigation reopens it without a corrective render.
+  const open = useSyncExternalStore(subscribeOpen, getOpen, getOpenOnServer);
+  const setOpen = writeOpen;
   const [draft, setDraft] = useState('');
-  const { status, progress, messages, pending, ask } = useAssistant(lang);
+  const { status, progress, messages, pending, ask, reset } = useAssistant(lang);
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
 
@@ -164,7 +189,20 @@ export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
    * Storage is wrapped because a private window or blocked site data throws on access, and an
    * assistant that crashes the page it sits on is worse than one that greets you twice.
    */
+  /*
+   * Introduce the assistant once, on a first visit, and never on a phone.
+   *
+   * A newcomer should see it exists without hunting for a button. It is remembered in
+   * `localStorage` so it does not reintroduce itself to a returning reader, and it is skipped
+   * below `sm`, where the panel is a full-height sheet: opening that unasked would cover the page
+   * someone came to read.
+   *
+   * Storage is wrapped because a private window or blocked site data throws on access, and an
+   * assistant that takes down the page it sits on is worse than one that greets you twice.
+   */
   useEffect(() => {
+    if (getOpen()) return;
+
     let seen = true;
     try {
       seen = window.localStorage.getItem(SEEN_KEY) === '1';
@@ -180,7 +218,8 @@ export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
     }
 
     if (!window.matchMedia('(min-width: 640px)').matches) return;
-    const t = window.setTimeout(() => setOpen(true), 900);
+
+    const t = window.setTimeout(() => writeOpen(true), 900);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -194,7 +233,7 @@ export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') writeOpen(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -233,14 +272,30 @@ export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
             <p className="text-fd-muted-foreground text-xs">{t.subtitle}</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          aria-label={t.close}
-          className="text-fd-muted-foreground hover:text-fd-accent-foreground -mr-1 p-1"
-        >
-          <X className="size-4" />
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          {messages.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                clearMessages();
+                reset();
+              }}
+              aria-label={t.restart}
+              title={t.restart}
+              className="text-fd-muted-foreground hover:text-fd-accent-foreground p-1"
+            >
+              <RotateCcw className="size-4" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label={t.close}
+            className="text-fd-muted-foreground hover:text-fd-accent-foreground -mr-1 p-1"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
       </header>
 
       <div ref={scroller} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">

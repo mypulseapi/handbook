@@ -22,7 +22,7 @@ type Outgoing =
   | { type: 'ready' }
   | { type: 'progress'; loaded: number; total: number }
   | { type: 'failed'; reason: string }
-  | { type: 'answer'; id: number; body: string; sources: unknown; kind: string };
+  | { type: 'answer'; id: number; body: string; code?: unknown; sources: unknown; kind: string };
 
 const post = (msg: Outgoing) => (self as unknown as Worker).postMessage(msg);
 
@@ -90,6 +90,7 @@ self.addEventListener('message', (event: MessageEvent<Incoming>) => {
         type: 'answer',
         id: msg.id,
         body: answer.body,
+        code: answer.code,
         sources: answer.sources,
         kind: answer.kind,
       });
