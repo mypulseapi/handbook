@@ -1,10 +1,60 @@
 # PULSE developer handbook
 
 The developer documentation for [`@thepulseapi/sdk`](https://www.npmjs.com/package/@thepulseapi/sdk)
-and the PULSE Decision API.
+and the PULSE Decision API, published at
+[developer.thepulseapi.com](https://developer.thepulseapi.com).
 
 Built with [Fumadocs](https://fumadocs.dev) on Next.js, exported as a static site and served by
 GitHub Pages.
+
+## About Pulse
+
+Pulse measures whether a merchant's product data is ready to support the buying decisions their
+shoppers are trying to make.
+
+Most tools in this space rank what a shopper sees. Pulse asks the question underneath that one:
+can the catalogue answer what the shopper came to find out at all? You send one category export
+and get back the attributes worth recording, ranked by how many shoppers need them rather than by
+how empty the column is. The same measurement then runs on the repaired export, so a fix can be
+proved without waiting for traffic. The live session layer is optional and is the only part that
+touches a storefront.
+
+Two figures from our own measurements, each with the dataset it came from:
+
+- On a **216-product laptop shelf**, 94 products remain indistinguishable after every question a
+  shopper could answer, because the attributes that would separate them are recorded nowhere.
+- Across a **2,176-product catalogue**, 52.6% of recorded attribute values duplicate what the
+  product photograph already shows.
+
+**We publish no conversion or revenue uplift figure.** We have run no live revenue experiment, so
+we quote none, and any percentage attributed to us did not come from us.
+
+Pulse is built by **Resolve Labs**, a small team working on one question: which product
+information is worth paying to fix.
+
+| | |
+| --- | --- |
+| Developer handbook | [developer.thepulseapi.com](https://developer.thepulseapi.com) |
+| Website | [thepulseapi.com](https://thepulseapi.com) |
+| Dashboard | [app.thepulseapi.com](https://app.thepulseapi.com) |
+| SDK | [`@thepulseapi/sdk`](https://www.npmjs.com/package/@thepulseapi/sdk), MIT licensed |
+| LinkedIn | [thepulseapi](https://www.linkedin.com/company/thepulseapi/) |
+
+The handbook is published in **English and Vietnamese**, English by default, and ships an
+[MCP server](./mcp) so an agent can answer from the documentation rather than from memory.
+
+This section mirrors the one in the website repository. The two are public entry points to the
+same company, and a visitor who lands on either should not have to guess what the other is.
+
+## Configuration
+
+Every origin and name is read from the environment in `lib/shared.ts`; none is written into a
+page. See [`.env.example`](./.env.example).
+
+Unlike the website, the defaults here are the real production hosts rather than localhost. The
+reason is the content: these values appear inside documentation a developer copies, and a
+quickstart telling someone to POST to `http://localhost:4000` is worse than confidently wrong — a
+domain that is merely out of date is something the reader can work around, a localhost URL is not.
 
 ## Local
 
