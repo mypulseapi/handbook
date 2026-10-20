@@ -1,0 +1,30 @@
+---
+title: Documentation changelog
+description: Every change to these pages, newest first, read from git at build time rather than written by hand.
+icon: FileClock
+---
+
+What changed on this site, and when. The list is read from the repository's own history when the
+site is built, so it cannot drift from what actually happened and nobody has to remember to
+update it.
+
+<Callout title="This is not the API changelog">
+  The API's compatibility rules, what counts as a breaking change and what we owe you when one
+  happens, are on [Versioning](/api/versioning). **The API is versioned by URL and these guides
+  are not**, which is a deliberate choice explained there. This page is the history of the
+  documentation itself.
+</Callout>
+
+## Recent changes
+
+<DocsChangelog limit={40} />
+
+## Reading a page's own history
+
+Every page carries the date it last changed at the foot of the page, beside a link to that one
+file's full commit history. That is the quickest way to answer "did this page say something
+different last month", which is usually the real question.
+
+The pages are MDX files in
+[`content/docs`](https://github.com/mypulseapi/handbook/tree/main/content/docs), so the history is
+ordinary git: every revision, who made it, and what else changed in the same commit.

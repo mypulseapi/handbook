@@ -1,0 +1,15 @@
+{
+  "title": "Máy chủ",
+  "icon": "Server",
+  "pages": [
+    "index",
+    "python",
+    "nodejs",
+    "php",
+    "csharp",
+    "java",
+    "go",
+    "rust",
+    "ruby"
+  ]
+}

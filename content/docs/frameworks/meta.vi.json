@@ -1,0 +1,13 @@
+{
+  "title": "Framework",
+  "icon": "Boxes",
+  "pages": [
+    "index",
+    "react",
+    "vue",
+    "angular",
+    "astro",
+    "alpine",
+    "laravel"
+  ]
+}

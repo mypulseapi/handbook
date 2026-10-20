@@ -61,11 +61,13 @@ export function docPageLd({
   description,
   url,
   tree,
+  lang = 'en',
 }: {
   title: string;
   description?: string;
   url: string;
   tree: Root;
+  lang?: string;
 }) {
   // Section folders are only worth naming when they lead somewhere, so each resolves to its
   // first page. docsRoute is skipped on the index itself, which would otherwise be its own
@@ -78,8 +80,9 @@ export function docPageLd({
     return href && named && href !== url ? [{ name: named, url: href }] : [];
   });
 
+  const home = lang === 'en' ? docsRoute : `/${lang}`;
   const trail = [
-    ...(url === docsRoute ? [] : [{ name: 'Documentation', url: docsRoute }]),
+    ...(url === home ? [] : [{ name: 'Documentation', url: home }]),
     ...sections,
     { name: title, url },
   ];
@@ -102,7 +105,7 @@ export function docPageLd({
         description,
         isPartOf: { '@id': `${siteOrigin}/#website` },
         about: { '@id': `${siteOrigin}/#organization` },
-        inLanguage: 'en-US',
+        inLanguage: lang === 'vi' ? 'vi-VN' : 'en-US',
         breadcrumb: { '@id': `${pageUrl}#breadcrumb` },
       },
       {
@@ -111,7 +114,7 @@ export function docPageLd({
         headline: title,
         description,
         url: pageUrl,
-        inLanguage: 'en-US',
+        inLanguage: lang === 'vi' ? 'vi-VN' : 'en-US',
         isPartOf: { '@id': `${pageUrl}#webpage` },
         mainEntityOfPage: { '@id': `${pageUrl}#webpage` },
         publisher: { '@id': `${siteOrigin}/#organization` },

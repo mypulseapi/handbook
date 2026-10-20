@@ -2,6 +2,7 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
 import { Globe, LayoutDashboard, Package } from 'lucide-react';
 import { appName, dashboardUrl, gitConfig, npmPackage, siteUrl } from './shared';
+import type { Language } from './i18n';
 
 /**
  * The wordmark rather than a text title.
@@ -33,17 +34,30 @@ function Logo() {
   );
 }
 
-export function baseOptions(): BaseLayoutProps {
+/**
+ * `lang` steers three things: where the wordmark links, which locale of the marketing site the
+ * header points at, and the label on that link. Everything else is identical between locales.
+ */
+export function baseOptions(lang: Language = 'en'): BaseLayoutProps {
+  const home = lang === 'en' ? '/' : `/${lang}`;
+
   return {
     nav: {
       title: <Logo />,
+      url: home,
       transparentMode: 'none',
     },
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
     links: [
       { icon: <Package />, text: 'npm', url: `https://www.npmjs.com/package/${npmPackage}`, external: true },
       { icon: <LayoutDashboard />, text: 'Dashboard', url: dashboardUrl, external: true },
-      { icon: <Globe />, text: 'thepulseapi.com', url: siteUrl, external: true },
+      {
+        icon: <Globe />,
+        text: 'thepulseapi.com',
+        // The marketing site is locale-prefixed, so send a Vietnamese reader to the Vietnamese one.
+        url: lang === 'vi' ? siteUrl.replace(/\/en$/, '/vi') : siteUrl,
+        external: true,
+      },
     ],
   };
 }
