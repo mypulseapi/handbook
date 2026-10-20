@@ -4,6 +4,7 @@ import { baseOptions } from '@/lib/layout.shared';
 import { sidebarSlots } from '@/components/docs-sidebar';
 import type { Language } from '@/lib/i18n';
 import type { ReactNode } from 'react';
+import { AssistantPanel } from '@/components/assistant/assistant-panel';
 
 /**
  * The notebook layout, not the default `docs` one.
@@ -36,6 +37,7 @@ export function DocsShell({ lang, children }: { lang: Language; children: ReactN
       slots={{ sidebar: sidebarSlots }}
     >
       {children}
+      <AssistantPanel lang={lang} />
     </DocsLayout>
   );
 }

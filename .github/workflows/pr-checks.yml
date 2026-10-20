@@ -40,6 +40,21 @@ jobs:
         with:
           globs: "**/*.md"
 
+  search-index:
+    name: Search index
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # No model and no install: the verifier re-chunks the MDX and compares hashes, which is
+      # text processing. It catches the failure that is otherwise silent, which is a page edited
+      # without rebuilding the index, leaving the assistant answering from the old wording.
+      - name: Verify the committed search index matches the content
+        run: node --experimental-strip-types scripts/verify-search-index.mjs
+
   links:
     name: Link check
     runs-on: ubuntu-24.04
