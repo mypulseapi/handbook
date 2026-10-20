@@ -18,6 +18,7 @@ const COPY = {
     open: 'Ask the docs',
     title: 'Ask the documentation',
     subtitle: 'Answers are quoted from these pages, never generated.',
+    firstLoad: 'The first question downloads a 23 MB search model. It is cached after that.',
     placeholder: 'How do I run a catalogue audit?',
     loading: 'Getting ready',
     failed: 'The assistant could not start on this device. Every answer it would have given is on the pages themselves.',
@@ -36,6 +37,8 @@ const COPY = {
     open: 'Hỏi tài liệu',
     title: 'Hỏi tài liệu',
     subtitle: 'Câu trả lời được trích từ chính các trang này, không phải do máy tự viết.',
+    firstLoad:
+      'Bạn hỏi được bằng tiếng Việt. Câu hỏi đầu tiên sẽ tải mô hình tìm kiếm đa ngôn ngữ 129 MB, sau đó được lưu lại. Nội dung tài liệu phần lớn vẫn là tiếng Anh.',
     placeholder: 'Làm sao để chạy một bản kiểm tra danh mục?',
     loading: 'Đang chuẩn bị',
     failed: 'Trợ lý không khởi động được trên thiết bị này. Mọi câu trả lời đều có sẵn trong các trang tài liệu.',
@@ -44,8 +47,8 @@ const COPY = {
     close: 'Đóng',
     restart: 'Bắt đầu cuộc trò chuyện mới',
     suggestions: [
-      'Làm sao để chạy một bản kiểm tra danh mục?',
-      'Bản kiểm tra đo những gì?',
+      'Làm sao để lấy API key?',
+      'Bản kiểm tra danh mục đo những gì?',
       'Một phiên truy cập kéo dài bao lâu?',
       'Cần kiểm tra gì trước khi lên production?',
     ],
@@ -388,22 +391,11 @@ export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
       </header>
 
       <div ref={scroller} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-        {status === 'loading' && messages.length === 0 && (
-          <div className="text-fd-muted-foreground space-y-2 text-xs">
-            <p>
-              {t.loading}
-              {progress > 0 ? ` ${Math.round(progress * 100)}%` : '…'}
-            </p>
-            <div className="bg-fd-muted h-1 overflow-hidden rounded-full">
-              <div
-                className="bg-fd-primary h-full rounded-full transition-[width] duration-200"
-                style={{ width: `${Math.max(4, progress * 100)}%` }}
-              />
-            </div>
-          </div>
-        )}
-
         {status === 'failed' && <p className="text-fd-muted-foreground text-sm">{t.failed}</p>}
+
+        {status === 'idle' && messages.length === 0 && (
+          <p className="text-fd-muted-foreground mb-3 text-xs leading-relaxed">{t.firstLoad}</p>
+        )}
 
         {status !== 'failed' && messages.length === 0 && (
           <div className="space-y-2">
@@ -425,7 +417,29 @@ export function AssistantPanel({ lang }: { lang: 'en' | 'vi' }) {
           <Bubble key={m.id} message={m} lang={lang} />
         ))}
 
-        {pending && <Typing label={t.thinking} />}
+        {/*
+          * The download, shown under the question that started it.
+          *
+          * It used to be gated on there being no messages, so asking the first question made the
+          * only sign of life vanish for as long as the model took, which on the Vietnamese
+          * 129 MB model is long enough to look broken.
+          */}
+        {status === 'loading' && (
+          <div className="text-fd-muted-foreground pulse-message-in space-y-2 text-xs">
+            <p>
+              {t.loading}
+              {progress > 0 ? ` ${Math.round(progress * 100)}%` : '…'}
+            </p>
+            <div className="bg-fd-muted h-1 overflow-hidden rounded-full">
+              <div
+                className="bg-fd-primary h-full rounded-full transition-[width] duration-200"
+                style={{ width: `${Math.max(4, progress * 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {pending && status !== 'loading' && <Typing label={t.thinking} />}
       </div>
 
       <div className="border-fd-border border-t p-3">

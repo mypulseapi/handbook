@@ -128,8 +128,8 @@ export function useAssistant(lang: string) {
       }
     });
 
-    w.postMessage({ type: 'init' });
-  }, []);
+    w.postMessage({ type: 'init', lang });
+  }, [lang]);
 
   /**
    * Reveal the newest streaming message a word at a time.

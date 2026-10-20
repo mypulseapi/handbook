@@ -18,7 +18,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { contentHash, MODEL } from './build-search-index.mjs';
+import { contentHash, MODELS } from './build-search-index.mjs';
 import { chunkPage } from '../lib/assistant/chunk.ts';
 import { readdirSync, statSync } from 'node:fs';
 import { relative } from 'node:path';
@@ -52,32 +52,48 @@ function pages() {
 }
 
 const fail = [];
-const index = JSON.parse(readFileSync(join(ROOT, 'lib', 'assistant', 'search-index.json'), 'utf8'));
 const docs = pages();
 
-if (index.model !== MODEL) fail.push(`model drift: index has ${index.model}, build script uses ${MODEL}`);
-if (index.dimensions !== 384) fail.push(`unexpected dimensions: ${index.dimensions}`);
+for (const model of MODELS) {
+  const index = JSON.parse(readFileSync(join(ROOT, 'lib', 'assistant', model.file), 'utf8'));
 
-const expected = contentHash(docs);
-if (index.contentHash !== expected) {
-  fail.push(
-    `index is stale: content hashes to ${expected}, index claims ${index.contentHash}.\n` +
-      `  Run: pnpm build:search-index`,
-  );
-}
+  if (index.model !== model.id) {
+    fail.push(`${model.file}: built by ${index.model}, expected ${model.id}`);
+  }
+  if (index.dimensions !== 384) fail.push(`${model.file}: unexpected dimensions ${index.dimensions}`);
+  if ((index.queryPrefix ?? '') !== model.query) {
+    fail.push(`${model.file}: query prefix drift`);
+  }
 
-const covered = new Set(index.chunks.map((c) => c.u));
-for (const d of docs) {
-  const produced = chunkPage({ raw: d.raw, url: d.url, lang: d.lang });
-  if (produced.length === 0) fail.push(`page chunks to nothing: ${relative(ROOT, d.file)}`);
-  else if (!covered.has(d.url)) fail.push(`page missing from index: ${d.url}`);
-}
+  const expected = contentHash(docs);
+  if (index.contentHash !== expected) {
+    fail.push(
+      `${model.file} is stale: content hashes to ${expected}, index claims ${index.contentHash}.\n` +
+        `  Run: pnpm build:search-index`,
+    );
+  }
 
-const vectorBytes = Buffer.from(index.vectors, 'base64').byteLength;
-if (vectorBytes !== index.chunks.length * index.dimensions) {
-  fail.push(
-    `vector matrix is ${vectorBytes} bytes, expected ${index.chunks.length * index.dimensions}`,
-  );
+  const vectorBytes = Buffer.from(index.vectors, 'base64').byteLength;
+  if (vectorBytes !== index.chunks.length * index.dimensions) {
+    fail.push(
+      `${model.file}: vector matrix is ${vectorBytes} bytes, expected ` +
+        `${index.chunks.length * index.dimensions}`,
+    );
+  }
+
+  // Every page has to be reachable in the language this index serves.
+  const covered = new Set(index.chunks.map((c) => c.u));
+  const vi = model.file.includes('.vi.');
+  for (const d of docs) {
+    if (vi && d.lang !== 'en') continue;
+    const produced = chunkPage({ raw: d.raw, url: d.url, lang: d.lang });
+    if (produced.length === 0) {
+      fail.push(`page chunks to nothing: ${relative(ROOT, d.file)}`);
+      continue;
+    }
+    const want = vi ? (d.url === '/' ? '/vi' : `/vi${d.url}`) : d.url;
+    if (!covered.has(want)) fail.push(`${model.file}: page missing — ${want}`);
+  }
 }
 
 if (fail.length > 0) {
@@ -86,6 +102,6 @@ if (fail.length > 0) {
 }
 
 console.log(
-  `search index ok — ${docs.length} pages, ${index.chunks.length} chunks, ` +
-    `${index.dimensions} dims, every page covered`,
+  `search indexes ok — ${docs.length} page files, ${MODELS.length} indexes, every page covered ` +
+    `in both languages`,
 );
