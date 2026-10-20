@@ -105,6 +105,7 @@ async function main() {
       h: c.heading,
       t: c.text,
       l: c.lang,
+      ...(c.code ? { c: { l: c.code.lang, s: c.code.source } } : {}),
     })),
     vectors: quantise(vectors),
   };

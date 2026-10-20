@@ -14,6 +14,8 @@ import type { Hit } from './retrieve';
 export interface Answer {
   /** Markdown, revealed progressively by the UI. */
   body: string;
+  /** Shown as a real code block under the prose, never mixed into it. */
+  code?: { lang: string; source: string };
   /** The pages the body came from, rendered as cards under the reply. */
   sources: { url: string; title: string; heading: string; anchor: string }[];
   kind: 'answer' | 'unsure';
@@ -75,6 +77,7 @@ export function compose(hits: Hit[], lang: string): Answer {
 
   return {
     body: parts.join('\n\n'),
+    code: top.chunk.code,
     sources: [
       {
         url: href,

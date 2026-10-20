@@ -12,7 +12,7 @@ export interface SearchIndex {
   dimensions: number;
   builtAt: string;
   contentHash: string;
-  chunks: { u: string; a: string; p: string; h: string; t: string; l: string }[];
+  chunks: { u: string; a: string; p: string; h: string; t: string; l: string; c?: { l: string; s: string } }[];
   /** base64 int8, `chunks.length * dimensions`. */
   vectors: string;
 }
@@ -30,7 +30,15 @@ export function decodeVectors(index: SearchIndex): Int8Array {
 }
 
 export function toChunk(row: SearchIndex['chunks'][number]): Chunk {
-  return { url: row.u, anchor: row.a, pageTitle: row.p, heading: row.h, text: row.t, lang: row.l };
+  return {
+    url: row.u,
+    anchor: row.a,
+    pageTitle: row.p,
+    heading: row.h,
+    text: row.t,
+    code: row.c ? { lang: row.c.l, source: row.c.s } : undefined,
+    lang: row.l,
+  };
 }
 
 /**
