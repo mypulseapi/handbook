@@ -1,6 +1,6 @@
 ---
 title: SDK reference
-description: Every method on PulseClient, and the config it takes.
+description: Every method on PulseClient, the config it takes, and the functions the package exports beside it.
 icon: Package
 ---
 
@@ -50,3 +50,61 @@ icon: Package
     debug: { type: 'boolean', default: 'false', description: 'Verbose logging' },
   }}
 />
+
+## Beyond the client
+
+`PulseClient` is most of the package and not all of it. These are exported too, for the cases
+where you need a signal without a client, or need to look at what the SDK cached.
+
+### Signal capture
+
+`init()` calls `captureAutoSignals()` for you when `autoTrack` is on, so you only need these
+directly when you want a signal at a different moment, or want one the automatic set leaves out.
+
+| Export | Returns | |
+| --- | --- | --- |
+| `captureAutoSignals()` | `Signal[]` | Device, referrer and time in one call. What `init()` sends |
+| `captureDeviceSignal()` | `Signal \| null` | Device class from the user agent |
+| `captureReferrerSignal()` | `Signal \| null` | Where the visit came from |
+| `captureTimeSignal()` | `Signal` | Time of day. Never null, there is always a clock |
+| `captureEnhancedReferrerSignals()` | `Signal[]` | Campaign and channel detail beyond the plain referrer |
+| `captureDeviceInfoAsync(): Promise` | `DeviceInfo` | Fuller device detail, including client hints |
+| `captureGeoInfo(): Promise` | `GeoInfo \| null` | Coarse location from the IP |
+| `geoToSignals(geo)` | `Signal[]` | Turn a `GeoInfo` into signals |
+| `captureWeatherInfo(lat, lon, apiKey?): Promise` | `WeatherInfo \| null` | Conditions at a point |
+| `weatherToSignals(weather)` | `Signal[]` | Turn a `WeatherInfo` into signals |
+| `captureCulturalCalendar(countryCode)` | `Signal[]` | Seasonal and cultural events active today |
+| `parseUserAgent(ua)` | `DeviceInfo` | Parse a user agent string you already have |
+
+<Callout type="warn" title="captureWeatherInfo needs your own key">
+  It calls OpenWeatherMap and returns `null` without an `apiKey`, so nothing breaks if you leave
+  it out. The free tier is 1,000 calls a day, which is why the result is cached per session
+  rather than fetched per page.
+</Callout>
+
+<Callout>
+  `captureAutoSignals()` is exported for one specific failure. `init()` sends the automatic
+  signals exactly once and swallows its own error, so a session whose `init()` failed never
+  re-sends them and stays thin for its whole life. These signals cost no network of their own, so
+  calling this again on a later page load is cheaper than the alternative.
+</Callout>
+
+### Session context
+
+Device, location and weather are properties of the session rather than of the page: they cannot
+change between one page and the next. The SDK captures them once, keys the cache by session id so
+it cannot outlive the visitor it describes, and reuses it. You rarely need to touch this.
+
+| Export | Returns | |
+| --- | --- | --- |
+| `readSessionContext(sessionId)` | `SessionContext \| null` | The cache, or null if it belongs to another session |
+| `writeSessionContext(sessionId, patch)` | `void` | Merge fields into it |
+| `isWeatherFresh(ctx, now?)` | `boolean` | Whether the weather reading is still inside its TTL |
+| `clearSessionContext()` | `void` | Drop the cache |
+| `WEATHER_TTL_MS` | `number` | 10 minutes |
+
+<Callout>
+  Weather is the only field here with a TTL. Everything else is immutable for the session, but a
+  30-minute session can outlast a rain shower, and a `weather:rain` signal driving a
+  recommendation after the sun came out is the engine being confidently wrong.
+</Callout>
