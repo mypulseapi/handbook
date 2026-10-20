@@ -150,6 +150,24 @@ figure.shiki:not(.not-fumadocs-codeblock *) {
     color: var(--shiki-dark);
     font-style: var(--shiki-dark-font-style);
   }
+
+  /*
+   * Leading inside the block.
+   *
+   * The figure carries `not-prose`, so the `.prose` rules above deliberately do not reach it and
+   * the lines were left at the Shiki default, which is tighter than the surrounding text. Code is
+   * read line by line and scanned for a changed character, so it wants more room between lines
+   * than prose does, not less. Set on `.line` because `pre` lays `code` out as a flex column and
+   * each line is a flex item, where a line-height on the ancestor does not inherit usefully.
+   */
+  code .line {
+    line-height: 1.9;
+  }
+
+  /* Air at the top and bottom, so the first and last line are not against the edge. */
+  pre {
+    padding-block: 0.5rem;
+  }
 }
 
 /*

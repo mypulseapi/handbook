@@ -1,0 +1,32 @@
+---
+title: Lịch sử tài liệu
+description: Mọi thay đổi trên các trang này, mới nhất trước, đọc trực tiếp từ git khi dựng site chứ không viết tay.
+icon: FileClock
+---
+
+Trang này ghi lại điều gì đã thay đổi trên site và vào lúc nào. Danh sách được đọc từ lịch sử của
+chính kho mã khi site được dựng, nên nó không thể lệch khỏi những gì thực sự đã xảy ra và không ai
+phải nhớ cập nhật nó.
+
+<Callout title="Đây không phải nhật ký thay đổi của API">
+  Quy tắc tương thích của API, thế nào là thay đổi phá vỡ, và chúng tôi có trách nhiệm gì khi điều
+  đó xảy ra, nằm ở [Phiên bản](/vi/api/versioning). **API được đánh phiên bản theo URL còn các
+  hướng dẫn thì không**, đó là lựa chọn có chủ đích và được giải thích ở trang đó. Trang này là
+  lịch sử của chính bộ tài liệu.
+</Callout>
+
+## Thay đổi gần đây
+
+<DocsChangelog limit={40} lang="vi" />
+
+Nội dung commit được giữ nguyên tiếng Anh, vì đó là ngôn ngữ của kho mã.
+
+## Xem lịch sử của từng trang
+
+Mỗi trang đều hiển thị ngày sửa đổi gần nhất ở cuối trang, kèm liên kết tới toàn bộ lịch sử commit
+của riêng tệp đó. Đây là cách nhanh nhất để trả lời câu hỏi "tháng trước trang này có viết khác
+không", vốn thường mới là câu hỏi thật sự.
+
+Các trang là tệp MDX trong
+[`content/docs`](https://github.com/mypulseapi/handbook/tree/main/content/docs), nên lịch sử chính
+là git thông thường: mọi lần sửa, ai sửa, và những gì khác đã thay đổi trong cùng một commit.

@@ -1,0 +1,10 @@
+{
+  "title": "Nền tảng thương mại",
+  "icon": "Blocks",
+  "pages": [
+    "index",
+    "shopify",
+    "wordpress",
+    "magento"
+  ]
+}

@@ -39,6 +39,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Full history, because every page shows when it last changed and that date comes from
+          # `git log` on the file. At the default depth of 1 every page would claim it changed in
+          # the deploy commit, which is worse than showing nothing.
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
