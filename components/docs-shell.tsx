@@ -2,6 +2,8 @@ import { source } from '@/lib/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/notebook';
 import { baseOptions } from '@/lib/layout.shared';
 import { sidebarSlots } from '@/components/docs-sidebar';
+import type { Language } from '@/lib/i18n';
+import type { ReactNode } from 'react';
 
 /**
  * The notebook layout, not the default `docs` one.
@@ -18,13 +20,18 @@ import { sidebarSlots } from '@/components/docs-sidebar';
  * overwrote `mode: 'top'` with the bare nav and dropped the layout silently back to `auto`,
  * where the wordmark lives in the sidebar column and disappears the moment the sidebar is
  * collapsed. The header looked right enough that it went unnoticed through two releases.
+ *
+ * `lang` is a prop rather than a route param because the English tree sits in a route group,
+ * which has no params of its own to read.
  */
-export default function Layout({ children }: LayoutProps<'/'>) {
+export function DocsShell({ lang, children }: { lang: Language; children: ReactNode }) {
+  const options = baseOptions(lang);
+
   return (
     <DocsLayout
-      {...baseOptions()}
-      tree={source.getPageTree()}
-      nav={{ ...baseOptions().nav, mode: 'top' }}
+      {...options}
+      tree={source.getPageTree(lang)}
+      nav={{ ...options.nav, mode: 'top' }}
       sidebar={{ collapsible: true }}
       slots={{ sidebar: sidebarSlots }}
     >

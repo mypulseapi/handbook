@@ -1,6 +1,3 @@
-import { Geist, Geist_Mono } from 'next/font/google';
-import { Provider } from '@/components/provider';
-import './global.css';
 import type { Metadata } from 'next';
 import { appName, siteOrigin } from '@/lib/shared';
 
@@ -18,7 +15,7 @@ const description =
  * search listing leads with the page and a browser tab truncating at thirty characters still
  * shows what the tab is.
  */
-export const metadata: Metadata = {
+export const rootMetadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: { default: `${appName}: PULSE Decision API documentation`, template: `%s | ${appName}` },
   description,
@@ -50,28 +47,3 @@ export const metadata: Metadata = {
  * Both are exposed as CSS variables rather than a className, so `global.css` can point the
  * Fumadocs font tokens at them. Geist Mono is for data and code only, never for prose.
  */
-const geist = Geist({
-  subsets: ['latin', 'latin-ext', 'vietnamese'],
-  variable: '--font-geist',
-  display: 'swap',
-});
-
-const geistMono = Geist_Mono({
-  subsets: ['latin', 'latin-ext', 'vietnamese'],
-  variable: '--font-geist-mono',
-  display: 'swap',
-});
-
-export default function Layout({ children }: LayoutProps<'/'>) {
-  return (
-    <html
-      lang="en"
-      className={`${geist.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="flex min-h-screen flex-col">
-        <Provider>{children}</Provider>
-      </body>
-    </html>
-  );
-}

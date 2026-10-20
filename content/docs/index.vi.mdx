@@ -1,0 +1,156 @@
+---
+title: Giới thiệu
+description: PULSE đo xem dữ liệu sản phẩm của bạn có trả lời được điều người mua đang hỏi hay không, xếp hạng những chỗ đáng sửa, và chứng minh bản sửa có tác dụng.
+icon: Sparkles
+---
+
+Phần lớn công cụ ở lĩnh vực này xếp hạng những gì người mua nhìn thấy. PULSE hỏi câu nằm bên
+dưới câu đó: danh mục của bạn có trả lời được điều họ đến để tìm hiểu hay không? Bạn gửi một tệp
+xuất ngành hàng, nhận lại các thuộc tính đáng ghi theo thứ tự ưu tiên, rồi đo lại sau khi đội của
+bạn đã điền xong.
+
+Ban đầu không có gì được cài lên website của bạn. Câu trả lời hữu ích đầu tiên đến từ một tệp.
+
+<Callout title="Ai xây dựng sản phẩm này">
+  PULSE do **Resolve Labs** làm ra, một đội nhỏ theo đuổi một câu hỏi: thông tin sản phẩm nào đáng
+  bỏ tiền ra sửa. Trang giới thiệu là [thepulseapi.com](https://thepulseapi.com/vi). Trang này
+  dành cho những người phải tích hợp nó.
+</Callout>
+
+## Sản phẩm này thực sự giải quyết vấn đề gì?
+
+Một người mua rời đi mà không mua gì. Hoặc là họ không tìm thấy sản phẩm, hoặc là danh mục của bạn
+không giúp họ phân biệt được các sản phẩm với nhau.
+
+Vế thứ hai lớn hơn và gần như không ai đo nó. Trên một kệ 216 mẫu laptop mà chúng tôi đã đo,
+**94 sản phẩm vẫn không thể phân biệt được** sau mọi câu hỏi mà người mua có thể trả lời, bởi vì
+những thuộc tính giúp tách chúng ra không được ghi ở đâu cả. Không mô hình xếp hạng nào sửa được
+điều đó. Chỉ có việc ghi lại thuộc tính mới sửa được.
+
+Nên PULSE bắt đầu từ danh mục chứ không phải từ phiên truy cập:
+
+| Câu hỏi | PULSE trả lời bằng |
+| --- | --- |
+| **Trường dữ liệu còn thiếu nào tốn kém nhất?** | Một bảng xếp hạng theo số người mua cần nó, không phải theo mức độ trống của cột |
+| **Dữ kiện đó vốn đang nằm ở đâu?** | Thường là trong chính tiêu đề và mô tả của bạn, lấy lại được trước khi ai đó phải gõ gì |
+| **Bản sửa có tác dụng không?** | Cùng một phép đo trên tệp xuất đã sửa, không cần lưu lượng truy cập |
+
+## Nên bắt đầu từ đâu?
+
+<Cards>
+  <Card
+    icon={<ClipboardCheck />}
+    title="Bạn đến từ thepulseapi.com"
+    href="/vi/quickstart"
+    description="Bạn đã đọc bản kiểm tra làm gì. Đây là cách tự chạy một bản, trong khoảng mười dòng."
+  />
+  <Card
+    icon={<Brain />}
+    title="Bạn vào thẳng trang này"
+    href="/vi/concepts/what-the-audit-measures"
+    description="Bắt đầu từ việc bộ máy đo cái gì và vì sao con số đó có ý nghĩa."
+  />
+</Cards>
+
+## Toàn bộ hành trình trông ra sao?
+
+Sáu bước, theo đúng thứ tự bạn sẽ gặp. Mỗi bước tự nó đã hữu ích, và bạn có thể dừng lại sau bất
+kỳ bước nào.
+
+<Steps>
+
+<Step>
+
+### Đo danh mục
+
+`POST /catalog/audit` nhận một tệp xuất ngành hàng và trả về các thuộc tính đáng ghi, đã xếp hạng,
+kèm danh sách sản phẩm bị ảnh hưởng. Không lưu trạng thái, và không lưu gì trừ khi bạn yêu cầu.
+
+[Chạy bản kiểm tra đầu tiên](/vi/quickstart)
+
+</Step>
+
+<Step>
+
+### Hiểu kết quả trả về
+
+Thứ hạng được đo bằng bit thông tin quyết định, không phải đoán từ lượt nhấp, và cột trống nhất
+thường là cột không đáng sửa nhất.
+
+[Bản kiểm tra đo gì](/vi/concepts/what-the-audit-measures)
+
+</Step>
+
+<Step>
+
+### Sửa, rồi đo lại
+
+Đội của bạn điền thuộc tính đứng đầu bảng. `POST /catalog/verify` chạy lại đúng phép đo đó trên
+tệp xuất đã sửa và báo cáo điều gì đã thay đổi, theo từng thuộc tính. Nó đọc danh mục chứ không
+đọc lưu lượng, nên không phải chờ gì cả.
+
+[Tài liệu endpoint](/vi/api/v1/audit)
+
+</Step>
+
+<Step>
+
+### Đưa vào hệ thống của bạn
+
+Chỉ cần khi bạn muốn dùng phần thời gian thực. Có hướng dẫn cho React, Vue, Angular, Astro, Alpine
+và Laravel; hướng dẫn gian hàng cho Shopify, WordPress và Magento; hướng dẫn máy chủ cho tám ngôn
+ngữ.
+
+[Framework](/vi/frameworks) · [Gian hàng](/vi/platforms) · [Máy chủ](/vi/backend)
+
+</Step>
+
+<Step>
+
+### Xếp hạng phiên truy cập, nếu bạn muốn
+
+Phần tuỳ chọn, và là phần duy nhất chạm tới gian hàng của bạn. SDK gửi tín hiệu, bộ máy xếp hạng
+danh mục theo những gì phiên truy cập hàm ý, và mọi điểm số đều kèm diễn giải theo từng yếu tố.
+
+[Tài liệu SDK](/vi/sdk) · [Tài liệu API](/vi/api/v1)
+
+</Step>
+
+<Step>
+
+### Đưa lên production
+
+Cần kiểm tra gì trước khi phát hành, cần theo dõi gì sau đó, và những điều chúng tôi sẽ không
+tuyên bố.
+
+[Đưa lên production](/vi/going-live)
+
+</Step>
+
+</Steps>
+
+## Cài đặt
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+Hoặc nhúng thẳng vào trang, đây là cách các bản tích hợp gian hàng đang dùng:
+
+```html title="index.html"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js" async></script>
+```
+
+Thẻ script này expose client ra biến toàn cục `Pulse`, nên gọi `Pulse.init(...)` là chạy được ngay.
+
+<Callout title="Những gì rời khỏi trình duyệt">
+  Tín hiệu và một mã phiên. Không có tên, không có email, không có dữ liệu thanh toán. Bản kiểm
+  tra thì không nhìn thấy người mua nào cả: nó đọc dữ liệu sản phẩm.
+</Callout>
+
+## Cần biết gì trước khi tin vào các con số?
+
+<Cards>
+  <Card icon={<Feather />} title="3,2 KB sau nén" description="Bản dùng cho thẻ script, không phụ thuộc thư viện nào khi chạy." />
+  <Card icon={<Timer />} title="Không cần lịch sử" description="Bản kiểm tra chỉ cần một tệp xuất. Phần thời gian thực xếp hạng ngay từ lượt truy cập đầu tiên." />
+  <Card icon={<ShieldCheck />} title="Giấy phép MIT" description="Mã nguồn client là mở. Hãy đọc từng dòng trước khi đưa lên production." />
+  <Card icon={<SearchX />} title="Không hứa hẹn tăng trưởng" description="Chúng tôi chưa chạy thử nghiệm doanh thu thực tế nào, nên không đưa ra con số chuyển đổi." />
+</Cards>

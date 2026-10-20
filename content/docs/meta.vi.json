@@ -1,0 +1,19 @@
+{
+  "title": "Tài liệu",
+  "pages": [
+    "index",
+    "---Bắt đầu---",
+    "quickstart",
+    "---Hiểu cách hoạt động---",
+    "concepts",
+    "---Đưa vào hệ thống của bạn---",
+    "frameworks",
+    "platforms",
+    "backend",
+    "---Tra cứu---",
+    "api",
+    "sdk",
+    "---Đưa lên production---",
+    "going-live"
+  ]
+}
