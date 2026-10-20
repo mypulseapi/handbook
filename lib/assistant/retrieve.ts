@@ -9,10 +9,22 @@ import type { Chunk } from './chunk';
 
 export interface SearchIndex {
   model: string;
+  /** Prepended to a query before embedding. e5 needs `query: `; MiniLM needs nothing. */
+  queryPrefix?: string;
   dimensions: number;
   builtAt: string;
   contentHash: string;
-  chunks: { u: string; a: string; p: string; h: string; t: string; l: string; c?: { l: string; s: string } }[];
+  chunks: {
+    u: string;
+    a: string;
+    p: string;
+    h: string;
+    t: string;
+    l: string;
+    c?: { l: string; s: string };
+    /** The Vietnamese URL this English chunk also serves, when the page is untranslated. */
+    v?: string;
+  }[];
   /** base64 int8, `chunks.length * dimensions`. */
   vectors: string;
 }
@@ -83,6 +95,25 @@ export interface Thresholds {
 export const DEFAULT_THRESHOLDS: Thresholds = { accept: 0.22, margin: 0.02 };
 
 /**
+ * e5 lives in a different range, so it needs its own floor.
+ *
+ * Cosines from `multilingual-e5-small` are compressed high: a correct Vietnamese match scores
+ * 0.78 to 0.86 and unrelated text still sits near 0.7, because the model was trained with a
+ * contrastive objective that does not spread the tail. Reusing 0.22 here would accept
+ * everything.
+ *
+ * 0.80 is where the sweep puts it: 10 of 10 Vietnamese probes retrieved, and one of three
+ * nonsense queries accepted. Recall is flat from 0.74 to 0.80 and then falls off a cliff, 6 of
+ * 10 at 0.82 and 3 of 10 at 0.84, so there is no room above it and nothing to gain below it.
+ */
+export const E5_THRESHOLDS: Thresholds = { accept: 0.8, margin: 0.01 };
+
+/** The thresholds an index was built for. */
+export function thresholdsFor(index: SearchIndex): Thresholds {
+  return index.model.includes('e5') ? E5_THRESHOLDS : DEFAULT_THRESHOLDS;
+}
+
+/**
  * Top matches for a query vector.
  *
  * Results are deduplicated by page before `limit` is applied, keeping each page's best section.
@@ -95,14 +126,28 @@ export function search(
   rows: Int8Array,
   opts: { lang?: string; limit?: number; thresholds?: Thresholds } = {},
 ): Hit[] {
-  const { lang, limit = 4, thresholds = DEFAULT_THRESHOLDS } = opts;
+  const { lang, limit = 4, thresholds = thresholdsFor(index) } = opts;
   if (query.length !== index.dimensions) return [];
 
   const scored: Hit[] = [];
   for (let i = 0; i < index.chunks.length; i += 1) {
     const row = index.chunks[i]!;
-    if (lang !== undefined && row.l !== lang) continue;
-    scored.push({ chunk: toChunk(row), score: cosine(query, rows, i, index.dimensions) });
+
+    /*
+     * Vietnamese reaches the English pages too, because the site does.
+     *
+     * Only three pages have a `.vi.mdx`; the rest serve their English body under Vietnamese
+     * chrome, and `v` is the Vietnamese URL such a chunk also lives at. Filtering strictly on
+     * language left a reader on /vi/backend/python with nothing to find, which is the bug this
+     * is here to fix. The chunk is presented at the URL the reader is actually on.
+     */
+    let chunk = toChunk(row);
+    if (lang !== undefined && row.l !== lang) {
+      if (lang !== 'vi' || !row.v) continue;
+      chunk = { ...chunk, url: row.v, lang: 'vi' };
+    }
+
+    scored.push({ chunk, score: cosine(query, rows, i, index.dimensions) });
   }
   scored.sort((a, b) => b.score - a.score);
 
