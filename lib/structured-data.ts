@@ -21,39 +21,40 @@ export function jsonLdProps(data: object) {
   } as const;
 }
 
+const website = {
+  '@type': 'WebSite',
+  '@id': `${siteOrigin}/#website`,
+  url: siteOrigin,
+  name: appName,
+  publisher: { '@id': `${siteOrigin}/#organization` },
+  inLanguage: 'en-US',
+};
+
+const sdk = {
+  '@type': 'SoftwareApplication',
+  '@id': `${siteOrigin}/#sdk`,
+  name: npmPackage,
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Any',
+  license: 'https://opensource.org/licenses/MIT',
+  url: `https://www.npmjs.com/package/${npmPackage}`,
+};
+
 const organization = {
   '@type': 'Organization',
   '@id': `${siteOrigin}/#organization`,
   name: companyName,
+  legalName: 'Resolve Labs',
   url: siteUrl,
-  logo: `${siteOrigin}/pulse-logo.png`,
+  // Standard 5.3: an ImageObject with its own @id, never a bare string.
+  logo: {
+    '@type': 'ImageObject',
+    '@id': `${siteOrigin}/#logo`,
+    url: `${siteOrigin}/pulse-logo.png`,
+    contentUrl: `${siteOrigin}/pulse-logo.png`,
+  },
+  image: { '@id': `${siteOrigin}/#logo` },
 };
-
-export function siteLd(description: string) {
-  return {
-    '@context': 'https://schema.org',
-    '@graph': [
-      organization,
-      {
-        '@type': 'WebSite',
-        '@id': `${siteOrigin}/#website`,
-        url: siteOrigin,
-        name: appName,
-        description,
-        publisher: { '@id': `${siteOrigin}/#organization` },
-        inLanguage: 'en',
-      },
-      {
-        '@type': 'SoftwareApplication',
-        name: npmPackage,
-        applicationCategory: 'DeveloperApplication',
-        operatingSystem: 'Any',
-        license: 'https://opensource.org/licenses/MIT',
-        url: `https://www.npmjs.com/package/${npmPackage}`,
-      },
-    ],
-  };
-}
 
 export function docPageLd({
   title,
@@ -83,20 +84,42 @@ export function docPageLd({
     { name: title, url },
   ];
 
+  const pageUrl = `${siteOrigin}${url}`;
+
   return {
     '@context': 'https://schema.org',
     '@graph': [
+      // Standard 5.3: one graph per page, and the organization repeated in full on each so
+      // nothing references an @id that is defined on another document.
+      organization,
+      website,
+      sdk,
+      {
+        '@type': 'WebPage',
+        '@id': `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: title,
+        description,
+        isPartOf: { '@id': `${siteOrigin}/#website` },
+        about: { '@id': `${siteOrigin}/#organization` },
+        inLanguage: 'en-US',
+        breadcrumb: { '@id': `${pageUrl}#breadcrumb` },
+      },
       {
         '@type': 'TechArticle',
+        '@id': `${pageUrl}#article`,
         headline: title,
         description,
-        url: `${siteOrigin}${url}`,
-        inLanguage: 'en',
-        isPartOf: { '@id': `${siteOrigin}/#website` },
+        url: pageUrl,
+        inLanguage: 'en-US',
+        isPartOf: { '@id': `${pageUrl}#webpage` },
+        mainEntityOfPage: { '@id': `${pageUrl}#webpage` },
         publisher: { '@id': `${siteOrigin}/#organization` },
+        author: { '@id': `${siteOrigin}/#organization` },
       },
       {
         '@type': 'BreadcrumbList',
+        '@id': `${pageUrl}#breadcrumb`,
         itemListElement: trail.map((item, i) => ({
           '@type': 'ListItem',
           position: i + 1,

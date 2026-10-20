@@ -1,1 +1,10 @@
-{ "title": "Concepts", "icon": "Brain", "pages": ["how-it-works", "signals", "sessions"] }
+{
+  "title": "Concepts",
+  "icon": "Brain",
+  "pages": [
+    "what-the-audit-measures",
+    "how-it-works",
+    "signals",
+    "sessions"
+  ]
+}

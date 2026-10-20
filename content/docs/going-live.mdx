@@ -1,0 +1,106 @@
+---
+title: Going live
+description: What to check before you ship PULSE, what to watch in the first week, and the claims we will not make for you.
+icon: ShieldCheck
+---
+
+You have run an audit, repaired something, and possibly wired up the runtime. This page is the
+end of the path: what to check before it goes in front of shoppers, and what to expect
+afterwards.
+
+## What should I check before shipping?
+
+<Steps>
+
+<Step>
+
+### Keys are the right kind
+
+A publishable key (`pk_live_...`) is designed to be visible in page source. A secret key is not,
+and belongs only in a server guide. If a secret key reached a theme file or a client bundle,
+revoke it now rather than after the deploy.
+
+</Step>
+
+<Step>
+
+### A held-back group exists
+
+Decide what fraction of traffic never sees PULSE ranking, and keep it. Without a control arm you
+cannot tell a good quarter from a good ranker, and you will not be able to answer the first
+question your finance team asks.
+
+</Step>
+
+<Step>
+
+### Your own order is the fallback
+
+If the engine is slow or unavailable, the page should render your existing order rather than an
+empty shelf. Check it by pointing `endpoint` at a port nothing is listening on and loading the
+page.
+
+</Step>
+
+<Step>
+
+### `init()` failure is visible to you
+
+`init()` sends the automatic signals exactly once and swallows its own error. A session whose
+`init()` failed stays thin for its whole life, and nothing in the page tells you. Log the
+failure, or call
+[`captureAutoSignals()`](/sdk#beyond-the-client) again on a later page load.
+
+</Step>
+
+<Step>
+
+### Exposure is recorded
+
+If you rank, call `exposure()` with what was actually rendered. A ranking you cannot tie to what
+the shopper saw cannot be evaluated later, and the buffered call costs almost nothing.
+
+</Step>
+
+</Steps>
+
+## What should I watch in the first week?
+
+| Watch | Why it matters |
+| --- | --- |
+| Sessions with zero signals | Almost always `init()` failing silently, or a key scoped to the wrong origin |
+| Abstention rate | The engine declining to rank is working as designed. A sudden move in it usually means the catalogue changed, not the engine |
+| Audit readiness, re-run | Catalogues decay. New products arrive unrecorded, and a shelf that scored well last quarter quietly stops |
+| Fallback rate | How often your own order was served instead. Should be near zero and is not always |
+
+## What will you not claim for me?
+
+Worth reading before you repeat anything from this site internally.
+
+<Callout type="warn" title="No uplift number">
+  We have run no live revenue experiment. We will not quote a conversion lift, a return-rate
+  reduction or an ROI multiple, and any figure you see elsewhere attached to those words did not
+  come from us.
+</Callout>
+
+What we can show is a property of your catalogue: which requirements it can and cannot resolve,
+before and after a repair. That is measured, it is reproducible, and it is not the same thing as
+a sale.
+
+Three more limits, stated plainly:
+
+- **A fact that exists only inside a photograph is one we can tell you is missing and cannot yet
+  recover for you.** Extracting attributes from product imagery is research we are doing, not a
+  feature we ship.
+- **Our simulation of a complete catalogue can only use values your shelf already records.**
+  Where an attribute's recorded values do not represent its true range, the simulation is wrong
+  in a way we can name and cannot yet correct.
+- **We have no customers to name.** When that changes we will say so with their permission.
+
+## Where does this go next?
+
+<Cards>
+  <Card icon={<Braces />} title="API reference" href="/api/v1" description="Every endpoint a publishable key can call, with the error shapes." />
+  <Card icon={<Boxes />} title="SDK reference" href="/sdk" description="Every method on the client, and the functions beside it." />
+  <Card icon={<Brain />} title="How inference works" href="/concepts/how-it-works" description="What the engine measures, and when it is wrong." />
+</Cards>

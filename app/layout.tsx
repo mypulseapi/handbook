@@ -1,11 +1,11 @@
-import { Inter } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { Provider } from '@/components/provider';
 import './global.css';
 import type { Metadata } from 'next';
 import { appName, siteOrigin } from '@/lib/shared';
 
 const description =
-  'Build with the PULSE Decision API: real-time persona inference for e-commerce. SDK, framework guides and the full HTTP reference.';
+  'Measure whether your product data can answer what shoppers ask. Send one catalogue export, get ranked repairs back, then verify the fix. SDK, guides and the full HTTP reference.';
 
 /*
  * The defaults every page inherits.
@@ -40,13 +40,35 @@ export const metadata: Metadata = {
   },
 };
 
-const inter = Inter({
-  subsets: ['latin'],
+/*
+ * Geist and Geist Mono, which replaced Inter in the brand guideline on 19 Oct 2026.
+ *
+ * `vietnamese` is in the subsets because the marketing site has a `vi` locale coming and the
+ * guideline chose this pairing partly for its Vietnamese coverage. Loading it here costs one
+ * extra unicode-range the browser only fetches when it meets a Vietnamese glyph.
+ *
+ * Both are exposed as CSS variables rather than a className, so `global.css` can point the
+ * Fumadocs font tokens at them. Geist Mono is for data and code only, never for prose.
+ */
+const geist = Geist({
+  subsets: ['latin', 'latin-ext', 'vietnamese'],
+  variable: '--font-geist',
+  display: 'swap',
+});
+
+const geistMono = Geist_Mono({
+  subsets: ['latin', 'latin-ext', 'vietnamese'],
+  variable: '--font-geist-mono',
+  display: 'swap',
 });
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${geist.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
       <body className="flex min-h-screen flex-col">
         <Provider>{children}</Provider>
       </body>
