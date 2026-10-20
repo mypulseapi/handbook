@@ -3,3 +3,10 @@
 allowBuilds:
   esbuild: true   # native binary, fetched and linked at install. MDX pipeline needs it.
   sharp: true     # native image pipeline, used for OG image generation
+
+  # Denied on purpose, and written down because pnpm 12 fails the install on an undeclared
+  # ignored build script. @huggingface/transformers pulls onnxruntime-node, ~113 MB of native
+  # binaries for running models in Node. Nothing here does: the browser uses onnxruntime-web,
+  # and the one build-time embedding script runs on the WASM backend.
+  onnxruntime-node: false
+  protobufjs: false
