@@ -1,0 +1,103 @@
+---
+title: What the audit measures
+description: Why the emptiest column is usually the wrong one to fix, what a bit of decision information buys, and the three cases where the ranking is wrong.
+icon: ClipboardCheck
+---
+
+The audit returns attributes in priority order. The order is the product, and it is not the order
+you would get by counting blanks.
+
+## Why not just fix the emptiest column?
+
+Because emptiness and usefulness are different quantities, and on a real shelf they invert.
+
+Here are two attributes from the 216-product laptop catalogue we use for our own research:
+
+| Attribute | Missing on | Rank by emptiness | Rank by decision value |
+| --- | --- | --- | --- |
+| Processor | 162 of 216 | **1st** | **last** |
+| Screen size | 80 of 216 | 4th | **1st** |
+
+Processor is missing twice as often and almost nobody is deciding on it: it appears in 2 of the 32
+buying requirements we tested. Screen size appears in 13. Fill processor everywhere and you have
+done the most visible work on the dashboard and moved the fewest decisions.
+
+<Callout type="warn" title="This is the whole argument">
+  A completeness score measures your catalogue against itself. The audit measures it against what
+  shoppers are trying to decide. Those produce different work orders, and only one of them is
+  ranked by what it buys.
+</Callout>
+
+## What is a bit of decision information?
+
+One bit is one halving of the shelf.
+
+If a shopper faces 216 products and an attribute splits them cleanly in two, that attribute is
+worth one bit: it takes 216 to 108. Two bits takes it to 54. The audit reports what each attribute
+would be worth **if it were recorded everywhere**, minus what it is worth today, and the
+difference is what the repair buys.
+
+This is why the number is not a percentage. A percentage tells you how full a column is. Bits tell
+you how much closer a shopper gets to a decision when you fill it.
+
+## Where does the missing value already live?
+
+Often in text you already own. Before recommending that anyone type anything, the audit tries to
+recover the value from your own titles and descriptions.
+
+On that same laptop shelf, **161 of 216 missing screen sizes were already sitting in the product
+titles**. That is a parse, not a procurement project, and it changes what the repair costs enough
+to change whether it is worth doing.
+
+The audit reports each attribute's provenance so you can tell the two apart:
+
+| Where the fact is | What the repair actually is |
+| --- | --- |
+| Already in your text | Extraction. Cheap, and often same-day |
+| In a supplier feed | Mapping. A ticket, not a project |
+| Nowhere | Acquisition. Someone has to go and find it |
+
+## When is the ranking wrong?
+
+Three cases, and we would rather you heard them from us.
+
+<Steps>
+
+<Step>
+
+### The recorded values are not representative
+
+Simulating a complete catalogue can only draw on values your shelf already holds. If an attribute
+is recorded on twenty products and those twenty are not typical of the range, the simulation is
+wrong in a way we can name and cannot yet correct.
+
+</Step>
+
+<Step>
+
+### The requirements are not yours
+
+The buying requirements we test against are typed from public category guides and filter rails. If
+your shoppers want something those do not cover, the ranking will not know. Sending us your own
+search and filter logs is what fixes this, and it is the single highest-value thing you can add.
+
+</Step>
+
+<Step>
+
+### The fact exists only in a photograph
+
+A dietary claim printed on a pack, a material visible in an image. We can tell you the attribute
+is missing from your fields. We cannot yet read it out of your imagery, and we will say so on the
+row rather than quietly scoring it as absent.
+
+</Step>
+
+</Steps>
+
+## What happens next?
+
+<Cards>
+  <Card icon={<Braces />} title="Run it" href="/api/v1/audit" description="POST /catalog/audit and /catalog/verify, with the request and response shapes." />
+  <Card icon={<Brain />} title="The runtime" href="/concepts/how-it-works" description="The other half: ranking a live session once the catalogue can support it." />
+</Cards>
