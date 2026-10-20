@@ -45,7 +45,14 @@ export async function renderDocPage(lang: Language, slug: string[] | undefined) 
         )}
       />
       <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
+      {/*
+          `doc-lede` rather than Fumadocs' own sizing. Its default is `text-lg text-fd-muted-
+          foreground`, which renders the lede larger and greyer than the prose underneath it, so
+          the first thing a reader sees is the one paragraph in a different size and colour from
+          every other. The class is styled in global.css off the same tokens as body copy, so the
+          two cannot drift.
+      */}
+      <DocsDescription className="doc-lede mb-0">{page.data.description}</DocsDescription>
       <div className="flex flex-row items-center gap-2 border-b pb-6">
         <MarkdownCopyButton markdownUrl={markdownUrl} />
         <ViewOptionsPopover

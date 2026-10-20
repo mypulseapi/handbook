@@ -93,6 +93,28 @@
   max-width: var(--fd-measure);
 }
 
+/*
+ * The page lede, matched to body copy.
+ *
+ * Fumadocs styles its description `text-lg text-fd-muted-foreground`: larger than the prose and
+ * in the muted colour. On a documentation page that makes the opening paragraph the odd one out,
+ * bigger and fainter than everything it introduces, and the eye reads the contrast as emphasis
+ * where none is meant.
+ *
+ * Size, weight and colour all come from the same tokens as body copy, and `!important` is needed
+ * only because Fumadocs' utilities are on the element itself.
+ */
+.doc-lede {
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  /* Fumadocs sets prose at `text-fd-foreground/90`, so the lede takes the same 90% rather than
+     the solid token: at full strength it reads a shade heavier than the paragraph beneath it. */
+  color: color-mix(in oklab, var(--color-fd-foreground) 90%, transparent) !important;
+  line-height: var(--fd-leading-prose);
+  letter-spacing: -0.011em;
+  max-width: var(--fd-measure);
+}
+
 /* Table text is data, so it takes the mono face and tabular figures. */
 .prose table {
   font-variant-numeric: tabular-nums;
