@@ -1,0 +1,127 @@
+---
+title: Giấy phép, giới hạn và sử dụng hợp lý
+description: PULSE là phần mềm độc quyền. Phần nào mở và phần nào không, lệnh gọi nào tính vào hạn mức, các giới hạn tần suất, và chúng tôi xử lý lạm dụng ra sao.
+icon: Scale
+---
+
+Hai thứ khác nhau mang hai giấy phép khác nhau, và cần phân biệt trước khi bạn xây dựng trên bất
+kỳ thứ nào.
+
+## Phần nào mở, phần nào không
+
+<Cards>
+  <Card
+    icon={<Boxes />}
+    title="SDK phía client là MIT"
+    href="/vi/sdk"
+    description="@thepulseapi/sdk. Mã nguồn mở, đọc được, và bạn có thể fork. Nó gửi tín hiệu và đọc thứ hạng; nó không chứa phần nào của engine."
+  />
+  <Card
+    icon={<Shield />}
+    title="Engine là độc quyền"
+    href="/vi/concepts/how-it-works"
+    description="Decision Audit, phần xếp hạng và phần suy luận đều đóng. Resolve Labs giữ toàn bộ quyền. Truy cập bằng API key theo một thoả thuận thương mại."
+  />
+</Cards>
+
+**PULSE là phần mềm độc quyền.** Phép đo — cách tính thông tin quyết định, cách xếp hạng thuộc
+tính, cách đọc một phiên truy cập — không phải mã nguồn mở và không được công bố. Chúng tôi giải
+thích rất kỹ nó làm gì và vì sao, xuyên suốt tài liệu này. Chúng tôi không công bố nó làm điều đó
+bằng cách nào.
+
+SDK thì đúng là MIT và đúng là mở. Hãy đọc từng dòng trước khi bạn đưa lên production; đó chính là
+lý do nó được công bố. Nó là một client mỏng: gửi được tín hiệu và đọc được thứ hạng, và không làm
+gì khác. **Không có gì trong SDK tiết lộ hay tái tạo engine**, nên fork nó chỉ cho bạn một client,
+không phải một bản cài đặt.
+
+<Callout type="warn" title="Điều này nghĩa là gì trên thực tế">
+  Bạn được dùng API theo thoả thuận của mình, và được đọc, sửa, phân phối lại SDK theo giấy phép
+  MIT. Bạn không được dịch ngược engine, bán lại quyền truy cập vào nó, hoặc dùng đầu ra của nó để
+  huấn luyện một mô hình cạnh tranh. Đó là điều khoản trong thoả thuận chứ không phải một dòng
+  header giấy phép, và đó mới là những điều người ta thực sự hỏi.
+</Callout>
+
+## Những gì tính vào hạn mức
+
+Mỗi tổ chức có một hạn mức lệnh gọi hằng tháng theo gói của mình. Không phải endpoint nào cũng tiêu
+vào đó.
+
+| Có tính | Không tính |
+| --- | --- |
+| `/track` và `/track/**` | `/suggest` |
+| `/search`, `/rerank` | `/event` và `/event/**` |
+| `/catalog/**`, gồm cả audit và verify | `/exposure` và `/exposure/**` |
+| `/session` và `/session/**` | |
+
+Cách chia này là có chủ ý: **báo cho chúng tôi biết chuyện gì đã xảy ra thì miễn phí, nhờ chúng
+tôi quyết định điều gì đó thì không.** `/event` và `/exposure` là cách bạn phản hồi lại những gì
+người mua thực sự đã thấy và đã làm, và tính phí cho việc đó sẽ cản trở đúng loại dữ liệu làm cho
+câu trả lời sau tốt hơn.
+
+Gateway trả về hạn mức còn lại trong mỗi lệnh gọi có tính, nên bạn không bao giờ phải đoán. Vượt
+hạn mức là bị từ chối, không phải một hoá đơn bất ngờ.
+
+## Giới hạn tần suất
+
+Tách khỏi hạn mức, và áp theo từng route chứ không theo gói. Hạn mức là khối lượng hằng tháng;
+những giới hạn này chặn các đợt dồn dập.
+
+Các route công khai nhạy cảm bị giới hạn chặt, vì đó chính là những route đáng bị tấn công:
+
+| Route | Giới hạn |
+| --- | --- |
+| `/auth/forgot-password` | 3 lần mỗi giờ |
+| Biểu mẫu liên hệ công khai | 3 lần mỗi ngày |
+| Đăng ký nhận bản tin | 1 lần mỗi 30 ngày |
+| Nộp hồ sơ tuyển dụng | 5 lần mỗi 30 ngày |
+
+Giới hạn theo IP áp dụng thêm bên trên, và giới hạn đi theo người truy cập chứ không theo máy chủ
+của bạn: gateway đọc chuỗi forwarded, nên một người mua chạm giới hạn không làm cạn hạn mức của
+mọi người phía sau cửa hàng bạn.
+
+Một request bị giới hạn sẽ nhận `429` kèm `retryAfter`. **Hãy giãn ra rồi thử lại; đừng quay vòng
+liên tục.** Một client thử lại ngay lập tức khi gặp 429 thì không phân biệt được với chính thứ lạm
+dụng mà các giới hạn này sinh ra để chặn, và sẽ bị xử lý như vậy.
+
+## Xác thực, và khoá nào dùng ở đâu
+
+Ba loại thông tin xác thực, và dùng nhầm loại là lỗi tích hợp phổ biến nhất:
+
+- **API key** (`apikey`) — bề mặt runtime: track, search, rerank, catalog, session. Đây là khoá
+  công khai được mà SDK trình duyệt mang theo. Nó gửi được tín hiệu và đọc được thứ hạng, không làm
+  gì khác, nên để trong trang là an toàn.
+- **JWT** (`jwt`) — mọi thứ nhà bán hàng làm với tư cách chính họ: sản phẩm, ngành hàng, tải tệp,
+  thanh toán, đội ngũ. **Tuyệt đối không đặt vào bundle trình duyệt.**
+- **Công khai** — đăng nhập, đăng ký, đặt lại mật khẩu. Bị giới hạn tần suất như trên.
+
+Quản lý khoá nằm ở <Ext to="apiKey">bảng điều khiển</Ext>. Hãy xoay khoá ngay khi bạn nghĩ nó đã
+lộ; thay đổi có hiệu lực tức thì và khoá cũ ngừng hoạt động.
+
+## An ninh và lạm dụng
+
+Chúng tôi theo dõi những thứ thông thường: dò mật khẩu hàng loạt vào các route xác thực, các mẫu
+hành vi cào dữ liệu vào endpoint danh mục, và khoá được dùng từ những nơi chưa từng dùng trước đó.
+
+**Điều gì khiến tài khoản bị tạm ngưng:** trích xuất hàng loạt đầu ra xếp hạng, dùng một khoá trên
+nhiều danh mục không liên quan, hoặc mọi nỗ lực tái dựng hành vi của engine từ phản hồi của nó.
+Những chuyện đó hiếm, và cũng rất dễ nhận ra từ mẫu gọi API.
+
+**Điều gì thì không:** một đợt dồn dập trong dịp khuyến mãi, một cấu hình thử lại sai mà bạn đã
+sửa, một đợt kiểm thử tải mà bạn báo trước. Báo trước khi kiểm thử tải thì không có chuyện gì xảy
+ra; chạy mà không báo thì các giới hạn sẽ xử lý nó đúng như vẻ ngoài của nó.
+
+<Callout title="Phát hiện lỗ hổng bảo mật?">
+  Hãy gửi thư tới <Ext to="support">support@thepulseapi.com</Ext> kèm đủ chi tiết để tái hiện, và
+  cho chúng tôi cơ hội sửa trước khi công bố. Chúng tôi sẽ không truy cứu người báo cáo với thiện
+  chí và không rút dữ liệu ra ngoài hay làm suy giảm dịch vụ để chứng minh.
+</Callout>
+
+## Những gì chúng tôi cam kết
+
+API có phiên bản, và `/api/v1` giữ nguyên hình dạng của nó. [Phiên bản](/vi/api/versioning) nói rõ
+thay đổi phá vỡ tương thích nghĩa là gì ở đây và bạn có bao nhiêu thời gian.
+
+Bản kiểm tra không lưu gì trừ khi bạn yêu cầu. Nó đọc dữ liệu sản phẩm và không bao giờ nhìn thấy
+người mua: không hồ sơ khách hàng, không lịch sử đơn hàng, không dữ liệu cá nhân. Đó là tính chất
+của phép đo chứ không phải một chính sách, nên nó nằm trong
+[cách hoạt động](/vi/concepts/how-it-works) cũng như ở đây.

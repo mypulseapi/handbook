@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "---Start here---",
+    "who-is-this-for",
     "quickstart",
     "---Understand it---",
     "concepts",
@@ -16,6 +17,7 @@
     "mcp",
     "---Ship it---",
     "going-live",
+    "licence-and-limits",
     "changelog"
   ]
 }

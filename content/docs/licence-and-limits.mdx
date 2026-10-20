@@ -1,0 +1,123 @@
+---
+title: Licence, limits and fair use
+description: PULSE is proprietary software. What is open and what is not, which calls count against your quota, the rate limits, and what we do about abuse.
+icon: Scale
+---
+
+Two different things carry two different licences, and the distinction matters before you build
+on either.
+
+## What is open, and what is not
+
+<Cards>
+  <Card
+    icon={<Boxes />}
+    title="The client SDK is MIT"
+    href="/sdk"
+    description="@thepulseapi/sdk. Open source, readable, and yours to fork. It sends signals and reads rankings; it contains no part of the engine."
+  />
+  <Card
+    icon={<Shield />}
+    title="The engine is proprietary"
+    href="/concepts/how-it-works"
+    description="The Decision Audit, the ranking and the inference are closed. Resolve Labs retains all rights. Access is by API key under a commercial agreement."
+  />
+</Cards>
+
+**PULSE is proprietary software.** The measurement — how decision information is computed, how
+attributes are ranked, how a session is read — is not open source and is not published. We explain
+what it does and why, in detail, throughout this documentation. We do not publish how it does it.
+
+The SDK is genuinely MIT and genuinely open. Read every line before you ship it; that is the point
+of publishing it. It is a thin client: it can send signals and read a ranking, and it can do
+nothing else. **Nothing in the SDK reveals or reproduces the engine**, so forking it gets you a
+client, not an implementation.
+
+<Callout type="warn" title="What this means in practice">
+  You may use the API under your agreement, and you may read, modify and redistribute the SDK
+  under MIT. You may not reverse engineer the engine, resell access to it, or use its outputs to
+  train a competing model. Those are terms of the agreement rather than a licence header, and they
+  are the ones people actually ask about.
+</Callout>
+
+## What counts against your quota
+
+Every organisation has a monthly call allowance set by its plan. Not every endpoint spends it.
+
+| Counts | Does not count |
+| --- | --- |
+| `/track` and `/track/**` | `/suggest` |
+| `/search`, `/rerank` | `/event` and `/event/**` |
+| `/catalog/**`, including the audit and verify | `/exposure` and `/exposure/**` |
+| `/session` and `/session/**` | |
+
+The split is deliberate: **telling us what happened is free, asking us to decide something is
+not.** `/event` and `/exposure` are how you report back what a shopper actually saw and did, and
+charging for that would discourage exactly the data that makes the next answer better.
+
+The gateway returns your remaining allowance on every counted call, so you never have to guess
+where you are. Exceeding it is a refusal, not a surprise invoice.
+
+## Rate limits
+
+Separate from the quota, and they apply per route rather than per plan. The quota is monthly
+volume; these stop bursts.
+
+Sensitive public routes are limited tightly, because they are the ones worth attacking:
+
+| Route | Limit |
+| --- | --- |
+| `/auth/forgot-password` | 3 per hour |
+| Public contact form | 3 per day |
+| Public newsletter signup | 1 per 30 days |
+| Public careers application | 5 per 30 days |
+
+Per-IP limits apply on top, and the limit follows the visitor rather than your server: the gateway
+reads the forwarded chain, so one shopper hitting a limit does not exhaust it for everyone behind
+your storefront.
+
+A limited request answers `429` with a `retryAfter`. **Back off and retry; do not spin.** A client
+that retries immediately on 429 is indistinguishable from the abuse these limits exist to stop,
+and will be treated as such.
+
+## Authentication, and which key goes where
+
+Three kinds of credential, and using the wrong one is the most common integration failure:
+
+- **API key** (`apikey`) — the runtime surface: track, search, rerank, catalog, session. This is
+  the publishable key the browser SDK carries. It can send signals and read rankings and nothing
+  else, which is why it is safe in a page.
+- **JWT** (`jwt`) — everything a merchant does as themselves: products, categories, uploads,
+  billing, team. **Never put one in a browser bundle.**
+- **Public** — sign-in, registration, password reset. Rate limited as above.
+
+Key management lives in <Ext to="apiKey">the dashboard</Ext>. Rotate a key the moment you think it
+has leaked; it takes effect immediately and old keys stop working.
+
+## Security and abuse
+
+We monitor for the ordinary things: credential stuffing against the auth routes, scraping patterns
+against the catalogue endpoints, and keys used from places they have never been used before.
+
+**What gets an account suspended:** bulk extraction of ranking outputs, using one key across
+unrelated catalogues, or any attempt to reconstruct the engine's behaviour from its responses.
+Those are rare, and they are also obvious from the call pattern.
+
+**What does not:** a burst during a sale, a misconfigured retry you fix, a load test you tell us
+about first. Tell us before the load test and nothing happens; run it unannounced and the limits
+will treat it as what it looks like.
+
+<Callout title="Found a vulnerability?">
+  Mail <Ext to="support">support@thepulseapi.com</Ext> with enough detail to reproduce it, and give
+  us a chance to fix it before publishing. We will not pursue anyone who reports in good faith and
+  does not exfiltrate data or degrade the service while proving the point.
+</Callout>
+
+## What we commit to
+
+The API is versioned, and `/api/v1` keeps its shape. [Versioning](/api/versioning) covers what a
+breaking change means here and how long you get.
+
+The audit stores nothing unless you ask it to. It reads product data and never sees a shopper:
+no customer records, no order history, no personal data. That is a property of the measurement
+rather than a policy, which is why it is in [how it works](/concepts/how-it-works) as well as here.

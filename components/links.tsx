@@ -1,5 +1,7 @@
 import {
   apiBaseUrl,
+  salesEmail,
+  supportEmail,
   cdnSdkUrl,
   dashboardApiKeyUrl,
   dashboardSignUpUrl,
@@ -39,6 +41,10 @@ const TARGETS = {
   sdk: cdnSdkUrl,
   /** The demo storefront. */
   demo: demoUrl,
+  /** Technical questions. `mailto:` so the link opens a composer rather than a page. */
+  support: `mailto:${supportEmail}`,
+  /** A first audit, or anything commercial. */
+  sales: `mailto:${salesEmail}`,
 } as const;
 
 export type LinkTarget = keyof typeof TARGETS;
@@ -52,9 +58,11 @@ export function Ext({
   children?: React.ReactNode;
 }) {
   const href = TARGETS[to];
+  // A mailto's own URL is not what a reader should see: show the address.
+  const label = children ?? href.replace(/^mailto:/, "");
   return (
     <a href={href} rel="noreferrer">
-      {children ?? href}
+      {label}
     </a>
   );
 }

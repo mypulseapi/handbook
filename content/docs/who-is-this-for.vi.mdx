@@ -1,0 +1,204 @@
+---
+title: Trang này dành cho ai
+description: Ba cách một nhà bán hàng tìm đến PULSE và nên đọc gì trước, bản kiểm tra cần gì từ ngành hàng của bạn, và hỏi ai khi tài liệu chưa trả lời được.
+icon: UserRound
+---
+
+**Tài liệu này dành cho các nhà bán hàng PULSE đã được phê duyệt.** API không mở, không có gói
+miễn phí công khai, và API key chỉ được cấp cho tổ chức đã đăng ký, đã đăng ký gói và đã được phê
+duyệt.
+
+Nếu bạn chưa thuộc nhóm đó, phần ngay dưới đây là tất cả những gì bạn cần. Mọi phần sau đó giả
+định bạn đã vào được.
+
+## Bạn cần một tài khoản đã được phê duyệt
+
+Ba bước, theo đúng thứ tự. Không bỏ qua bước nào được.
+
+<Steps>
+
+<Step>
+
+### Đăng ký tổ chức của bạn
+
+Tạo tài khoản tại <Ext to="signUp">bảng điều khiển</Ext> và xác minh địa chỉ email. Bạn đang đăng
+ký một **tổ chức**, không phải một tài khoản cá nhân: danh mục, các khoá và hạn mức đều thuộc về
+tổ chức đó.
+
+</Step>
+
+<Step>
+
+### Đăng ký gói dịch vụ
+
+Chọn một gói. Gói quyết định hạn mức lệnh gọi hằng tháng của bạn, được giải thích đầy đủ ở
+[Giấy phép, giới hạn và sử dụng hợp lý](/vi/licence-and-limits). Bảng giá nằm ở
+<Ext to="site">thepulseapi.com</Ext>.
+
+</Step>
+
+<Step>
+
+### Chờ phê duyệt
+
+Đăng ký được đội ngũ của chúng tôi xem xét, thường **trong vòng một đến hai ngày làm việc**. Bạn
+sẽ nhận được email khi có quyết định.
+
+Trước lúc đó, tài khoản của bạn tồn tại nhưng khoá chưa hoạt động. Đó là chủ ý chứ không phải một
+hàng đợi: chúng tôi xem ai đang hỏi trước khi trao quyền truy cập vào engine.
+
+</Step>
+
+</Steps>
+
+<Callout type="warn" title="Chưa được phê duyệt?">
+  Không có gì trong tài liệu này bạn chạy được. Các endpoint sẽ từ chối một khoá chưa được phê
+  duyệt, và code đúng đến mấy cũng không vượt qua được điều đó.
+
+  Hãy đăng ký gói tại <Ext to="signUp">bảng điều khiển</Ext>, hoặc viết thư cho <Ext to="sales" />
+  nếu bạn muốn có một bản Decision Audit đầu tiên trước khi cam kết một gói. Gửi một tệp xuất
+  ngành hàng và chúng tôi sẽ gửi lại kết quả.
+</Callout>
+
+<Callout title="Vì sao lại làm như vậy">
+  Engine là độc quyền và phép đo không được công bố, nên quyền truy cập được cấp cho một tổ chức
+  xác định theo một thoả thuận, chứ không cấp cho bất kỳ ai có địa chỉ email. Cách đó cũng cho
+  phép chúng tôi áp giới hạn tần suất và kiểm soát lạm dụng lên một tài khoản có người đứng sau.
+  [Giấy phép, giới hạn và sử dụng hợp lý](/vi/licence-and-limits) nói phần còn lại.
+</Callout>
+
+## Sau khi được phê duyệt
+
+Có ba kiểu nhà bán hàng tìm đến đây, và mỗi người cần đọc trang khác nhau trước.
+
+<Cards>
+  <Card
+    icon={<Rocket />}
+    title="Mới dùng PULSE, đang tìm hiểu sản phẩm"
+    href="/vi/concepts/how-it-works"
+    description="Bạn đã được phê duyệt nhưng chưa chạy gì. Hãy hiểu phép đo nói gì trước khi tích hợp bất cứ thứ gì."
+  />
+  <Card
+    icon={<Boxes />}
+    title="Bạn đang vận hành một cửa hàng"
+    href="/vi/quickstart"
+    description="Shopify, WooCommerce, Magento hay nền tảng tự dựng. Bạn đã có danh mục và muốn biết nó chưa trả lời được điều gì."
+  />
+  <Card
+    icon={<Code />}
+    title="Bạn có lập trình viên"
+    href="/vi/api/v1"
+    description="Bạn là lập trình viên, hoặc bạn sẽ giao việc này cho một người. Bắt đầu từ API và SDK."
+  />
+</Cards>
+
+### Mới dùng PULSE, đang tìm hiểu sản phẩm
+
+**Hãy bắt đầu từ [cách hoạt động](/vi/concepts/how-it-works), đừng bắt đầu từ API.** Không cần cài
+gì lên website để có câu trả lời đầu tiên, và không có lý do gì phải tích hợp trước khi bạn thấy
+phép đo nói gì về chính sản phẩm của mình.
+
+Bạn cần: một ngành hàng sản phẩm xuất ra dạng JSON. Không cần cả danh mục, và cũng không cần sạch
+sẽ. Bản kiểm tra hữu ích nhất trên đúng ngành hàng bạn ít chắc chắn nhất.
+
+Thứ tự nên đọc:
+
+1. [Cách hoạt động](/vi/concepts/how-it-works), để con số có ý nghĩa khi bạn nhìn thấy nó.
+2. [Bản kiểm tra đo gì](/vi/concepts/what-the-audit-measures), giải thích vì sao cột trống nhất
+   thường không phải cột đáng sửa trước, và ba trường hợp thứ hạng bị sai.
+3. [Hướng dẫn nhanh](/vi/quickstart), khi bạn muốn tự chạy một bản.
+
+Không cần lập trình viên cho bất kỳ bước nào ở trên. Bản kiểm tra là gửi vào một tệp và nhận lại
+một danh sách đã xếp hạng.
+
+### Bạn đang vận hành một cửa hàng
+
+Bạn đã có danh mục, nên câu hỏi là lấy nó ra khỏi nền tảng bằng cách nào và làm gì với kết quả.
+
+**Hãy đến [hướng dẫn nhanh](/vi/quickstart).** Khoảng mười dòng, và việc xuất dữ liệu thường mất
+chưa đến một giờ từ PIM hoặc trang quản trị. Sau đó đọc
+[bản kiểm tra đo gì](/vi/concepts/what-the-audit-measures) để danh sách xếp hạng trở thành việc
+làm được, chứ không chỉ là thông tin thú vị.
+
+<Callout type="warn" title="Chưa có plugin">
+  Chưa có ứng dụng Shopify, chưa có plugin WooCommerce và chưa có extension Magento. Hiện tại tích
+  hợp là qua API và SDK trình duyệt, còn bản kiểm tra thì không cần cả hai. Ai nói với bạn rằng có
+  một plugin cài trong ba mươi phút là đang mô tả thứ chúng tôi chưa làm.
+</Callout>
+
+Sau khi sửa xong, [endpoint kiểm chứng](/vi/api/v1/audit) chạy lại đúng phép đo đó trên danh mục
+đã sửa và báo cáo điều gì đã dịch chuyển, theo từng thuộc tính. Nó đọc danh mục của bạn chứ không
+đọc lưu lượng, nên không phải chờ gì cả.
+
+### Bạn có lập trình viên
+
+Hãy đưa họ [tài liệu API](/vi/api/v1) và [SDK](/vi/sdk). Cả hai chỉ giả định bạn đọc được một
+request HTTP, không giả định gì thêm về lĩnh vực của chúng tôi.
+
+Đường đi ngắn nhất cho một lập trình viên:
+
+1. [Xác thực và địa chỉ gốc có phiên bản](/vi/api/v1) — mọi request đều cần một khoá đã được phê duyệt.
+2. [Endpoint kiểm tra](/vi/api/v1/audit) — không giữ trạng thái, không lưu gì trừ khi bạn yêu cầu.
+3. [Hướng dẫn framework](/vi/frameworks) hoặc [thư viện máy chủ](/vi/backend) cho nơi đặt lệnh gọi.
+4. [Đưa lên production](/vi/going-live): cần kiểm tra gì trước khi phát hành, và những điều chúng
+   tôi sẽ không tuyên bố.
+
+Lớp đọc phiên truy cập là tuỳ chọn và là phần duy nhất chạm vào cửa hàng của bạn. Nhà bán hàng chỉ
+muốn bản kiểm tra thì không phải cài gì.
+
+<Callout title="Cho trợ lý của bạn đọc trang này">
+  Nếu lập trình viên của bạn dùng Claude, Cursor hay một MCP client khác,
+  [máy chủ MCP](/vi/mcp) cho phép nó trả lời từ chính tài liệu này thay vì từ trí nhớ. Cách đó
+  thường nhanh hơn đọc, và nó không thể bịa ra một endpoint không tồn tại.
+</Callout>
+
+## Bản kiểm tra cần gì từ ngành hàng của bạn
+
+Vẫn hai thứ đó ở mọi ngành: một tệp xuất ngành hàng, và những sản phẩm mà người mua thực sự phải
+chọn giữa chúng. Bảng dưới là thứ thường đóng vai trò "thuộc tính quyết định" ở từng ngành, vì câu
+đầu tiên ai cũng hỏi là cái này có áp dụng cho thứ họ bán hay không.
+
+| Ngành hàng | Người mua quyết định dựa trên | Thứ thường còn thiếu |
+| --- | --- | --- |
+| **Thương mại điện tử và bán lẻ** | Thứ phân biệt hai sản phẩm gần như giống hệt trên một kệ sâu | Trường dữ liệu không ai ghi, vì danh mục lớn lên bằng cách thêm sản phẩm chứ không thêm cột |
+| **Hàng tiêu dùng nhanh** | Quy cách đóng gói, công bố về chế độ ăn, nồng độ, có phải bản nạp lại không | Dữ kiện in trên nhãn nhưng chưa bao giờ được nhập thành dữ liệu |
+| **Công nghệ và điện tử** | Thông số kỹ thuật, tới từng con số | Thông số phân biệt hai thiết bị chỉ cách nhau một con số |
+| **Nội thất và gia dụng** | Kích thước và chất liệu; có vừa hay không | Số đo, khi tin đăng bán bằng hình ảnh |
+| **Mỹ phẩm và chăm sóc cá nhân** | Loại da, thành phần, vấn đề cần xử lý | Mức độ phù hợp, vốn chưa bao giờ là một trường dữ liệu |
+| **B2B và công nghiệp** | Thông số: cỡ ren, điện áp, dung sai | Thông số nằm trong PDF của nhà cung cấp, trong danh mục dựng ra để đặt theo mã hàng |
+
+Mỗi ngành ở trên đều có một trang trên website giới thiệu kèm phép đo đứng sau; bảng này là bản
+ngắn để bạn quyết định có đáng thử hay không.
+
+**Nếu ngành của bạn không có trong danh sách, bản kiểm tra vẫn chạy.** Nó đọc bất cứ thuộc tính
+nào có trong tệp xuất của bạn và xếp hạng chúng; các ngành ở trên là nơi chúng tôi đã đo, không
+phải danh sách được hỗ trợ.
+
+## Khi tài liệu chưa trả lời được
+
+<Cards>
+  <Card
+    icon={<LifeBuoy />}
+    title="Câu hỏi kỹ thuật"
+    href="mailto:support@thepulseapi.com"
+    description="support@thepulseapi.com — tích hợp, một endpoint hoạt động khác mong đợi, một kết quả kiểm tra bạn chưa đọc được."
+  />
+  <Card
+    icon={<ClipboardCheck />}
+    title="Quyền truy cập, gói dịch vụ, bản kiểm tra đầu tiên"
+    href="mailto:getintouch@thepulseapi.com"
+    description="getintouch@thepulseapi.com — phê duyệt, nâng gói, hoặc gửi một tệp xuất ngành hàng trước khi đăng ký."
+  />
+</Cards>
+
+**Chúng tôi giúp được gì.** Đọc kết quả kiểm tra cùng bạn, chỉ ra bạn đang rơi vào trường hợp nào
+trong ba trường hợp thất bại, và nói thẳng khi thứ hạng không đúng với danh mục của bạn. Chúng tôi
+sẽ xem một tệp xuất thật; đó là cách duy nhất trả lời phần lớn câu hỏi cho tử tế.
+
+**Chúng tôi sẽ không làm gì.** Đưa ra con số tăng chuyển đổi. Chúng tôi chưa chạy thử nghiệm doanh
+thu thực tế nào, nên không có con số đó, và bất kỳ phần trăm nào gán cho chúng tôi đều không phải
+từ chúng tôi. [Đưa lên production](/vi/going-live) có phần còn lại của những điều chúng tôi không
+tuyên bố.
+
+Thường có hồi đáp trong cùng ngày làm việc, từ chính những người làm việc chứ không phải từ một
+hàng đợi.

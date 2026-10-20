@@ -70,6 +70,16 @@ export const cdnSdkUrl = `${env(process.env.NEXT_PUBLIC_CDN_URL, 'https://cdn.th
 /** The demo storefront the concepts pages point at. */
 export const demoUrl = env(process.env.NEXT_PUBLIC_DEMO_URL, 'https://demo.thepulseapi.com');
 
+/**
+ * The mailboxes this documentation points readers at.
+ *
+ * Only the two a reader should actually use. The platform sends from several more (billing,
+ * notifications, onboarding), and listing those here would invite replies to inboxes nobody
+ * watches for questions.
+ */
+export const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@thepulseapi.com";
+export const salesEmail = process.env.NEXT_PUBLIC_SALES_EMAIL || "getintouch@thepulseapi.com";
+
 export const npmPackage = process.env.NEXT_PUBLIC_NPM_PACKAGE || '@thepulseapi/sdk';
 
 export const gitConfig = {

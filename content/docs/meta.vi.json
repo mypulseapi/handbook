@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "---Bắt đầu---",
+    "who-is-this-for",
     "quickstart",
     "---Hiểu cách hoạt động---",
     "concepts",
@@ -16,6 +17,7 @@
     "mcp",
     "---Đưa lên production---",
     "going-live",
+    "licence-and-limits",
     "changelog"
   ]
 }

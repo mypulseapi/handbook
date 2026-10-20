@@ -1,0 +1,194 @@
+---
+title: Who this is for
+description: PULSE is for registered, subscribed and approved merchants. How to get access, which pages to read for your situation, what the audit needs from your industry, and who to contact.
+icon: UserRound
+---
+
+**This documentation is for approved PULSE merchants.** The API is not open, there is no free
+public tier, and an API key is issued only to an organisation that has registered, subscribed and
+been approved.
+
+If that is not you yet, the next section is the whole of what you need. Everything after it
+assumes you are already in.
+
+## You need an approved account
+
+Three steps, in this order. There is no way to skip one.
+
+<Steps>
+
+<Step>
+
+### Register your organisation
+
+Create an account at <Ext to="signUp">the dashboard</Ext> and verify your email address. You are
+registering an **organisation**, not a personal login: the catalogue, the keys and the quota all
+belong to it.
+
+</Step>
+
+<Step>
+
+### Subscribe
+
+Choose a plan. The plan sets your monthly call allowance, which
+[Licence, limits and fair use](/licence-and-limits) explains in full. Pricing is on
+<Ext to="site">thepulseapi.com</Ext>.
+
+</Step>
+
+<Step>
+
+### Wait for approval
+
+Registration is reviewed by our team, normally **within one to two business days**. You will get
+an email when the decision is made.
+
+Until it lands, your account exists but your keys do not work. That is deliberate rather than a
+queue: we look at who is asking before handing out access to the engine.
+
+</Step>
+
+</Steps>
+
+<Callout type="warn" title="Not approved yet?">
+  There is nothing in this documentation you can run. The endpoints will refuse an unapproved
+  key, and no amount of correct code gets past that.
+
+  Subscribe at <Ext to="signUp">the dashboard</Ext>, or write to <Ext to="sales" /> if you want a
+  first Decision Audit before committing to a plan. Send one category export and we will send the
+  findings back.
+</Callout>
+
+<Callout title="Why it works this way">
+  The engine is proprietary and the measurement is not published, so access is granted to a known
+  organisation under an agreement rather than to anyone with an email address. It also lets us
+  apply rate limits and abuse controls to an account that has a person behind it.
+  [Licence, limits and fair use](/licence-and-limits) covers the rest.
+</Callout>
+
+## Once you are approved
+
+Three kinds of merchant arrive here, and they need different pages first.
+
+<Cards>
+  <Card
+    icon={<Rocket />}
+    title="New to PULSE, learning the product"
+    href="/concepts/how-it-works"
+    description="You are approved but have not run anything yet. Understand what the measurement says before integrating anything."
+  />
+  <Card
+    icon={<Boxes />}
+    title="You run an ecommerce store"
+    href="/quickstart"
+    description="Shopify, WooCommerce, Magento or your own build. You have a catalogue and want to know what it cannot answer."
+  />
+  <Card
+    icon={<Code />}
+    title="You have developers"
+    href="/api/v1"
+    description="You are the developer, or handing this to one. Start at the API and the SDK."
+  />
+</Cards>
+
+### New to PULSE, learning the product
+
+**Start with [how it works](/concepts/how-it-works), not with the API.** Nothing goes on your site
+to get the first answer, and there is no reason to integrate before you have seen what the
+measurement says about your own products.
+
+What you need: one category exported as JSON. Not your whole catalogue, and not a clean one. The
+audit is most useful on the category you are least sure about.
+
+1. [How it works](/concepts/how-it-works), so the number means something when you see it.
+2. [What the audit measures](/concepts/what-the-audit-measures) — why the emptiest column is
+   usually the wrong one to fix, and the three cases where the ranking is wrong.
+3. [The quickstart](/quickstart), when you want to run one.
+
+You do not need a developer for any of that. A file in, a ranked list back.
+
+### You run an ecommerce store
+
+You have the catalogue, so the question is getting it out of your platform and acting on what
+comes back.
+
+**Go to [the quickstart](/quickstart).** About ten lines, and the export usually takes under an
+hour out of a PIM or a storefront admin. Then
+[what the audit measures](/concepts/what-the-audit-measures), so the ranked list is actionable
+rather than interesting.
+
+<Callout type="warn" title="There is no plugin yet">
+  No Shopify app, no WooCommerce plugin, no Magento extension. Integration today is the API and
+  the browser SDK, and the audit needs neither. Anyone describing a thirty minute plugin install
+  is describing something we have not built.
+</Callout>
+
+After the repairs, [the verify endpoint](/api/v1/audit) runs the same measurement on the repaired
+export and reports what moved, attribute by attribute. It reads your catalogue rather than your
+traffic, so there is nothing to wait for.
+
+### You have developers
+
+Hand them [the API reference](/api/v1) and [the SDK](/sdk). Both assume you can read an HTTP
+request and nothing else about our domain.
+
+1. [Authentication and the versioned root](/api/v1) — every request needs an approved key.
+2. [The audit endpoint](/api/v1/audit) — stateless, stores nothing unless asked.
+3. [Framework guides](/frameworks) or [server libraries](/backend) for wherever the call lives.
+4. [Going live](/going-live) — what to check before shipping, and what we will not claim.
+
+The live session layer is optional and is the only part touching a storefront. A merchant who
+only wants the audit installs nothing.
+
+<Callout title="Point your assistant at this site">
+  If your developers use Claude, Cursor or another MCP client, [the MCP server](/mcp) lets it
+  answer from this documentation rather than from memory. Usually faster than reading, and it
+  cannot invent an endpoint that does not exist.
+</Callout>
+
+## What the audit needs from your industry
+
+The same two things everywhere: a category export, and products a shopper actually has to choose
+between. Below is what the deciding attribute tends to be in each, because the first question
+everyone asks is whether this applies to what they sell.
+
+| Industry | What shoppers decide on | What is usually missing |
+| --- | --- | --- |
+| **Ecommerce and retail** | Whatever separates two near-identical products on a deep shelf | The field nobody recorded, because the catalogue grew by adding products rather than columns |
+| **FMCG and consumer goods** | Pack size, dietary claim, concentration, whether it is a refill | Facts printed on the label and never entered as data |
+| **Technology and electronics** | Specifications, down to a single number | The spec separating two devices one number apart |
+| **Furniture and homewares** | Dimensions and materials; whether it fits | Measurements, when the listing sells on the photograph |
+| **Cosmetics and personal care** | Skin type, ingredients, the concern being treated | Suitability, which was never a field |
+| **B2B and industrial** | Specification: thread size, voltage, tolerance | Specs in a supplier PDF nobody mapped, in a catalogue built for order codes |
+
+**If your industry is not listed, the audit still runs.** It reads whatever attributes your export
+contains and ranks them. The list above is where we have measured, not a supported-industry list.
+
+## When the documentation does not answer it
+
+<Cards>
+  <Card
+    icon={<LifeBuoy />}
+    title="Technical questions"
+    href="mailto:support@thepulseapi.com"
+    description="support@thepulseapi.com — integration, an endpoint behaving unexpectedly, an audit result you cannot interpret."
+  />
+  <Card
+    icon={<ClipboardCheck />}
+    title="Access, plans, a first audit"
+    href="mailto:getintouch@thepulseapi.com"
+    description="getintouch@thepulseapi.com — approval, upgrading a plan, or sending a category export before you subscribe."
+  />
+</Cards>
+
+**What we can help with.** Reading your audit output with you, telling you which of the three
+failure cases you are in, and saying when the ranking is wrong for your catalogue. We will look at
+a real export; it is the only way to answer most questions properly.
+
+**What we will not do.** Quote a conversion uplift. We have run no live revenue experiment, so we
+have no number, and any percentage attributed to us did not come from us.
+[Going live](/going-live) has the rest of what we will not claim.
+
+Replies usually come the same working day, from the people who do the work rather than from a
+queue.
