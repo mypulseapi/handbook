@@ -1,0 +1,75 @@
+---
+title: MCP cho tác tử
+description: Kết nối tài liệu PULSE với Claude, Cursor hoặc bất kỳ MCP client nào, để tác tử tìm và đọc đúng trang thay vì đoán.
+icon: Terminal
+---
+
+Mọi trang trên site này đều có thể truy cập bằng tác tử qua Model Context Protocol. Một trợ lý đã
+kết nối sẽ tìm trong tài liệu và trích dẫn, thay vì nhớ nhầm một endpoint không tồn tại.
+
+## Kết nối thế nào?
+
+<InstallTabs pkg="@thepulseapi/docs-mcp" />
+
+Hoặc trỏ thẳng client của bạn vào đó, không cần cài:
+
+```json title="claude_desktop_config.json"
+{
+  "mcpServers": {
+    "pulse-docs": {
+      "command": "npx",
+      "args": ["-y", "@thepulseapi/docs-mcp"]
+    }
+  }
+}
+```
+
+Cùng khối cấu hình đó dùng được cho Claude Code (`.mcp.json`), Cursor và mọi thứ nói MCP qua stdio.
+
+<Callout title="Nó chạy trên máy bạn, không phải máy chúng tôi">
+  Site này là bản xuất tĩnh nên ở đây không có máy chủ nào để dựng một endpoint HTTP. Gói này chạy
+  ở nơi tác tử của bạn chạy và tải chỉ mục tài liệu đã xuất bản, nghĩa là không có gì về câu lệnh
+  hay mã nguồn của bạn đi tới chúng tôi.
+</Callout>
+
+## Có những công cụ nào?
+
+| Công cụ | Làm gì |
+| --- | --- |
+| `search_docs` | Tìm toàn văn trên mọi trang. Trả về đúng mục khớp, URL và điểm số |
+| `get_page` | Một trang dạng Markdown, theo đường dẫn, ví dụ `/quickstart` hay `/api/v1/audit` |
+| `list_pages` | Mọi trang kèm tiêu đề, để định hướng trước khi tìm |
+
+Cả ba đều nhận `lang` là `en` hoặc `vi`.
+
+## Vì sao tìm theo từ khoá chứ không phải theo ngữ nghĩa?
+
+Website nhúng câu hỏi của bạn bằng một mô hình mà nó đã tải sẵn. Bắt một tác tử tải mô hình chỉ để
+đặt câu hỏi là đánh đổi không đáng, vì bản thân tác tử đã là một mô hình ngôn ngữ: nó đọc ba mục
+ứng viên và tự quyết định tốt hơn nhiều so với một phép cosine.
+
+Thêm nữa, một tác tử hỏi về `/catalog/audit` muốn đúng trang chứa chuỗi đó, và tìm theo từ khoá
+chính xác ở điểm này trong khi embedding thì làm nhoè đi.
+
+## Muốn trỏ sang nơi khác thì sao?
+
+Đặt `PULSE_DOCS_ORIGIN` để đọc từ một origin khác, chủ yếu hữu ích khi bạn đang sửa chính tài liệu
+này:
+
+```bash
+PULSE_DOCS_ORIGIN=http://localhost:3000 npx @thepulseapi/docs-mcp
+```
+
+## Đọc thẳng Markdown được không?
+
+Được, và không cần MCP.
+
+| | |
+| --- | --- |
+| [`/llms.txt`](/llms.txt) | Mọi trang, có tiêu đề và liên kết, trong một tệp |
+| [`/llms-full.txt`](/llms-full.txt) | Toàn bộ tài liệu gộp thành một tài liệu Markdown |
+| `/llms.mdx/docs/<path>/content.md` | Một trang bất kỳ dạng Markdown |
+| [`/search-index.json`](/search-index.json) | Kho văn bản đã chia khối kèm vector |
+
+Mỗi trang cũng có nút **Sao chép Markdown**, là cách nhanh nhất khi bạn chỉ muốn dán một trang vào
+cuộc hội thoại.

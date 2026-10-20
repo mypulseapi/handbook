@@ -1,0 +1,27 @@
+{
+  "name": "@thepulseapi/docs-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for the PULSE developer documentation. Search and read every page from an agent.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "pulse-docs-mcp": "./server.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "search-index.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mypulseapi/handbook.git",
+    "directory": "mcp"
+  }
+}

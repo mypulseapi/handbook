@@ -8,9 +8,13 @@
     "dev": "next dev",
     "start": "serve out",
     "types:check": "next typegen && tsc --noEmit",
-    "lint": "oxlint"
+    "lint": "oxlint",
+    "build:search-index": "node --experimental-strip-types scripts/build-search-index.mjs",
+    "verify:search-index": "node --experimental-strip-types scripts/verify-search-index.mjs",
+    "eval:search": "node --experimental-strip-types scripts/eval-search.mjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.1",
     "cn": "^0.4.0",
     "fumadocs-core": "16.17.5",
     "fumadocs-mdx": "15.4.7",
