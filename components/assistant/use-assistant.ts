@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { loadMessages, saveMessages } from '@/lib/assistant/session';
 
 export type Status = 'idle' | 'loading' | 'ready' | 'failed';
 
@@ -17,6 +18,7 @@ export interface Message {
   text: string;
   full: string;
   sources: Source[];
+  code?: { lang: string; source: string };
   streaming: boolean;
 }
 
@@ -34,7 +36,26 @@ export interface Message {
 export function useAssistant(lang: string) {
   const [status, setStatus] = useState<Status>('idle');
   const [progress, setProgress] = useState(0);
+  // Restored on mount, which is what makes a conversation survive a navigation. Lazy so the
+  // read happens once rather than on every render, and after hydration so the server and the
+  // client agree on the first paint.
   const [messages, setMessages] = useState<Message[]>([]);
+  const [restored, setRestored] = useState(false);
+
+  useEffect(() => {
+    const prior = loadMessages();
+    if (prior.length > 0) {
+      setMessages(prior);
+      // Ids are keys and are compared by identity while streaming, so a restored conversation
+      // must not hand out one that already exists.
+      nextId.current = Math.max(...prior.map((m) => m.id)) + 1;
+    }
+    setRestored(true);
+  }, []);
+
+  useEffect(() => {
+    if (restored) saveMessages(messages);
+  }, [messages, restored]);
   const [pending, setPending] = useState(false);
 
   const worker = useRef<Worker | null>(null);
@@ -63,7 +84,14 @@ export function useAssistant(lang: string) {
         | { type: 'ready' }
         | { type: 'progress'; loaded: number; total: number }
         | { type: 'failed'; reason: string }
-        | { type: 'answer'; id: number; body: string; sources: Source[]; kind: string };
+        | {
+            type: 'answer';
+            id: number;
+            body: string;
+            code?: { lang: string; source: string };
+            sources: Source[];
+            kind: string;
+          };
 
       if (msg.type === 'ready') {
         setStatus('ready');
@@ -83,6 +111,7 @@ export function useAssistant(lang: string) {
             text: '',
             full: msg.body,
             sources: msg.sources ?? [],
+            code: msg.code,
             streaming: true,
           },
         ]);
@@ -192,5 +221,11 @@ export function useAssistant(lang: string) {
     [],
   );
 
-  return { status, progress, messages, pending, start, ask };
+  const reset = useCallback(() => {
+    setMessages([]);
+    setPending(false);
+    queued.current = null;
+  }, []);
+
+  return { status, progress, messages, pending, start, ask, reset };
 }

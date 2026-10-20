@@ -22,8 +22,10 @@ export interface Chunk {
   pageTitle: string;
   /** The heading text, or the page title for the opening chunk. */
   heading: string;
-  /** Plain text, MDX stripped. What gets embedded and what gets shown. */
+  /** Prose only, MDX stripped and code removed. What gets embedded and what gets read aloud. */
   text: string;
+  /** The first code sample in the section, kept whole so it can be shown as code. */
+  code?: { lang: string; source: string };
   lang: string;
 }
 
@@ -50,14 +52,39 @@ export function splitFrontmatter(raw: string): { meta: Record<string, string>; b
 }
 
 /**
- * MDX to plain text.
+ * Pull the fenced code out of a section before anything touches the prose.
  *
- * Code fences are kept, because a reader asking "how do I call the audit endpoint" wants the
- * snippet and a chunk that dropped it would retrieve well and answer badly. JSX tags are removed
- * but their children are not: `<Callout title="x">body</Callout>` keeps `body`, since that is
- * prose the author wrote for a reader.
+ * Returns the prose with the fences removed and the first sample kept whole. They have to be
+ * separated because the two want opposite treatment: prose wants its punctuation stripped, and
+ * code wants every character of it.
  */
-export function toPlainText(mdx: string): string {
+export function splitCode(mdx: string): { prose: string; code?: { lang: string; source: string } } {
+  let first: { lang: string; source: string } | undefined;
+
+  const prose = mdx.replace(/```([^\n]*)\n([\s\S]*?)```/g, (_m, info: string, body: string) => {
+    if (!first) {
+      // The info string is ```ts title="pulse.ts"; the language is the first word of it.
+      first = { lang: (info.trim().split(/\s+/)[0] ?? '').toLowerCase(), source: body.trimEnd() };
+    }
+    return ' ';
+  });
+
+  return { prose, code: first };
+}
+
+/**
+ * MDX to plain prose.
+ *
+ * **Underscores and slashes survive.** An earlier version stripped `_` along with the other
+ * markdown punctuation, which turned `pk_live_...` into `pk live ...` and `category_view` into
+ * `category view`. In a developer documentation corpus that is destructive twice over: it makes
+ * the text wrong to show a reader, and it splits identifiers into words that embed as something
+ * else entirely.
+ *
+ * JSX tags go but their children stay: `<Callout title="x">body</Callout>` keeps both, since the
+ * title and the body are prose an author wrote for a reader.
+ */
+export function toPlainText(mdx: string, origin = 'https://developer.thepulseapi.com'): string {
   return (
     mdx
       // import/export lines are machinery, never prose
@@ -70,12 +97,33 @@ export function toPlainText(mdx: string): string {
         return title ? `${title[1]}. ` : ' ';
       })
       .replace(/<\/[A-Z][\w.]*>/g, ' ')
-      // markdown links keep their label, drop the target
-      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-      .replace(/[*_`>|]/g, ' ')
-      .replace(/^[-=]{3,}$/gm, ' ')
+      /*
+       * **Links keep their target.** They used to collapse to the label, which is how the
+       * assistant came to say "sign in to the dashboard" with no address: the page said
+       * `[dashboard](https://app.thepulseapi.com)` and the chunk kept only the word. A reader
+       * being told to go somewhere needs to be told where, and an agent reading the same chunk
+       * needs it more.
+       *
+       * A relative target is made absolute, because a chunk is read far away from the page it
+       * came from and `/quickstart` means nothing in a chat bubble.
+       */
+      .replace(/\[([^\]]+)\]\(([^)]*)\)/g, (_m, label: string, href: string) => {
+        const target = href.trim();
+        if (target.length === 0 || target.startsWith('#')) return label;
+        const absolute = target.startsWith('http') ? target : `${origin}${target}`;
+        return label.trim() === absolute ? label : `${label} (${absolute})`;
+      })
+      // inline code keeps its content, loses only the ticks
+      .replace(/`([^`]+)`/g, '$1')
+      // table pipes and emphasis go; underscore and slash are left alone on purpose
+      .replace(/[*>|]/g, ' ')
+      .replace(/^[-=:]{3,}$/gm, ' ')
       .replace(/\r/g, '')
       .replace(/[ \t]+/g, ' ')
+      // Stripping a tag leaves the space it occupied in front of the punctuation that followed
+      // it, so "API keys ." and "the dashboard ," read as typos rather than as markup.
+      .replace(/\s+([.,;:!?])/g, '$1')
+      .replace(/^[ \t]+/gm, '')
       .replace(/\n{3,}/g, '\n\n')
       .trim()
   );
@@ -144,30 +192,47 @@ export function chunkPage(opts: {
 
   // Headings at any depth, so an h3 under an h2 is its own answerable unit.
   const parts = body.split(/^(#{2,4})\s+(.+)$/gm);
-  const lead = toPlainText(parts[0] ?? '');
+  const leadSplit = splitCode(parts[0] ?? '');
+  const lead = toPlainText(leadSplit.prose);
   const description = meta.description ?? '';
 
   const leadText = [description, lead].filter((s) => s.length > 0).join('\n\n');
   if (leadText.length >= MIN_CHARS) {
-    for (const text of pack(leadText)) {
-      chunks.push({ url: opts.url, anchor: '', pageTitle, heading: pageTitle, text, lang: opts.lang });
-    }
+    pack(leadText).forEach((text, i) => {
+      chunks.push({
+        url: opts.url,
+        anchor: '',
+        pageTitle,
+        heading: pageTitle,
+        text,
+        code: i === 0 ? leadSplit.code : undefined,
+        lang: opts.lang,
+      });
+    });
   }
 
   // Collect the sections first, with their depth, so a thin one can look at what follows it.
-  const sections: { depth: number; heading: string; body: string }[] = [];
+  const sections: {
+    depth: number;
+    heading: string;
+    body: string;
+    code?: { lang: string; source: string };
+  }[] = [];
   for (let i = 1; i < parts.length; i += 3) {
     const heading = (parts[i + 1] ?? '').trim();
     if (heading.length === 0) continue;
+    const split = splitCode(parts[i + 2] ?? '');
     sections.push({
       depth: (parts[i] ?? '##').length,
       heading,
-      body: toPlainText(parts[i + 2] ?? ''),
+      body: toPlainText(split.prose),
+      code: split.code,
     });
   }
 
   sections.forEach((section, i) => {
     let body = section.body;
+    let code = section.code;
 
     if (body.length < THIN_BODY) {
       // Take the subsections underneath it, in order, until there is enough to answer with or the
@@ -176,21 +241,23 @@ export function chunkPage(opts: {
         const next = sections[j]!;
         if (next.depth <= section.depth) break;
         body = `${body}\n\n${next.heading}. ${next.body}`.trim();
+        code ??= next.code;
         if (body.length >= MAX_CHARS) break;
       }
     }
 
     if (body.length < MIN_CHARS) return;
-    for (const text of pack(body)) {
+    pack(body).forEach((text, j) => {
       chunks.push({
         url: opts.url,
         anchor: slugify(section.heading),
         pageTitle,
         heading: section.heading,
         text,
+        code: j === 0 ? code : undefined,
         lang: opts.lang,
       });
-    }
+    });
   });
 
   return chunks;
