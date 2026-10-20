@@ -15,7 +15,7 @@ import { decodeVectors, search, type SearchIndex } from './retrieve';
  */
 
 type Incoming =
-  | { type: 'init' }
+  | { type: 'init'; lang: string }
   | { type: 'ask'; id: number; query: string; lang: string };
 
 type Outgoing =
@@ -30,11 +30,20 @@ let embed: ((text: string, opts: object) => Promise<{ data: ArrayLike<number> }>
 let index: SearchIndex | null = null;
 let rows: Int8Array | null = null;
 
-async function init() {
+async function init(lang: string) {
   try {
+    /*
+     * One model per language, because the English one cannot read Vietnamese.
+     *
+     * `all-MiniLM-L6-v2` is 23 MB and English-only. A Vietnamese question against it retrieves
+     * nothing useful, which is what "not answering" looked like. `multilingual-e5-small` handles
+     * both and retrieves English documentation from a Vietnamese question, measured at 0.78 to
+     * 0.86 against the right passage. It costs 129 MB, paid once, on the first question, by the
+     * reader who asked for it.
+     */
     const [{ pipeline, env }, loaded] = await Promise.all([
       import('@huggingface/transformers'),
-      import('./search-index.json'),
+      lang === 'vi' ? import('./search-index.vi.json') : import('./search-index.json'),
     ]);
 
     // The index is the only thing we ship; the weights come from the hub and are cached by the
@@ -64,7 +73,7 @@ self.addEventListener('message', (event: MessageEvent<Incoming>) => {
   const msg = event.data;
 
   if (msg.type === 'init') {
-    void init();
+    void init(msg.lang);
     return;
   }
 
@@ -74,7 +83,12 @@ self.addEventListener('message', (event: MessageEvent<Incoming>) => {
         post({ type: 'failed', reason: 'not ready' });
         return;
       }
-      const out = await embed(msg.query, { pooling: 'mean', normalize: true });
+      // e5 is trained with a `query: ` prefix and scores noticeably worse without it. The
+      // prefix travels in the index so the two can never disagree about which model built it.
+      const out = await embed(`${index.queryPrefix ?? ''}${msg.query}`, {
+        pooling: 'mean',
+        normalize: true,
+      });
       const query = Float32Array.from(out.data);
 
       // A query embedded by a different model than the index is refused rather than scored. A
