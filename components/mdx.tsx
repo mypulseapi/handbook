@@ -8,7 +8,8 @@ import { PropsTable } from './props-table';
 import { Banner } from 'fumadocs-ui/components/banner';
 import { InstallTabs, RunTabs } from './install-tabs';
 import { DocsChangelog } from './docs-changelog';
-import { Activity, Atom, BellRing, Blocks, Boxes, Braces, Brain, ClipboardCheck, Feather, GitCompare, Hash, Leaf, Rocket, SearchX, Server, Shield, ShieldCheck, Timer, Zap } from 'lucide-react';
+import { Ext, Url } from './links';
+import { Activity, Atom, BellRing, Blocks, Bot, Braces, Brain, Boxes, ClipboardCheck, Code, Feather, GitCompare, Hash, KeyRound, Layers, Leaf, LifeBuoy, Rocket, Scale, SearchX, Server, Shield, ShieldCheck, Timer, Zap } from 'lucide-react';
 import type { MDXComponents } from 'mdx/types';
 
 /**
@@ -32,9 +33,18 @@ export function getMDXComponents(components?: MDXComponents) {
     InstallTabs,
     RunTabs,
     DocsChangelog,
+    // Cross-property links, read from the environment rather than written out. See ./links.tsx.
+    Ext,
+    Url,
     // Icons used inline in MDX. Registered by name so a typo fails the build.
     Activity,
     Atom,
+    Bot,
+    Code,
+    KeyRound,
+    Layers,
+    LifeBuoy,
+    Scale,
     Boxes,
     BellRing,
     Blocks,

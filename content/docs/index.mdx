@@ -1,33 +1,47 @@
 ---
-title: Introduction
-description: PULSE measures whether your product data can answer what shoppers ask, ranks the repairs worth making, and proves the fix worked. Start with one export.
+title: Introduction to the PULSE developer platform
+description: Learn how to get started building on PULSE. Measure whether your product data can answer what shoppers ask, rank the repairs worth making, and prove the fix worked. Start with one export.
 icon: Sparkles
 ---
 
-Most tools here rank what a shopper sees. PULSE asks the question underneath that one: can your
-catalogue answer what they came to find out at all? You send a category export, get back the
-attributes worth recording in priority order, and re-measure once your team has filled them in.
-
-Nothing goes on your site to begin with. The first useful answer comes from a file.
+Whether you are new to PULSE or extending something you have already built, this page lays out the
+development routes available to you, and the account and tooling each one needs.
 
 <Callout title="Who builds this">
   PULSE is made by **Resolve Labs**, a small team working on one question: which product
-  information is worth paying to fix. The marketing site is
-  [thepulseapi.com](https://thepulseapi.com/en). This site is for the people who have to wire it
+  information is worth paying to fix. The marketing site, which covers the why rather than the
+  how, is <Ext to="site">thepulseapi.com</Ext>. This site is for the people who have to wire it
   up.
 </Callout>
 
-## What problem does this actually solve?
+## The advantage of starting at the catalogue
 
-A shopper leaves without buying. Either they could not find the product, or your catalogue could
-not tell them apart.
+Most tools in this space rank what a shopper sees. PULSE asks the question underneath that one:
+can your catalogue answer what they came to find out at all?
 
-The second one is larger and almost nobody measures it. On a 216-product laptop shelf we
-measured, **94 products remain indistinguishable** after every question a shopper could answer,
-because the attributes that would separate them are not recorded anywhere. No ranking model fixes
-that. Only recording the attribute does.
+A shopper leaves without buying for one of two reasons. Either they could not find the product,
+or your catalogue could not tell two products apart. The second is larger and almost nobody
+measures it. On a 216-product laptop shelf we measured, **94 products remain indistinguishable**
+after every question a shopper could answer, because the attributes that would separate them are
+not recorded anywhere. No ranking model fixes that. Only recording the attribute does.
 
-So PULSE starts at the catalogue rather than at the session:
+So your own product data is the foundation, and everything here is a route to working with it:
+
+- **Measuring a catalogue** with [the audit endpoint](/api/v1/audit). It takes a category export
+  and returns the attributes worth recording, ranked by how many shoppers need them rather than
+  by how empty the column is. Stateless, and it stores nothing unless you ask it to.
+- **Proving a repair worked** with [the verify endpoint](/api/v1/audit), which runs the same
+  measurement on the repaired export and reports what moved, attribute by attribute. It reads
+  your catalogue rather than your traffic, so there is nothing to wait for.
+- **Reading live sessions** with [the browser SDK](/sdk), which sends signals and gets back a
+  ranking of your catalogue against what the session implies, every score with a per-factor
+  breakdown. This is the only part that touches your storefront, and it is optional.
+- **Integrating where you already work**, through [framework guides](/frameworks),
+  [storefront platforms](/platforms) and [server libraries](/backend) for eight languages.
+- **Letting an agent read these docs** through [the MCP server](/mcp), so an assistant answers
+  from the documentation itself rather than from memory.
+
+Nothing goes on your site to begin with. The first useful answer comes from a file.
 
 | The question | What PULSE answers with |
 | --- | --- |
@@ -35,22 +49,74 @@ So PULSE starts at the catalogue rather than at the session:
 | **Where does that fact already live?** | Often in your own titles and descriptions, recoverable before anyone types anything |
 | **Did the repair work?** | The same measurement on the repaired export, with no traffic needed |
 
-## Where should I start?
+## Start building
 
 <Cards>
   <Card
     icon={<ClipboardCheck />}
-    title="You came from thepulseapi.com"
+    title="Quickstart"
     href="/quickstart"
-    description="You have read what the audit does. This is how to run one yourself, in about ten lines."
+    description="Your first audit in about ten lines: the shortest path from an export to a ranked list of what to fix."
   />
   <Card
     icon={<Brain />}
+    title="What the audit measures"
+    href="/concepts/what-the-audit-measures"
+    description="Why the ranking is in bits of decision information rather than clicks, and the three cases where it is wrong."
+  />
+  <Card
+    icon={<KeyRound />}
+    title="API reference"
+    href="/api/v1"
+    description="Every endpoint, the key each request needs, and the error envelope they all share."
+  />
+  <Card
+    icon={<Layers />}
+    title="The browser SDK"
+    href="/sdk"
+    description="The signals it sends, what the engine gives back, and the 3.2 KB it costs. The optional live half."
+  />
+  <Card
+    icon={<Code />}
+    title="Frameworks and platforms"
+    href="/frameworks"
+    description="React, Vue, Angular, Astro, Alpine and Laravel; Shopify, WordPress and Magento; eight server languages."
+  />
+  <Card
+    icon={<Bot />}
+    title="MCP server"
+    href="/mcp"
+    description="Point Claude, Cursor or any MCP client at this documentation so it answers from the source."
+  />
+</Cards>
+
+## Where should I start?
+
+Two honest starting points, depending on how you arrived.
+
+<Cards>
+  <Card
+    icon={<Rocket />}
+    title="You came from thepulseapi.com"
+    href="/quickstart"
+    description="You have read what the audit does. This is how to run one yourself."
+  />
+  <Card
+    icon={<Atom />}
     title="You landed here first"
     href="/concepts/how-it-works"
     description="Start with what the engine measures and why the number means anything."
   />
 </Cards>
+
+## What you need before the first request
+
+Create an account at <Ext to="signUp">the dashboard</Ext>, then copy a key from
+<Ext to="apiKey">the API settings screen</Ext>. Every request on this site needs one. The
+versioned API root every example posts to is <Url to="api" />.
+
+The audit needs one more thing and nothing else: a single category of products as JSON. No
+traffic, no tag on your site, no history.
 
 ## What does the whole journey look like?
 
@@ -154,4 +220,27 @@ The script tag exposes the client as the global `Pulse`, so `Pulse.init(...)` wo
   <Card icon={<Timer />} title="No history required" description="The audit needs one export. The runtime ranks from the first visit." />
   <Card icon={<ShieldCheck />} title="MIT licensed" description="The client is open. Read every line before you ship it." />
   <Card icon={<SearchX />} title="No uplift claim" description="We have run no live revenue experiment, so we quote no conversion figure." />
+</Cards>
+
+## Other resources
+
+<Cards>
+  <Card
+    icon={<Activity />}
+    title="Changelog"
+    href="/changelog"
+    description="What changed in this documentation, built from the commits rather than maintained by hand."
+  />
+  <Card
+    icon={<Scale />}
+    title="What we will not claim"
+    href="/going-live"
+    description="The limits, written down: what the measurement does not tell you, and what we have not tested."
+  />
+  <Card
+    icon={<LifeBuoy />}
+    title="How it works"
+    href="/concepts/how-it-works"
+    description="The engine behind the endpoints, for when the reference answers what but not why."
+  />
 </Cards>
