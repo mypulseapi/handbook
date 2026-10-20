@@ -3,19 +3,36 @@
 @import 'fumadocs-ui/css/preset.css';
 
 /*
- * PULSE brand, from reference/brand_guidelines.md in the main repo.
+ * PULSE brand, from the Signal palette in pulse_brand_guidelines_final.md (v3, 16 Oct 2026,
+ * final 19 Oct 2026). It supersedes the older reference/brand_guidelines.md this file used to
+ * cite, which named #2563EB.
  *
- * `brand.primary` is #2563EB. Worth recording that three blues are in play and they do not
- * agree: the guidelines say #2563EB, the wordmark samples at #4540F0 (indigo), and "Facebook
- * blue" is #1877F2. The written guideline wins, because it is the one thing both the marketing
- * site and this site can be checked against.
+ * Signal is built on Pulse Blue #2552FF, Signal Red #F84840 and Sky Blue #3990E2, with cool
+ * black #0B0D12 for dark surfaces rather than the old navy. The marketing site runs the same
+ * palette, so the two can be checked against each other.
  *
- * Fumadocs expects oklch, and these are the hex values converted rather than eyeballed.
+ * Fumadocs expects oklch. These are converted from the hex values rather than eyeballed.
  */
 :root {
-  --color-fd-primary: oklch(0.546 0.215 262.9); /* #2563EB */
-  --color-fd-ring: oklch(0.546 0.215 262.9);
-  --color-fd-accent-foreground: oklch(0.546 0.215 262.9);
+  --color-fd-primary: oklch(0.534 0.258 265.7); /* Pulse Blue #2552FF */
+  --color-fd-ring: oklch(0.534 0.258 265.7);
+  --color-fd-accent-foreground: oklch(0.534 0.258 265.7);
+
+  /* Geist for everything, Geist Mono for data and code only (guideline section 8). */
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /*
+   * Vertical rhythm.
+   *
+   * Fumadocs ships a tight default measure and leading, which reads as cramped once the prose
+   * is long enough to have paragraphs. These are the marketing site's own type scale, so the
+   * two sites set text the same way: body at 1.7, headings at 1.2 to 1.35, and the slight
+   * negative tracking the guideline specifies for Geist at text sizes.
+   */
+  --fd-leading-prose: 1.7;
+  --fd-leading-heading: 1.25;
+  --fd-measure: 72ch;
 }
 
 .dark {
@@ -23,6 +40,62 @@
   --color-fd-primary: oklch(0.678 0.168 256.7);
   --color-fd-ring: oklch(0.678 0.168 256.7);
   --color-fd-accent-foreground: oklch(0.678 0.168 256.7);
+  /* Cool black, replacing navy. Guideline section 5.1. */
+  --color-fd-background: oklch(0.159 0.011 268);
+}
+
+/*
+ * Typography, applied to the rendered page only.
+ *
+ * Scoped to `.prose` so it reaches MDX body copy and leaves the sidebar, search dialog and
+ * table of contents on Fumadocs' own UI scale, which is deliberately denser than prose and
+ * should stay that way.
+ */
+.prose {
+  line-height: var(--fd-leading-prose);
+  letter-spacing: -0.011em;
+}
+
+.prose :is(h1, h2, h3, h4) {
+  line-height: var(--fd-leading-heading);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* Space above a heading, so a new section is visibly a new section. */
+.prose :is(h2, h3) {
+  margin-top: 2.5rem;
+}
+
+.prose h2 {
+  margin-top: 3.25rem;
+}
+
+/* Paragraphs and lists breathe; a wall of text is the thing being fixed here. */
+.prose :is(p, ul, ol, blockquote) {
+  margin-block: 1.1em;
+}
+
+.prose li {
+  margin-block: 0.4em;
+}
+
+.prose li > p {
+  margin-block: 0.5em;
+}
+
+/*
+ * A comfortable measure. Long lines are the other half of "it reads tight": leading alone does
+ * not fix a 110-character line. Tables, code and callouts opt out, since they carry their own
+ * width and clipping them would be worse than a long line.
+ */
+.prose > :is(p, ul, ol, blockquote, h1, h2, h3, h4) {
+  max-width: var(--fd-measure);
+}
+
+/* Table text is data, so it takes the mono face and tabular figures. */
+.prose table {
+  font-variant-numeric: tabular-nums;
 }
 
 html {

@@ -2,15 +2,18 @@
   "title": "Documentation",
   "pages": [
     "index",
+    "---Start here---",
     "quickstart",
-    "---Concepts---",
+    "---Understand it---",
     "concepts",
-    "---Build---",
+    "---Put it in your stack---",
     "frameworks",
     "platforms",
     "backend",
     "---Reference---",
     "api",
-    "sdk"
+    "sdk",
+    "---Ship it---",
+    "going-live"
   ]
 }
