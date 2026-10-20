@@ -22,6 +22,14 @@ const CONTENT = join(ROOT, 'content', 'docs');
 const OUT = join(ROOT, 'lib', 'assistant', 'search-index.json');
 /* Also published, so the MCP server can fetch the current index instead of bundling a stale one. */
 const PUBLIC_OUT = join(ROOT, 'public', 'search-index.json');
+/*
+ * A tiny per-page summary, separate from the vectors.
+ *
+ * The panel notes a navigation the moment it happens, and it must not need the worker running to
+ * do it: the model loads on the first question, and a reader may click through five pages before
+ * asking one. This is a few kilobytes it can import directly.
+ */
+const NOTES_OUT = join(ROOT, 'lib', 'assistant', 'page-notes.json');
 
 export const MODEL = 'Xenova/all-MiniLM-L6-v2';
 
@@ -109,6 +117,26 @@ async function main() {
     })),
     vectors: quantise(vectors),
   };
+
+  // One entry per page: what it is, and the first few things it answers.
+  const notes = {};
+  for (const c of chunks) {
+    const existing = notes[c.url];
+    if (!existing) {
+      notes[c.url] = {
+        title: c.pageTitle,
+        lang: c.lang,
+        summary: c.text.split('\n')[0].slice(0, 190),
+        topics: [],
+      };
+      continue;
+    }
+    if (c.anchor && c.heading !== c.pageTitle && existing.topics.length < 3) {
+      existing.topics.push({ heading: c.heading, anchor: c.anchor });
+    }
+  }
+  writeFileSync(NOTES_OUT, JSON.stringify(notes));
+  console.log(`wrote ${relative(ROOT, NOTES_OUT)} — ${Object.keys(notes).length} pages`);
 
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify(index));
