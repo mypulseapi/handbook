@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# handbook, and the rules it inherits
+## handbook, and the rules it inherits
 
 This is the docs site at `developer.thepulseapi.com`. Fumadocs, static export,
 deployed from `main` by GitHub Pages.
