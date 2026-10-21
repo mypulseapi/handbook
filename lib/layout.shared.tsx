@@ -1,6 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
-import { LayoutDashboard, Package } from 'lucide-react';
+import { Globe, LayoutDashboard, Package } from 'lucide-react';
 import { appName, dashboardUrl, gitConfig, npmPackage, siteUrl } from './shared';
 import type { Language } from './i18n';
 
@@ -53,40 +53,25 @@ export function baseOptions(lang: Language = 'en'): BaseLayoutProps {
       { icon: <LayoutDashboard />, text: 'Dashboard', url: dashboardUrl, external: true },
       {
         /*
-         * The shopfront mark, not a word and not a hostname.
+         * The link to the marketing site, as a blue glyph.
          *
-         * It read `thepulseapi.com` first, which is a fourth piece of jargon beside `npm` and
-         * `Dashboard` and tells a reader nothing about what they get by clicking it. Then it
-         * read `Website` in a chip. Now it is the mark itself, which is what the marketing
-         * site is actually selling: a shop.
+         * It has been three things now: the bare hostname `thepulseapi.com`, which read as a
+         * fourth piece of jargon beside `npm` and `Dashboard`; the word `Website` in a chip; and
+         * a full-colour shopfront illustration. The illustration lost: seventeen paths of navy,
+         * red and amber collapse into a muddy dot at the 20px the header gives it, and its fixed
+         * hex fills ignored the theme that everything around them follows.
          *
-         * No chip ring around it. The ring existed to make a bare word read as a control, and
-         * this mark is already a filled disc: a `rounded-full` border around a circle reads as
-         * a halo, not a button. Hover dims it instead, which is the same affordance with one
-         * fewer element.
+         * `type: 'icon'` rather than a label, which is what the GitHub button beside it uses, so
+         * the three of them read as one row of controls. It carries `label` as the `aria-label`,
+         * so dropping the visible word costs nothing to a screen reader.
          *
-         * 24px, not the 18px the lucide glyphs beside it use. Rendered at 18 the awning
-         * stripes collapse into a single red band and the shelf is a smear; at 24 the scallops
-         * and the counter survive. Checked by rasterising the file at both sizes, not guessed.
-         *
-         * `alt` carries the whole accessible name now that no text does, so it is translated
-         * rather than decorative. A picture with an empty alt here would leave the link
-         * unnamed, which is the one thing worse than a hostname.
-         *
-         * The art itself is fixed-colour: 17 paths of navy, red and yellow that do not respond
-         * to the theme the way a lucide glyph did. That is the trade for using this particular
-         * mark, and it is deliberate, not an oversight.
+         * `text-fd-primary` is Pulse Blue, and it is a token rather than a hex so the dark theme
+         * gets its lighter blue instead of a #2552FF that goes muddy on a dark surface.
          */
-        text: (
-          <Image
-            src="/online-shop.svg"
-            alt={lang === 'vi' ? 'Trang chủ' : 'Website'}
-            title={lang === 'vi' ? 'Trang chủ' : 'Website'}
-            width={460}
-            height={460}
-            className="size-6 transition-opacity hover:opacity-75"
-          />
-        ),
+        type: 'icon',
+        label: lang === 'vi' ? 'Trang chủ' : 'Website',
+        icon: <Globe className="text-fd-primary" />,
+        text: lang === 'vi' ? 'Trang chủ' : 'Website',
         // The marketing site is locale-prefixed, so send a Vietnamese reader to the Vietnamese one.
         url: lang === 'vi' ? siteUrl.replace(/\/en$/, '/vi') : siteUrl,
         external: true,
