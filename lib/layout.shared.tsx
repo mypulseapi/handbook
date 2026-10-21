@@ -1,6 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
-import { Globe, LayoutDashboard, Package } from 'lucide-react';
+import { LayoutDashboard, Package } from 'lucide-react';
 import { appName, dashboardUrl, gitConfig, npmPackage, siteUrl } from './shared';
 import type { Language } from './i18n';
 
@@ -53,27 +53,39 @@ export function baseOptions(lang: Language = 'en'): BaseLayoutProps {
       { icon: <LayoutDashboard />, text: 'Dashboard', url: dashboardUrl, external: true },
       {
         /*
-         * A labelled chip, not a bare hostname.
+         * The shopfront mark, not a word and not a hostname.
          *
-         * `thepulseapi.com` sat between `npm` and `Dashboard` reading as a fourth piece of
-         * jargon, and a hostname does not tell a reader what they get by clicking it.
+         * It read `thepulseapi.com` first, which is a fourth piece of jargon beside `npm` and
+         * `Dashboard` and tells a reader nothing about what they get by clicking it. Then it
+         * read `Website` in a chip. Now it is the mark itself, which is what the marketing
+         * site is actually selling: a shop.
          *
-         * `Website` rather than `Visit Pulse`: it is one word, so it fits the chip at every
-         * width, it parallels `Dashboard` next to it (both are places, not instructions), and
-         * it does not repeat the brand that the wordmark is already saying two inches to the
-         * left.
+         * No chip ring around it. The ring existed to make a bare word read as a control, and
+         * this mark is already a filled disc: a `rounded-full` border around a circle reads as
+         * a halo, not a button. Hover dims it instead, which is the same affordance with one
+         * fewer element.
          *
-         * The chip is the label, not the item type. `type: 'button'` exists in Fumadocs' link
-         * union but this layout renders it with exactly the same classes as a plain link,
-         * checked in the built DOM: all three of npm, Dashboard and this one came out
-         * identical. So the outline is drawn here, on the text, with Fumadocs' own tokens so
-         * it still follows the theme in both light and dark.
+         * 24px, not the 18px the lucide glyphs beside it use. Rendered at 18 the awning
+         * stripes collapse into a single red band and the shelf is a smear; at 24 the scallops
+         * and the counter survive. Checked by rasterising the file at both sizes, not guessed.
+         *
+         * `alt` carries the whole accessible name now that no text does, so it is translated
+         * rather than decorative. A picture with an empty alt here would leave the link
+         * unnamed, which is the one thing worse than a hostname.
+         *
+         * The art itself is fixed-colour: 17 paths of navy, red and yellow that do not respond
+         * to the theme the way a lucide glyph did. That is the trade for using this particular
+         * mark, and it is deliberate, not an oversight.
          */
-        icon: <Globe />,
         text: (
-          <span className="rounded-full border border-fd-border px-2.5 py-1 text-xs font-medium transition-colors group-hover/link:border-fd-primary/40">
-            {lang === 'vi' ? 'Trang chủ' : 'Website'}
-          </span>
+          <Image
+            src="/online-shop.svg"
+            alt={lang === 'vi' ? 'Trang chủ' : 'Website'}
+            title={lang === 'vi' ? 'Trang chủ' : 'Website'}
+            width={460}
+            height={460}
+            className="size-6 transition-opacity hover:opacity-75"
+          />
         ),
         // The marketing site is locale-prefixed, so send a Vietnamese reader to the Vietnamese one.
         url: lang === 'vi' ? siteUrl.replace(/\/en$/, '/vi') : siteUrl,
