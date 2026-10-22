@@ -1,4 +1,5 @@
 import { createGetUrl } from 'fumadocs-core/source';
+import { i18n } from './i18n';
 
 /**
  * Every origin and name this site points at, read from the environment.
@@ -78,12 +79,23 @@ export const gitConfig = {
   branch: process.env.NEXT_PUBLIC_GIT_BRANCH || 'main',
 };
 
+/**
+ * The URL the "Copy Markdown" and "View as Markdown" buttons point at.
+ *
+ * **This was a 404 on every page.** `createGetUrl` prefixes whatever locale it is handed, so the
+ * buttons built `/en/llms.mdx/docs/<slug>/content.md` while the route serving that Markdown lives
+ * at `/llms.mdx/docs/<slug>/content.md`. English is the DEFAULT locale here and
+ * `i18n.hideLocale: 'default-locale'` keeps it out of every other URL on the site, so it has to
+ * stay out of this one too. Vietnamese keeps its prefix and has its own route, matching how the
+ * document pages themselves are split into two trees.
+ */
 const getContentUrl = createGetUrl(docsContentRoute);
 
 export function getPageMarkdownUrl(page: { slugs: string[]; locale?: string }) {
   const segments = [...page.slugs, 'content.md'];
+  const locale = page.locale === i18n.defaultLanguage ? undefined : page.locale;
 
-  return { segments, url: getContentUrl(segments, page.locale) };
+  return { segments, url: getContentUrl(segments, locale) };
 }
 
 const getImageUrl = createGetUrl(docsImageRoute);
