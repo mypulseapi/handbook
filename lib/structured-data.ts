@@ -1,6 +1,15 @@
 import type { Root } from 'fumadocs-core/page-tree';
 import { firstUrl, folderPath } from './page-tree';
-import { appName, companyName, docsRoute, npmPackage, siteOrigin, siteUrl } from './shared';
+import {
+  appName,
+  companyName,
+  docsRoute,
+  githubOrgUrl,
+  linkedinUrl,
+  npmPackage,
+  siteOrigin,
+  siteUrl,
+} from './shared';
 
 /**
  * Schema.org descriptions of what this site is, for the crawlers that read them.
@@ -54,6 +63,9 @@ const organization = {
     contentUrl: `${siteOrigin}/pulse-logo.png`,
   },
   image: { '@id': `${siteOrigin}/#logo` },
+  // The same two profiles the marketing site claims. `sameAs` is the statement that these are the
+  // same organisation as this site, so the two sites disagreeing about it weakens both.
+  sameAs: [linkedinUrl, githubOrgUrl],
 };
 
 export function docPageLd({
