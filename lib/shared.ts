@@ -73,6 +73,23 @@ export const demoUrl = env(process.env.NEXT_PUBLIC_DEMO_URL, 'https://demo.thepu
 
 export const npmPackage = process.env.NEXT_PUBLIC_NPM_PACKAGE || '@thepulseapi/sdk';
 
+/**
+ * The company's profiles off this site.
+ *
+ * `githubOrg` is the organisation, which is not the same thing as `gitConfig`: that one names the
+ * repository this handbook lives in, for the "edit this page" and history links. LinkedIn was
+ * absent entirely, so the Organization schema here claimed no profiles at all while the marketing
+ * site claimed two.
+ */
+export const githubOrgUrl = env(
+  process.env.NEXT_PUBLIC_GITHUB_URL,
+  'https://github.com/mypulseapi',
+);
+export const linkedinUrl = env(
+  process.env.NEXT_PUBLIC_LINKEDIN_URL,
+  'https://www.linkedin.com/company/thepulseapi/',
+);
+
 export const gitConfig = {
   user: process.env.NEXT_PUBLIC_GIT_USER || 'mypulseapi',
   repo: process.env.NEXT_PUBLIC_GIT_REPO || 'handbook',
