@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": ""
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f \"$CLAUDE_PROJECT_DIR/../rainbow/ODIN/INDEX.md\" || echo 'STOP: ../rainbow is missing, so ODIN and the rules in CLAUDE.md did not load. Clone rainbow beside handbook (rainbow ODIN/process/ONBOARDING.md section 3) before doing any work here.'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
