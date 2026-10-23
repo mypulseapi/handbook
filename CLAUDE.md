@@ -1,1 +1,1 @@
-@AGENTS.md
+@../rainbow/CLAUDE.md
