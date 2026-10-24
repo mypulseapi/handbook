@@ -41,6 +41,11 @@ curl -X POST "https://api.thepulseapi.com/api/v1/outcomes" \
 
 Returns `202` with `{ "written": 1 }`. Up to 1,000 lines per request.
 
+- `organizationId` must be the organisation your API key belongs to; any other is refused with
+  `403`.
+- The same line twice in one request keeps the last one.
+- A line already reported as returned stays returned if a later report says `kept`.
+
 | Field | Required | Meaning |
 | --- | --- | --- |
 | `orderId` | yes | Your order id. Together with `merchantProductId` it identifies the line |
@@ -51,7 +56,8 @@ Returns `202` with `{ "written": 1 }`. Up to 1,000 lines per request.
 | `paymentMethod` | no | For example `cod` or `card` |
 | `returnReason` | no | The reason the buyer chose |
 | `reassessedReason` | no | The marketplace's own reading after reviewing the case, such as Shopee's Reassessed Return Reason. Used in place of the buyer's when present |
-| `returnedAt`, `returnQuantity` | for a return | When it came back, and how many |
+| `returnedAt` | for a return | When it came back. Required when `status` is `returned`, `refunded` or `partial` |
+| `quantity`, `returnQuantity` | no | Units ordered on the line (default 1), and units that came back. Returns count units, so one of five returned is 20%, not 100% |
 | `refundMinor`, `currency` | no | The refund in minor units (cents, dong), and its currency |
 
 <Callout title="No personal data">
