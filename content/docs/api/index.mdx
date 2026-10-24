@@ -37,10 +37,11 @@ needs a login.
 | `POST /catalog/verify` | What a repair actually changed | Yes | none |
 | `POST /event` | A named outcome | **No** | `event()` |
 | `POST /exposure` | What was actually rendered | **No** | `exposure()` |
+| `POST /outcomes` | What happened to each order line: kept, returned, cancelled. From your server | **No** | none |
 
-### Why three of them are free
+### Why four of them are free
 
-`/event` and `/exposure` are how you prove the ranking worked. Charging for measurement makes
+`/event`, `/exposure` and `/outcomes` are how you prove the ranking worked. Charging for measurement makes
 switching it off the rational move, which blinds the learning loop and destroys the value case
 in the same stroke.
 
