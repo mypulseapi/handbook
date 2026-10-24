@@ -31,6 +31,7 @@ needs a login.
 | `POST /catalog/ranked` | Rank the catalogue PULSE holds | Yes | `rankedCatalog()` |
 | `POST /search` | Rank products you pass in | Yes | `search()` |
 | `POST /rerank` | Reorder a result set from your own engine | Yes | none |
+| Return history, on `/search`, `/rerank` and `/catalog/ranked` | How often each product comes back for a reason the listing could have prevented. Two fields on each product, `deliveredOrders` and `evidenceReturns`, not an endpoint of its own. See [Return history](/api/v1/ranking#return-history) | Part of the ranking call | `search()` |
 | `POST /suggest` | Query suggestions, scored on the session | **No** | none |
 | `POST /catalog/audit` | What a catalogue cannot answer | Yes | none |
 | `POST /catalog/verify` | What a repair actually changed | Yes | none |
