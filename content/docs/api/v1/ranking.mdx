@@ -82,5 +82,5 @@ const products = [
 - A product with few orders is pulled toward the shelf's rate rather than taken at face value, and a
   product you send no history for scores 0.5.
 
-For a catalogue you have synced, send the same two numbers as product attributes with those names.
+`POST /catalog/ranked` reads the same two numbers from the attributes of each product in the catalogue PULSE holds, under these names, so include them in whatever you import that catalogue with. Nothing sends Pulse orders or returns one by one yet: these are totals you compute from your own order history.
 
