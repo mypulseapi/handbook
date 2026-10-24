@@ -66,8 +66,9 @@ ratings is not marked down for it.
 
 ### Return history
 
-`retention` is off until you send return history. Without it, ranking is exactly what it would
-otherwise be.
+`retention` is off until PULSE has return history. Without it, ranking is exactly what it would
+otherwise be. There are two ways to give it: report [order outcomes](/api/v1/outcomes) and PULSE
+keeps the counts itself, or send the totals on each product as below.
 
 ```ts
 const products = [
@@ -82,5 +83,23 @@ const products = [
 - A product with few orders is pulled toward the shelf's rate rather than taken at face value, and a
   product you send no history for scores 0.5.
 
-`POST /catalog/ranked` reads the same two numbers from the attributes of each product in the catalogue PULSE holds, under these names, so include them in whatever you import that catalogue with. Nothing sends Pulse orders or returns one by one yet: these are totals you compute from your own order history.
+`POST /catalog/ranked` reads the same numbers from the attributes of each product in the catalogue
+PULSE holds, under these names. Products you report through `/outcomes` need neither.
+
+### Your economics, optional
+
+Add `margin` (what a kept order contributes) and `returnCost` (what one return costs you), in one
+currency across the shelf. With both on two or more products, `retention` ranks on the value a
+purchase keeps after returns, not on the return rate alone, so a high-margin product that comes back
+a little more often can still rank first. PULSE never estimates these numbers for you.
+
+```ts
+const products = [
+  { id: "sku-123", deliveredOrders: 1840, evidenceReturns: 37, margin: 180000, returnCost: 45000 },
+];
+```
+
+A shopper who asks about size weighs that product's size-related returns more, and a small share of
+sessions is ranked without `retention` at all, so a product ranked down still gets the chance to
+show its returns have improved.
 
