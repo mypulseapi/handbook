@@ -64,6 +64,24 @@ ratings is not marked down for it.
 | `audienceFit` | Whether the product's shelf is aimed at who is probably looking | audience data for the category |
 | `retention` | How often the product comes back for a reason the listing could have prevented, against the rest of the shelf. 0.5 is the shelf's own rate | `deliveredOrders`, `evidenceReturns` |
 
+### Queries in the shopper's own words
+
+`baseScore` is computed on the words that name a product. Before scoring, PULSE reads the rest of
+the query for what it says about the purchase: a price limit, who it is for, the occasion, and
+whether it is urgent. It does this in **Vietnamese, Thai, Bahasa (Indonesian and Malay) and
+English**, with or without Vietnamese accents.
+
+| Query | Read as |
+| --- | --- |
+| `tai nghe cho mẹ dưới 1tr5` | headphones, for a mother, at most 1,500,000 |
+| `ซื้อนาฬิกาให้พ่อ งบ 5 พัน` | a watch, for a father, at most 5,000 |
+| `kado ulang tahun untuk istri di bawah 2 juta` | a birthday gift, for a wife, at most 2,000,000 |
+| `running shoes for my wife under RM300` | running shoes, for a wife, at most 300 |
+
+Prices are read in the notation shoppers use across the region, including `500k`, `2 triệu`,
+`S$150`, `RM2,000`, `₱2,500`, `3,000 บาท`, `750rb` and `2 juta`. They are compared with your `price`
+field as typed, with no currency conversion, so send prices in the currency your shoppers search in.
+
 ### Return history
 
 `retention` is off until PULSE has return history. Without it, ranking is exactly what it would
