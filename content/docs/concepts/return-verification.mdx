@@ -1,0 +1,69 @@
+---
+title: Return Verification
+description: Which missing product facts go with your returns, whether a repair moved them, and what that was worth at your own costs. What you send, what comes back, and how it connects to ranking.
+icon: Undo2
+---
+
+A return rate tells you that something went wrong. The return **reason** tells you what: too large,
+not as described, does not work with my device. Return Verification reads those reasons against
+your catalogue and answers three questions.
+
+1. **Which missing product facts go with returns?** For each attribute, the return rate where it is
+   missing against where it is recorded, within the same brand and price band.
+2. **Did a repair move them?** After your team fills a gap, the repaired products are compared with
+   similar ones that were not repaired, over the same weeks.
+3. **What was that worth?** A verified reduction, valued with the costs you give us, minus any
+   orders the repair may have cost.
+
+<Callout title="It does not promise fewer returns">
+  It measures your own order history and says plainly when there are too few orders to tell. A
+  clearer listing can also lose an order that would have been kept, and the valuation shows that
+  rather than hiding it.
+</Callout>
+
+## Which returns count
+
+Only returns that **better product information could have prevented**: wrong size, not as
+described, not compatible, wrong colour or material. Transit damage, counterfeits, a wrong item
+sent, empty parcels and refused cash-on-delivery orders are counted and set aside, because no
+listing change fixes them. Cancelled orders and failed deliveries are left out of the order count
+too, since the product never had the chance to be kept.
+
+Marketplace reason codes are often vague. A code like "return in original or sealed condition"
+mixes a change of mind with a size problem. Where you can send the buyer's comment or the
+marketplace's own reassessed reason, they are used, and the report shows how much of your return
+volume the codes leave unclear.
+
+## What you send
+
+There are two ways, and you can use both.
+
+| | A one-off analysis | Ongoing |
+| --- | --- | --- |
+| **What** | One category of your catalogue, and six to twelve months of orders with the return reason | Each order line's outcome as it happens |
+| **How** | An export, run with us during your pilot | [`POST /outcomes`](/api/v1/outcomes) from your server |
+| **Fields** | Product, order date, return date, reason, payment method if you have it | The same, per line, plus `decisionId` to join the ranking |
+
+**No personal data in either.** An export that carries names, phone numbers or addresses is
+refused, and the API drops any field it does not list.
+
+## How it connects to ranking
+
+The same return history feeds the `retention` factor when you use the Decision API, so products
+that come back for a fixable reason rank a little lower for the shoppers most likely to be affected.
+
+- It is **off** until there is return history, and ranking is unchanged without it.
+- A shopper asking about size weighs size-related returns more.
+- With your `margin` and `returnCost`, it ranks on the value a purchase keeps after returns, so a
+  high-margin product that comes back a little more often can still rank first.
+- A share of sessions is always ranked without it, so a product ranked down can still show its
+  returns have improved.
+
+Details: [what a score is made of](/api/v1/ranking#what-a-score-is-made-of) and
+[order outcomes](/api/v1/outcomes).
+
+## How it differs from Decision Verification
+
+[Decision Verification](/api/v1/audit) re-measures your **catalogue**: can it now answer what
+shoppers ask. Return Verification checks the **outcome that costs you money**: did the returns that
+missing fact went with actually fall.
