@@ -1,21 +1,75 @@
 ---
 title: Giới thiệu
-description: PULSE đo xem dữ liệu sản phẩm của bạn có trả lời được điều người mua đang hỏi hay không, xếp hạng những chỗ đáng sửa, và chứng minh bản sửa có tác dụng.
+description: Chào mừng bạn đến với tài liệu dành cho nhà phát triển của PULSE, dành cho nhà bán hàng đã có tài khoản PULSE và gói đăng ký. Kết nối danh mục và cửa hàng, tìm ra thông tin sản phẩm còn thiếu đang làm mất doanh số, và chứng minh từng bản sửa có tác dụng.
 icon: Sparkles
 ---
 
-Phần lớn công cụ ở lĩnh vực này xếp hạng những gì người mua nhìn thấy. PULSE hỏi câu nằm bên
-dưới câu đó: danh mục của bạn có trả lời được điều họ đến để tìm hiểu hay không? Bạn gửi một tệp
-xuất ngành hàng, nhận lại các thuộc tính đáng ghi theo thứ tự ưu tiên, rồi đo lại sau khi đội của
-bạn đã điền xong.
+Chào mừng bạn đến với tài liệu dành cho nhà phát triển của PULSE. Kết nối danh mục sản phẩm và cửa
+hàng trực tuyến của bạn với PULSE, tìm ra thông tin sản phẩm còn thiếu đang làm bạn mất doanh số,
+và chứng minh từng bản sửa có tác dụng. Làm theo các bước bên dưới để chuẩn bị tài khoản, hoặc
+chuyển thẳng tới [hướng dẫn nhanh](/quickstart).
 
-Ban đầu không có gì được cài lên website của bạn. Câu trả lời hữu ích đầu tiên đến từ một tệp.
-
-<Callout title="Ai xây dựng sản phẩm này">
-  PULSE do **Resolve Labs** làm ra, một đội nhỏ theo đuổi một câu hỏi: thông tin sản phẩm nào đáng
-  bỏ tiền ra sửa. Trang giới thiệu là [thepulseapi.com](https://thepulseapi.com/vi). Trang này
-  dành cho những người phải tích hợp nó.
+<Callout title="Dành cho nhà bán hàng dùng PULSE">
+  Tài liệu này dành cho các nhà bán hàng trực tuyến đã có **tài khoản nhà bán hàng PULSE và gói
+  đăng ký đang hoạt động**, cùng các lập trình viên họ mời vào để kết nối. Mọi yêu cầu đều cần một
+  khóa API, và khóa đó được tạo trong trang quản trị của tài khoản. Nếu công ty bạn chưa có tài
+  khoản, hãy xem <Ext to="pricingVi">các gói dịch vụ</Ext> và <Ext to="signUpVi">tạo tài khoản</Ext>.
 </Callout>
+
+## PULSE là gì
+
+PULSE là dịch vụ dành cho nhà bán hàng thương mại điện tử. PULSE đọc danh mục sản phẩm của bạn và đo
+xem nó có trả lời được những câu người mua hỏi trước khi mua hay không: màn hình bao nhiêu inch, có
+vừa không, có dùng được với thứ họ đang có không. Ở chỗ danh mục không trả lời được, PULSE cho bạn
+biết thông tin còn thiếu nào làm mất nhiều quyết định mua nhất, nên sửa chỗ nào trước, và sau đó
+bản sửa có tác dụng hay không.
+
+PULSE làm ba việc, và mỗi việc đều dùng được riêng:
+
+- **Decision Audit.** Gửi một ngành hàng; nhận lại các thuộc tính đáng ghi, xếp theo số người mua
+  cần đến chúng.
+- **Decision Verification.** Gửi danh mục đã sửa; nhận lại những gì đã thay đổi, theo từng thuộc
+  tính.
+- **Xếp hạng trực tiếp**, không bắt buộc. SDK trên trình duyệt xếp hạng danh mục cho từng khách
+  truy cập dựa trên những gì phiên truy cập cho thấy, kèm lý do cho mỗi điểm số.
+
+PULSE do **Resolve Labs** làm ra. Trang giới thiệu, nói về lý do thay vì cách làm, là
+<Ext to="siteVi">thepulseapi.com</Ext>.
+
+## Chuẩn bị tài khoản
+
+<Steps>
+
+<Step>
+
+### Tạo tài khoản nhà bán hàng
+
+Đăng ký tại <Ext to="signUpVi">thepulseapi.com</Ext> bằng email công việc. Tổ chức của bạn được
+xem xét trước khi kích hoạt, và bạn nhận được email khi được duyệt.
+
+</Step>
+
+<Step>
+
+### Chọn gói đăng ký
+
+So sánh các gói trên <Ext to="pricingVi">trang bảng giá</Ext>, rồi đăng ký tại
+<Ext to="billing">Settings → Billing</Ext> trong trang quản trị. Gói của bạn quyết định số yêu cầu
+mà các khóa được phép gửi mỗi tháng.
+
+</Step>
+
+<Step>
+
+### Tạo khóa API
+
+Trong trang quản trị, mở <Ext to="apiKey">Integration → API keys</Ext>, tạo một khóa và sao chép
+ngay: khóa chỉ hiển thị một lần. Mã tổ chức nằm trên cùng trang đó. Mọi ví dụ trên trang này đều cần
+cả hai, và gửi tới <Url to="api" />.
+
+</Step>
+
+</Steps>
 
 ## Sản phẩm này thực sự giải quyết vấn đề gì?
 

@@ -53,10 +53,24 @@ export const siteUrl = `${siteOriginUrl}${process.env.NEXT_PUBLIC_SITE_LOCALE_PA
 export const dashboardUrl = env(process.env.NEXT_PUBLIC_APP_URL, 'https://app.thepulseapi.com');
 
 /** The screen that issues an API key. A path, so a dashboard route change is a variable change. */
-export const dashboardApiKeyUrl = `${dashboardUrl}${process.env.NEXT_PUBLIC_APP_API_KEY_PATH || '/settings/api'}`;
+export const dashboardApiKeyUrl = `${dashboardUrl}${process.env.NEXT_PUBLIC_APP_API_KEY_PATH || '/integration/api-keys'}`;
 
-/** Where a reader signs up, linked from the quickstart's first step. */
-export const dashboardSignUpUrl = `${dashboardUrl}${process.env.NEXT_PUBLIC_APP_SIGNUP_PATH || '/register'}`;
+/** Where a merchant chooses and pays for a subscription, inside the dashboard. */
+export const dashboardBillingUrl = `${dashboardUrl}${process.env.NEXT_PUBLIC_APP_BILLING_PATH || '/settings/billing'}`;
+
+/**
+ * Where a merchant creates an account. Sign-up lives on the marketing site, not the dashboard: the
+ * dashboard sends signed-out visitors there (`penguin/src/lib/store-urls.ts`).
+ */
+export const dashboardSignUpUrl = `${siteUrl}${process.env.NEXT_PUBLIC_SITE_SIGNUP_PATH || '/signup'}`;
+
+/** The plans a merchant can subscribe to, on the marketing site. */
+export const pricingUrl = `${siteUrl}${process.env.NEXT_PUBLIC_SITE_PRICING_PATH || '/pricing'}`;
+
+/** The marketing site's Vietnamese tree, for links from the Vietnamese pages. */
+export const siteViUrl = `${siteOriginUrl}${process.env.NEXT_PUBLIC_SITE_VI_LOCALE_PATH || '/vi'}`;
+export const signUpViUrl = `${siteViUrl}${process.env.NEXT_PUBLIC_SITE_SIGNUP_PATH || '/signup'}`;
+export const pricingViUrl = `${siteViUrl}${process.env.NEXT_PUBLIC_SITE_PRICING_PATH || '/pricing'}`;
 
 /** The versioned API root every example posts to. */
 export const apiBaseUrl = `${env(process.env.NEXT_PUBLIC_API_URL, 'https://api.thepulseapi.com')}${
