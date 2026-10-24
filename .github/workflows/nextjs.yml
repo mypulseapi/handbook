@@ -99,13 +99,27 @@ jobs:
       GH_REPO: ${{ github.repository }}
       PR: ${{ github.event.pull_request.number }}
     steps:
+      # Only an admin's release merges itself, as in peacock. Anyone with write could otherwise
+      # open develop -> main and deploy production; their pull request stays open for an admin.
+      - name: Opened by an admin
+        id: admin
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          role=$(gh api "repos/$GH_REPO/collaborators/$AUTHOR/permission" -q .permission)
+          echo "ok=$([ "$role" = admin ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          [ "$role" = admin ] || echo "::notice::$AUTHOR is $role, not admin: leaving this release for an admin to merge."
+
       - name: Wait for the required checks
+        if: steps.admin.outputs.ok == 'true'
         run: gh pr checks "$PR" --required --watch --fail-fast --interval 15
 
       - name: Merge
+        if: steps.admin.outputs.ok == 'true'
         run: gh pr merge "$PR" --merge
 
       - name: Start the deploy
+        if: steps.admin.outputs.ok == 'true'
         run: gh workflow run nextjs.yml --ref main
 
   report:
