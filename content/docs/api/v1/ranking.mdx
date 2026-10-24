@@ -30,7 +30,7 @@ Ranks products **you pass in**, against the session.
 ```ts
 const { results } = await pulse.search(products, { limit: 24 });
 
-results[0].scoreBreakdown; // the signals that matched, and their weights
+results[0].scoreBreakdown; // the factors behind this score, each from 0 to 1
 ```
 
 ## `POST /rerank`
@@ -46,3 +46,41 @@ Query suggestions scored against the current session.
   `search` and `rankedCatalog` are not interchangeable. One ranks what you hand it, the other
   ranks what PULSE holds. Sending a catalogue you already synced to `search` is a wasted payload.
 </Callout>
+
+## What a score is made of
+
+Every ranked product carries the factors that produced its score. Each is a number from 0 to 1, and
+the score is their weighted average over **the factors that had something to go on**. A factor with
+no data behind it is left out of the average, not counted as zero, so a catalogue that sends no
+ratings is not marked down for it.
+
+| Field | What it measures | Needs |
+| --- | --- | --- |
+| `personaBoost` | How well the product fits what this session is shopping for | a few signals in the session |
+| `qualityBoost` | Rating, how many reviews stand behind it, sales, discount | `ratingAverage`, `reviewCount`, `quantitySold`, `compareAtPrice` |
+| `baseScore` | How well the product matches the query's words | a query |
+| `priceBoost` | Whether the price sits where this session's budget does | `price` |
+| `affinityBoost` | Attribute preferences recorded for this category | category affinities |
+| `audienceFit` | Whether the product's shelf is aimed at who is probably looking | audience data for the category |
+| `retention` | How often the product comes back for a reason the listing could have prevented, against the rest of the shelf. 0.5 is the shelf's own rate | `deliveredOrders`, `evidenceReturns` |
+
+### Return history
+
+`retention` is off until you send return history. Without it, ranking is exactly what it would
+otherwise be.
+
+```ts
+const products = [
+  { id: "sku-123", deliveredOrders: 1840, evidenceReturns: 37 },
+];
+```
+
+- `deliveredOrders` counts delivered orders only. Leave out cancelled, unpaid and failed ones.
+- `evidenceReturns` counts returns for a reason better product information could have prevented:
+  wrong size, not as described, not compatible. **Never** transit damage, counterfeits, a wrong item
+  sent, or a refused cash-on-delivery order, because no listing change fixes those.
+- A product with few orders is pulled toward the shelf's rate rather than taken at face value, and a
+  product you send no history for scores 0.5.
+
+For a catalogue you have synced, send the same two numbers as product attributes with those names.
+
