@@ -1,18 +1,75 @@
 ---
 title: Introduction
-description: Learn how to get started building on PULSE. Measure whether your product data can answer what shoppers ask, rank the repairs worth making, and prove the fix worked. Start with one export.
+description: Welcome to the PULSE developer documentation, for merchants with a PULSE account and subscription. Connect your catalogue and storefront, find the missing product information that costs sales, and prove each fix worked.
 icon: Sparkles
 ---
 
-Whether you are new to PULSE or extending something you have already built, this page lays out the
-development routes available to you, and the account and tooling each one needs.
+Welcome to the PULSE developer documentation. Connect your product catalogue and storefront to
+PULSE, find out which missing product information is costing you sales, and prove each fix worked.
+Follow the steps below to get your account ready, or jump straight into the
+[quickstart](/quickstart).
 
-<Callout title="Who builds this">
-  PULSE is made by **Resolve Labs**, a small team working on one question: which product
-  information is worth paying to fix. The marketing site, which covers the why rather than the
-  how, is <Ext to="site">thepulseapi.com</Ext>. This site is for the people who have to wire it
-  up.
+<Callout title="For PULSE merchants">
+  These docs are for online merchants with a **PULSE merchant account and an active
+  subscription**, and for the developers they bring in to connect it. Every request needs an API
+  key, and a key comes from your account's dashboard. If your company does not have an account
+  yet, see <Ext to="pricing">the plans</Ext> and <Ext to="signUp">create one</Ext>.
 </Callout>
+
+## What PULSE is
+
+PULSE is a service for e-commerce merchants. It reads your product catalogue and measures whether
+it can answer the questions shoppers ask before they buy: which screen size, will it fit, does it
+work with what they already own. Where it cannot, PULSE tells you which missing piece of
+information costs the most buying decisions, which repair to make first, and afterwards whether
+the repair worked.
+
+It does three things, and each one is useful on its own:
+
+- **Decision Audit.** Send one category of products; get back the attributes worth recording,
+  ranked by how many shoppers need them.
+- **Decision Verification.** Send the repaired catalogue; get back what changed, attribute by
+  attribute.
+- **Live ranking**, optional. The browser SDK ranks your catalogue for each visitor from what their
+  session implies, with the reason behind every score.
+
+PULSE is made by **Resolve Labs**. The marketing site, which covers why rather than how, is
+<Ext to="site">thepulseapi.com</Ext>.
+
+## Get your account ready
+
+<Steps>
+
+<Step>
+
+### Create a merchant account
+
+Sign up at <Ext to="signUp">thepulseapi.com</Ext> with your work email. Your organisation is
+reviewed before it is activated, and you get an email when it is approved.
+
+</Step>
+
+<Step>
+
+### Choose a subscription
+
+Compare the plans on <Ext to="pricing">the pricing page</Ext>, then subscribe from
+<Ext to="billing">Settings → Billing</Ext> in the dashboard. Your plan sets how many requests your
+keys may make each month.
+
+</Step>
+
+<Step>
+
+### Create an API key
+
+In the dashboard, open <Ext to="apiKey">Integration → API keys</Ext>, create a key and copy it at
+once: it is shown only once. Your organisation id is on the same page. Every example on this site
+needs both, and posts to <Url to="api" />.
+
+</Step>
+
+</Steps>
 
 ## The advantage of starting at the catalogue
 
@@ -109,14 +166,10 @@ Two honest starting points, depending on how you arrived.
   />
 </Cards>
 
-## What you need before the first request
+## What the first request needs
 
-Create an account at <Ext to="signUp">the dashboard</Ext>, then copy a key from
-<Ext to="apiKey">the API settings screen</Ext>. Every request on this site needs one. The
-versioned API root every example posts to is <Url to="api" />.
-
-The audit needs one more thing and nothing else: a single category of products as JSON. No
-traffic, no tag on your site, no history.
+An API key and your organisation id, from the steps above. The audit needs one more thing and
+nothing else: a single category of products as JSON. No traffic, no tag on your site, no history.
 
 ## What does the whole journey look like?
 

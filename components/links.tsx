@@ -2,10 +2,15 @@ import {
   apiBaseUrl,
   cdnSdkUrl,
   dashboardApiKeyUrl,
+  dashboardBillingUrl,
   dashboardSignUpUrl,
   dashboardUrl,
   demoUrl,
+  pricingUrl,
+  pricingViUrl,
+  signUpViUrl,
   siteOrigin,
+  siteViUrl,
   siteUrl,
 } from '@/lib/shared';
 
@@ -31,8 +36,16 @@ const TARGETS = {
   dashboard: dashboardUrl,
   /** The screen that issues an API key. */
   apiKey: dashboardApiKeyUrl,
-  /** Where a reader creates an account. */
+  /** Where a merchant creates an account, on the marketing site. */
   signUp: dashboardSignUpUrl,
+  /** The plans a merchant subscribes to. */
+  pricing: pricingUrl,
+  /** The dashboard screen where a subscription is chosen and paid. */
+  billing: dashboardBillingUrl,
+  /** The same three pages in Vietnamese, for the Vietnamese tree of this handbook. */
+  siteVi: siteViUrl,
+  signUpVi: signUpViUrl,
+  pricingVi: pricingViUrl,
   /** The versioned API root. */
   api: apiBaseUrl,
   /** The browser SDK on the CDN. */
