@@ -3,6 +3,7 @@
   "icon": "Brain",
   "pages": [
     "what-the-audit-measures",
+    "return-verification",
     "how-it-works",
     "signals",
     "sessions"
