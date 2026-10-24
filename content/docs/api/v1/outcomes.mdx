@@ -1,0 +1,83 @@
+---
+title: Report order outcomes
+description: POST /outcomes, which tells PULSE what happened to each order line, so ranking can favour the purchases that stay bought.
+icon: PackageCheck
+---
+
+A purchase is not the end of the story. Some orders come back, and some never arrive. Reporting
+what happened to each order line lets the `retention` factor rank on purchases that are **kept**,
+not only on purchases that are made. See [what a score is made of](/api/v1/ranking#what-a-score-is-made-of).
+
+## `POST /outcomes`
+
+Send it from your **server**, whenever an order line changes state: placed, delivered, returned,
+refunded, cancelled. Reporting the same line again updates it rather than adding a second one, so
+send the whole line each time it moves.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/outcomes" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "organizationId": "org_abc123",
+    "lines": [
+      {
+        "orderId": "SO-10442",
+        "merchantProductId": "sku-123",
+        "decisionId": "3f1c0b2e-...",
+        "orderedAt": "2026-10-01T09:30:00Z",
+        "status": "returned",
+        "paymentMethod": "cod",
+        "returnReason": "I want to return item in original / sealed condition",
+        "reassessedReason": "Size different from expected",
+        "returnedAt": "2026-10-12T15:00:00Z",
+        "returnQuantity": 1,
+        "refundMinor": 49000000,
+        "currency": "VND"
+      }
+    ]
+  }'
+```
+
+Returns `202` with `{ "written": 1 }`. Up to 1,000 lines per request.
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| `orderId` | yes | Your order id. Together with `merchantProductId` it identifies the line |
+| `merchantProductId` | yes | The product's id in your catalogue, as synced to PULSE |
+| `orderedAt` | yes | When the order was placed, ISO 8601 |
+| `status` | yes | `kept`, `returned`, `refunded`, `partial`, `cancelled` or `failed_delivery` |
+| `decisionId` | no | The `decisionId` of the ranking the shopper bought from. Joins the outcome to that ranking |
+| `paymentMethod` | no | For example `cod` or `card` |
+| `returnReason` | no | The reason the buyer chose |
+| `reassessedReason` | no | The marketplace's own reading after reviewing the case, such as Shopee's Reassessed Return Reason. Used in place of the buyer's when present |
+| `returnedAt`, `returnQuantity` | for a return | When it came back, and how many |
+| `refundMinor`, `currency` | no | The refund in minor units (cents, dong), and its currency |
+
+<Callout title="No personal data">
+  There is no field for a name, phone number, address or email, and any field not listed above is
+  dropped before it is stored. Nothing about the buyer is needed.
+</Callout>
+
+## Which returns count
+
+Only returns that **better product information could have prevented** affect ranking: wrong size,
+not as described, not compatible, wrong colour or material. Transit damage, counterfeits, a wrong
+item sent, empty parcels and refused cash-on-delivery orders are stored but never count against a
+product, because no listing change fixes them. Cancelled and failed deliveries are not orders the
+product could have kept, so they are left out of its delivered orders too.
+
+## Link the purchase to the ranking
+
+Send your order id on the purchase event, and the `decisionId` you got from the ranking:
+
+```ts
+await pulse.event('purchase', { decisionId, orderId: 'SO-10442' });
+```
+
+That is what lets a return weeks later be traced to the ranking that preceded the purchase.
+
+<Callout type="warn" title="Not billed, and still needs a key">
+  Like `/event` and `/exposure`, outcomes are measurement and never count toward usage. The call
+  still needs your API key, so make it from your server, not the browser.
+</Callout>
