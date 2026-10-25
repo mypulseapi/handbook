@@ -17,7 +17,7 @@ const COPY = {
   en: {
     open: 'Ask the docs',
     title: 'Ask the documentation',
-    subtitle: 'Answers are quoted from these pages, never generated.',
+    subtitle: 'Answers come from the developer docs and thepulseapi.com, never made up.',
     firstLoad: 'The first question downloads a 23 MB search model. It is cached after that.',
     placeholder: 'How do I run a catalogue audit?',
     loading: 'Getting ready',
@@ -29,14 +29,14 @@ const COPY = {
     suggestions: [
       'How do I run a catalogue audit?',
       'What does the audit measure?',
-      'How long does a session last?',
+      'What does it cost?',
       'What should I check before going live?',
     ],
   },
   vi: {
     open: 'Hỏi tài liệu',
     title: 'Hỏi tài liệu',
-    subtitle: 'Câu trả lời được trích từ chính các trang này, không phải do máy tự viết.',
+    subtitle: 'Trả lời từ thepulseapi.com và tài liệu cho lập trình viên, không tự bịa ra.',
     firstLoad:
       'Bạn hỏi được bằng tiếng Việt. Câu hỏi đầu tiên sẽ tải mô hình tìm kiếm đa ngôn ngữ 129 MB, sau đó được lưu lại. Nội dung tài liệu phần lớn vẫn là tiếng Anh.',
     placeholder: 'Làm sao để chạy một bản kiểm tra danh mục?',
@@ -49,7 +49,7 @@ const COPY = {
     suggestions: [
       'Làm sao để lấy API key?',
       'Bản kiểm tra danh mục đo những gì?',
-      'Một phiên truy cập kéo dài bao lâu?',
+      'Chi phí bao nhiêu?',
       'Cần kiểm tra gì trước khi lên production?',
     ],
   },
