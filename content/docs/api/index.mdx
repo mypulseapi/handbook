@@ -7,12 +7,12 @@ icon: Braces
 PULSE publishes **two separate interfaces**, and they are not the same size.
 
 <Cards>
-  <Card icon={<Braces />} title="The HTTP API" description="Twelve endpoints. One header. Callable from a browser, a server, a cron job or curl. This is the product." />
+  <Card icon={<Braces />} title="The HTTP API" description="Thirteen endpoints. One header. Callable from a browser, a server, a cron job or curl. This is the product." />
   <Card icon={<Atom />} title="The browser SDK" description="A convenience layer over six of them, which also manages the session id, buffers exposures and captures device and referrer for you." />
 </Cards>
 
 <Callout type="warn" title="The SDK is a subset, not the whole product">
-  `@thepulseapi/sdk` has a method for six of the twelve endpoints. Everything else, including
+  `@thepulseapi/sdk` has a method for six of the thirteen endpoints. Everything else, including
   the Decision Audit, is HTTP only. If you are evaluating what PULSE can do, read this page
   rather than the [SDK reference](/sdk).
 </Callout>
@@ -31,13 +31,26 @@ needs a login.
 | `POST /catalog/ranked` | Rank the catalogue PULSE holds | Yes | `rankedCatalog()` |
 | `POST /search` | Rank products you pass in | Yes | `search()` |
 | `POST /rerank` | Reorder a result set from your own engine | Yes | none |
-| Return history, on `/search`, `/rerank` and `/catalog/ranked` | How often each product comes back for a reason the listing could have prevented. Two fields on each product, `deliveredOrders` and `evidenceReturns`, not an endpoint of its own. See [Return history](/api/v1/ranking#return-history) | Part of the ranking call | `search()` |
 | `POST /suggest` | Query suggestions, scored on the session | **No** | none |
 | `POST /catalog/audit` | What a catalogue cannot answer | Yes | none |
 | `POST /catalog/verify` | What a repair actually changed | Yes | none |
 | `POST /event` | A named outcome | **No** | `event()` |
 | `POST /exposure` | What was actually rendered | **No** | `exposure()` |
 | `POST /outcomes` | What happened to each order line: kept, returned, cancelled. From your server | **No** | none |
+
+### Return history is not an endpoint
+
+There is no return-history call. It is two optional fields you add to each product you already
+send to `/search`, `/rerank` or `/catalog/ranked`:
+
+- `deliveredOrders`: how many orders of the product were delivered.
+- `evidenceReturns`: how many of those came back for a reason better product information could
+  have prevented, such as wrong size or not as described.
+
+Send them and the ranking also weighs how often a product stays bought. Leave them out and
+ranking is exactly what it would otherwise be. If you report each order line to
+[`POST /outcomes`](/api/v1/outcomes) instead, PULSE keeps these counts for you and you send
+neither. The rules for counting are in [Return history](/api/v1/ranking#return-history).
 
 ### Why four of them are free
 
