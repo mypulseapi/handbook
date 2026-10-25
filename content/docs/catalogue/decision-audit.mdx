@@ -1,0 +1,48 @@
+---
+title: Decision Audit
+description: The PULSE Decision Audit ranks the missing product facts in your catalogue by how many buying decisions they cost, so your team fixes the right column first. One API call, one CSV.
+icon: ClipboardCheck
+---
+
+A completeness score tells you which column is emptiest. The Decision Audit tells you which
+missing fact is **costing you sales**, and those are rarely the same column. On our own 216-laptop
+test shelf, processor was missing twice as often as screen size, yet screen size came up in 13 of
+32 buying requirements and processor in 2. Fill the emptiest column first and you do the most visible work for the
+least return.
+
+**Who it is for:** the catalogue or e-commerce lead who has to decide where the content budget
+goes this quarter, and the developer who wires the export in.
+
+## What you get back
+
+- Every attribute in **priority order**, ranked by decision information: how much closer a shopper
+  gets to a decision once the fact is recorded. [What that means](/concepts/what-the-audit-measures).
+- **Where each missing value already lives**: in your own titles and descriptions (a parse, often
+  same-day), in a supplier feed (a mapping), or nowhere (someone has to find it).
+- With `amortisationHorizon`, an **action** per attribute: record it once, or ask the shopper.
+- Plain flags where the ranking may be wrong, rather than a confident number.
+
+## The call
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "csv": "id,category,size,material\n1,helmet,L,abs\n2,helmet,,\n",
+    "source": "merchant",
+    "amortisationHorizon": 5000
+  }'
+```
+
+One category export as a CSV string, up to 2 MB, roughly 20,000 products. Nothing is stored
+unless you ask. Every field: [`POST /catalog/audit`](/api/v1/audit#post-catalogaudit).
+
+**Counts toward usage:** yes, one request per audit.
+
+## Next
+
+<Cards>
+  <Card title="Prove the repair" href="/catalogue/decision-verification" description="Send the repaired export and see exactly what moved." />
+  <Card title="Get an API key" href="/#get-your-account-ready" description="Account, plan and key, in that order." />
+</Cards>

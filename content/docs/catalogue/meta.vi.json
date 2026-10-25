@@ -1,0 +1,12 @@
+{
+  "title": "Sản phẩm cho danh mục",
+  "icon": "ClipboardCheck",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "decision-audit",
+    "decision-verification",
+    "decision-monitor",
+    "return-verification"
+  ]
+}

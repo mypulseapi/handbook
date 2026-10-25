@@ -1,0 +1,38 @@
+---
+title: Category pages
+description: PULSE orders category and landing-page grids for whoever arrived, so a campaign that sends a thousand people to one page shows each of them the products they came for.
+icon: LayoutGrid
+---
+
+A campaign sends a thousand people to one category page, and all of them see the same grid. The
+shopper who came from a price-comparison link and the one who came from a gift guide want
+different products first. PULSE orders the grid against what each visit implies, with a held-back
+share of visits shown your default order, so the difference can be measured.
+
+**Who it is for:** merchandisers running campaigns and landing pages, and any category with more
+products than fit above the fold.
+
+## The call
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/ranked" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "categorySlug": "helmets-safety",
+    "page": 1,
+    "limit": 24
+  }'
+```
+
+- `categorySlug` takes your own slug or a parent one; leave it out to rank the whole catalogue.
+- The whole category is ranked and `limit`, up to 200, only decides how much comes back, so page
+  two continues the same order.
+- Pass `signals` on the same call to record what the visitor just did before ranking.
+
+With the SDK: `await pulse.rankedCatalog({ limit: 24 })`. Reference:
+[`POST /catalog/ranked`](/api/v1/ranking#post-catalogranked).
+
+**Counts toward usage:** yes, one request per page.

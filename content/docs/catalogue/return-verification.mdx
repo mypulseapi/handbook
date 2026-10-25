@@ -1,6 +1,6 @@
 ---
 title: Return Verification
-description: Which missing product facts go with your returns, whether a repair moved them, and what that was worth at your own costs. What you send, what comes back, and how it connects to ranking.
+description: PULSE Return Verification shows which missing product facts go with your returns, whether a repair moved them, and what that was worth at your own costs. Report order outcomes with one free API call.
 icon: Undo2
 ---
 
@@ -14,6 +14,36 @@ your catalogue and answers three questions.
    similar ones that were not repaired, over the same weeks.
 3. **What was that worth?** A verified reduction, valued with the costs you give us, minus any
    orders the repair may have cost.
+
+**Who it is for:** merchants whose returns cost real money, which on cash-on-delivery marketplaces
+is most of them, and who want to know which listing fixes are worth paying for.
+
+## The calls
+
+| Call | What it does | Counts toward usage |
+| --- | --- | --- |
+| [`POST /outcomes`](/api/v1/outcomes) | Reports what happened to each order line: kept, returned with its reason, refunded, cancelled. From your server | **No** |
+| `deliveredOrders` and `evidenceReturns` on each product | The same history as two totals, sent with a [ranking call](/api/v1/ranking#return-history) instead of order lines | Part of that call |
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/outcomes" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "organizationId": "org_abc123",
+    "lines": [{
+      "orderId": "SO-10442",
+      "merchantProductId": "sku-123",
+      "orderedAt": "2026-10-01T09:30:00Z",
+      "status": "returned",
+      "returnReason": "Size different from expected",
+      "returnedAt": "2026-10-12T15:00:00Z"
+    }]
+  }'
+```
+
+Reporting outcomes is free on purpose: charging for the data that proves a fix worked would make
+switching it off the rational move.
 
 <Callout title="It does not promise fewer returns">
   It measures your own order history and says plainly when there are too few orders to tell. A
@@ -64,6 +94,6 @@ Details: [what a score is made of](/api/v1/ranking#what-a-score-is-made-of) and
 
 ## How it differs from Decision Verification
 
-[Decision Verification](/api/v1/audit) re-measures your **catalogue**: can it now answer what
+[Decision Verification](/catalogue/decision-verification) re-measures your **catalogue**: can it now answer what
 shoppers ask. Return Verification checks the **outcome that costs you money**: did the returns that
 missing fact went with actually fall.

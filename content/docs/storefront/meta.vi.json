@@ -1,0 +1,12 @@
+{
+  "title": "Sản phẩm cho cửa hàng",
+  "icon": "Store",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "decision-api",
+    "search",
+    "recommendations",
+    "category-pages"
+  ]
+}

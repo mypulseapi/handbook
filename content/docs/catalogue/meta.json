@@ -1,0 +1,12 @@
+{
+  "title": "Catalogue products",
+  "icon": "ClipboardCheck",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "decision-audit",
+    "decision-verification",
+    "decision-monitor",
+    "return-verification"
+  ]
+}

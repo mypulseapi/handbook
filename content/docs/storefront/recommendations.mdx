@@ -1,0 +1,36 @@
+---
+title: Recommendations
+description: PULSE Recommendations rank a strip against the visit happening now, so a first-time shopper gets relevant picks without any purchase history. One call, alongside the page it sits on.
+icon: Sparkles
+---
+
+Most recommendation engines need history: past purchases, a login, weeks of clicks. A first-time
+visitor gets the bestsellers, which is everyone's strip. PULSE ranks the strip against what **this
+visit** implies, so the first session is served as well as the hundredth.
+
+**Who it is for:** storefronts where most visitors are new or anonymous, which in Southeast Asian
+marketplaces is most of them.
+
+## The call
+
+Ask for a strip on the same call that ranks the page. `recommendCount` returns that many products,
+each ranked out of what is left after the page itself.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/ranked" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "categorySlug": "headphones",
+    "recommendCount": 6,
+    "includeBreakdown": true
+  }'
+```
+
+The response carries `items` for the page and `recommendations` for the strip, up to 50, each with
+its score and, with `includeBreakdown`, the reason behind it. It ranks the catalogue you have
+synced to PULSE. Reference: [`POST /catalog/ranked`](/api/v1/ranking#post-catalogranked).
+
+**Counts toward usage:** yes, one request for the page and its strip together.

@@ -1,0 +1,42 @@
+---
+title: Decision Monitor
+description: PULSE Decision Monitor compares each new catalogue export with the last and tells you which shelf slipped and why, before shoppers notice. Recurring, from one API call.
+icon: BellRing
+---
+
+Catalogues decay. A supplier changes a feed, a new range arrives without its sizes, a bulk edit
+blanks a column. Nobody notices until sales on that shelf drop. Decision Monitor compares each
+export with the previous one and reports what slipped, on which shelf, in decision terms.
+
+**Who it is for:** teams who have done the repair work once and want to know it stays done.
+
+## What you get back
+
+- Products added and removed since the last export.
+- Every attribute that **regressed**, with the share of products a shopper could decide on before
+  and after.
+- Buying requirements the catalogue **newly cannot answer**, so you know which shelf to look at.
+- Nothing claimed, nothing graded: a monitor reports change, it does not judge anyone's work.
+
+## The call
+
+The monitor is [`POST /catalog/verify`](/api/v1/audit#post-catalogverify) without `repairs`.
+There is no second endpoint, because a monitor and a verification are the same computation; the
+only difference is whether anything was claimed.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/verify" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "before": "<last week'"'"'s export>",
+    "after":  "<this week'"'"'s export>",
+    "organizationId": "org_abc123",
+    "category": "Helmets"
+  }'
+```
+
+Run it on a schedule from your side, for example a weekly job after the supplier feed lands, and
+keep `organizationId` set so each result is stored.
+
+**Counts toward usage:** yes, one request per comparison.
