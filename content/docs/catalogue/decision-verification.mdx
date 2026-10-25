@@ -1,0 +1,50 @@
+---
+title: Decision Verification
+description: PULSE Decision Verification re-measures your catalogue after a repair and grades every claimed fix against what actually changed. Proof without waiting for traffic.
+icon: GitCompare
+---
+
+Your team, an agency or an enrichment tool says the gaps are filled. Decision Verification checks.
+Send the export from before and after the work, list what was claimed, and get back what actually
+changed, attribute by attribute, and which buying requirements the catalogue can now answer.
+
+It needs **no traffic and no A/B test**. The proof is in the data, so it is ready the moment the
+new export is.
+
+**Who it is for:** whoever signs off the repair work, and anyone paying for enrichment who wants
+to see it delivered.
+
+## What you get back
+
+- **Per attribute**, the share of products a shopper could decide on before and after: what
+  `improved`, what regressed, what did not move.
+- **Per claimed repair**, how many products it actually gained, and how strong the evidence is.
+- **`unverifiedClaims`**: anything claimed that the new export does not bear out.
+- **Buying requirements** the catalogue can now answer, and any it newly cannot.
+- With hours on each claim, the effort behind the result, and a one-line headline to report.
+
+## The call
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/verify" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "before": "id,category,size\n1,helmet,\n",
+    "after":  "id,category,size\n1,helmet,L\n",
+    "repairs": [{ "attribute": "size", "method": "manual", "actualHours": 3 }],
+    "category": "Helmets"
+  }'
+```
+
+Add `organizationId` to keep the result; leave it out and the response says nothing was stored.
+Every field: [`POST /catalog/verify`](/api/v1/audit#post-catalogverify).
+
+**Counts toward usage:** yes, one request per verification.
+
+## Next
+
+<Cards>
+  <Card title="Keep it measured" href="/catalogue/decision-monitor" description="The same comparison on every new export." />
+  <Card title="Check the returns" href="/catalogue/return-verification" description="Did the gaps you fixed go with returns?" />
+</Cards>

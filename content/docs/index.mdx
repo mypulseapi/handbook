@@ -24,16 +24,19 @@ work with what they already own. Where it cannot, PULSE tells you which missing 
 information costs the most buying decisions, which repair to make first, and afterwards whether
 the repair worked.
 
-It does four things, and each one is useful on its own:
+It is sold as products you can buy on their own, each one an API:
 
-- **Decision Audit.** Send one category of products; get back the attributes worth recording,
+- **[Decision Audit](/catalogue/decision-audit).** Send one category of products; get back the attributes worth recording,
   ranked by how many shoppers need them.
-- **Decision Verification.** Send the repaired catalogue; get back what changed, attribute by
+- **[Decision Verification](/catalogue/decision-verification).** Send the repaired catalogue; get back what changed, attribute by
   attribute.
-- **[Return Verification](/concepts/return-verification).** Send your orders with the reasons
+- **[Return Verification](/catalogue/return-verification).** Send your orders with the reasons
   people gave; see which missing facts go with returns, and whether a repair moved them.
-- **Live ranking**, optional. The browser SDK ranks your catalogue for each visitor from what their
-  session implies, with the reason behind every score.
+- **[Decision Monitor](/catalogue/decision-monitor).** Send each new export; see which shelf slipped
+  since the last one.
+- **[Storefront products](/storefront)**, optional: the Decision API, Search, Recommendations and
+  category pages rank your catalogue for each visitor from what their session implies, with the
+  reason behind every score.
 
 PULSE is made by **Resolve Labs**. The marketing site, which covers why rather than how, is
 <Ext to="site">thepulseapi.com</Ext>.

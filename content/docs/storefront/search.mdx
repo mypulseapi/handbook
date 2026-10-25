@@ -1,0 +1,40 @@
+---
+title: Search
+description: PULSE Search ranks results on what the shopper is deciding, not only on matching words. Keep your search engine and rerank its results, or let PULSE rank the products you pass in. Reads Vietnamese, Thai, Bahasa and English.
+icon: Search
+---
+
+Two shoppers type "headphones". One is buying a gift under a budget, the other wants noise
+cancelling for travel. Word matching shows them the same list. PULSE Search ranks each list for the
+visit it belongs to, and **reads the rest of the query** too: a price limit, who it is for, the
+occasion, whether it is urgent.
+
+**Who it is for:** any storefront with a search box, whether you keep your current engine or not.
+
+## Three ways in
+
+| You have | Call | What it does |
+| --- | --- | --- |
+| A search engine you are keeping | `POST /rerank` | Reorders the results it already returned. The lightest way in |
+| Products in hand, no engine | `POST /search` | Ranks the products you pass, against the session |
+| A search box | `POST /suggest` | Query suggestions scored on the session. **Free**, since it fires on every keystroke |
+
+```ts
+const { results } = await pulse.search(products, { query: "tai nghe cho mẹ dưới 1tr5", limit: 24 });
+
+results[0].scoreBreakdown; // why this product came first, factor by factor
+```
+
+## Queries in the shopper's own words
+
+`tai nghe cho mẹ dưới 1tr5` is read as headphones, for a mother, at most 1,500,000.
+`ซื้อนาฬิกาให้พ่อ งบ 5 พัน` as a watch for a father, at most 5,000. Prices in `500k`, `2 triệu`,
+`S$150`, `RM2,000`, `₱2,500`, `750rb` and `2 juta` are understood as typed. More in
+[Queries in the shopper's own words](/api/v1/ranking#queries-in-the-shoppers-own-words).
+
+## What you get back
+
+Every result carries its **score breakdown**: fit to the session, quality, text match, price, and,
+when you send return history, how often it stays bought. [What a score is made of](/api/v1/ranking#what-a-score-is-made-of).
+
+**Counts toward usage:** yes for `/search` and `/rerank`; `/suggest` is free.
