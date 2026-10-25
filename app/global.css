@@ -205,6 +205,18 @@ figure.shiki:not(.not-fumadocs-codeblock *) {
   }
 }
 
+/*
+ * Sidebar section headings ("Start here", "Understand it") sit closer to the item above.
+ *
+ * Fumadocs gives each separator `mt-6`, 24px on top of the item's own padding, which read as a
+ * blank row between sections (dev's review, 2026-10-25). Half of it still separates the groups.
+ * Matched on the class, not on `p`, so nothing else in the sidebar moves.
+ */
+#nd-sidebar p[class*='mt-6']:not(:first-child),
+#nd-sidebar-mobile p[class*='mt-6']:not(:first-child) {
+  margin-top: 0.75rem;
+}
+
 /* ---------------------------------------------------------------------------
    Assistant
    --------------------------------------------------------------------------- */
