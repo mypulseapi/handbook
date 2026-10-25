@@ -1,0 +1,31 @@
+---
+title: Storefront products
+description: PULSE storefront products rank your catalogue for each live visit, anonymously. Decision API, Search, Recommendations and category pages, each with the reason behind every score.
+icon: Store
+---
+
+A thousand shoppers land on the same page and see the same grid, though they came for different
+things. The storefront products read what the current visit implies, from the pages viewed, the
+filters set and the words searched, and order your products for it. **No login, no cookies, no
+personal data**, and every score comes with the factors that produced it.
+
+| Product | What it ranks | Calls | Counts toward usage |
+| --- | --- | --- | --- |
+| [Decision API](/storefront/decision-api) | The live session itself: what this visit is shopping for | `POST /track`, `POST /session` | Yes |
+| [Search](/storefront/search) | Search results, from your engine or ours | `POST /search`, `POST /rerank`, `POST /suggest` | Yes, `/suggest` free |
+| [Recommendations](/storefront/recommendations) | A recommendation strip, on a first visit too | `POST /catalog/ranked` with `recommendCount` | Yes |
+| [Category pages](/storefront/category-pages) | Category and landing-page grids | `POST /catalog/ranked` with `categorySlug` | Yes |
+
+Measuring is free: `POST /event` and `POST /exposure` record what was shown and what happened, so
+you can prove the ranking worked, and they never count toward usage.
+
+## Built to run beside what you have
+
+- **It falls back to your own order.** If PULSE is slow or unreachable, the shopper sees the order
+  you would have shown anyway.
+- **A share of visits is always held back**, ranked without PULSE, so the difference can be
+  measured rather than asserted.
+- **It reads Southeast Asian searches** in Vietnamese, Thai, Bahasa and English, prices included.
+
+Get the catalogue right first: ranking can only surface facts your catalogue records. The
+[catalogue products](/catalogue) find and fix the gaps.

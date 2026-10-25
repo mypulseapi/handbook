@@ -1,0 +1,49 @@
+---
+title: Decision API
+description: The PULSE Decision API reads an anonymous visit as it happens and says what the shopper is shopping for, so every ranking call that follows is personal from the first click.
+icon: Radio
+---
+
+Personalisation usually starts after a login or weeks of history. The Decision API starts at the
+first page view. Each signal you send, a category opened, a price filter set, a query typed, sharpens
+its read of what this visit is shopping for, and every ranking call afterwards uses it.
+
+**Who it is for:** storefronts with anonymous traffic, which is most of it, and teams that will not
+store personal data to personalise.
+
+## What you get back
+
+- The **personas** inferred so far for the session, each scored from 0 to 1, from `POST /session`
+  or as the response to each `POST /track`.
+- Device, referrer and time read from the request itself, so even a call with no signals opens the
+  session with something to go on.
+- A session that **decays** as the visit moves on, so an old interest does not outrank a new one.
+
+## The calls
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/track" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "signals": [
+      { "type": "category_view", "value": "helmets-safety" },
+      { "type": "price_filter", "value": "500000-1500000" }
+    ]
+  }'
+```
+
+From the browser, the SDK does the same in one line: `await pulse.track([...])`. Full reference:
+[`POST /track`](/api/v1/track) and [`POST /session`](/api/v1/session). The signal types are in
+[Signals](/concepts/signals).
+
+**Counts toward usage:** yes, per `/track` and `/session` call.
+
+## Next
+
+<Cards>
+  <Card title="Rank search results" href="/storefront/search" description="Use the session on the results page." />
+  <Card title="Quick start" href="/quickstart" description="First signal and first ranked list, in minutes." />
+</Cards>

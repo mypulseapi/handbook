@@ -1,0 +1,12 @@
+{
+  "title": "Storefront products",
+  "icon": "Store",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "decision-api",
+    "search",
+    "recommendations",
+    "category-pages"
+  ]
+}

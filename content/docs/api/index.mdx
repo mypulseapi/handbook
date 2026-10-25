@@ -22,35 +22,35 @@ PULSE publishes **two separate interfaces**, and they are not the same size.
 Every row below is reachable with a publishable key and the `x-api-key` header. Nothing here
 needs a login.
 
+Grouped by the product each call belongs to. Every product page says what it answers and who it
+is for; this table is the map.
+
 | Endpoint | What it is for | Counts toward usage | SDK method |
 | --- | --- | --- | --- |
+| **[Decision Audit](/catalogue/decision-audit)** | | | |
+| `POST /catalog/audit` | Which missing facts cost the most buying decisions | Yes | none |
+| **[Decision Verification](/catalogue/decision-verification) and [Decision Monitor](/catalogue/decision-monitor)** | | | |
+| `POST /catalog/verify` | What a repair actually changed; without `repairs`, what slipped since the last export | Yes | none |
+| **[Return Verification](/catalogue/return-verification)** | | | |
+| `POST /outcomes` | What happened to each order line: kept, returned, cancelled. From your server | **No** | none |
+| **[Decision API](/storefront/decision-api)** | | | |
 | `POST /track` | Signals in, personas out | Yes | `track()` |
 | `POST /track/behavior` | One named behaviour | Yes | none |
 | `POST /track/keywords` | A raw search query, extracted for you | Yes | none |
 | `POST /session` | The personas inferred so far | Yes | `getSession()` |
-| `POST /catalog/ranked` | Rank the catalogue PULSE holds | Yes | `rankedCatalog()` |
+| **[Search](/storefront/search)** | | | |
 | `POST /search` | Rank products you pass in | Yes | `search()` |
 | `POST /rerank` | Reorder a result set from your own engine | Yes | none |
 | `POST /suggest` | Query suggestions, scored on the session | **No** | none |
-| `POST /catalog/audit` | What a catalogue cannot answer | Yes | none |
-| `POST /catalog/verify` | What a repair actually changed | Yes | none |
+| **[Recommendations](/storefront/recommendations) and [Category pages](/storefront/category-pages)** | | | |
+| `POST /catalog/ranked` | Rank the catalogue PULSE holds, with a recommendation strip on request | Yes | `rankedCatalog()` |
+| **Measurement, for every storefront product** | | | |
 | `POST /event` | A named outcome | **No** | `event()` |
 | `POST /exposure` | What was actually rendered | **No** | `exposure()` |
-| `POST /outcomes` | What happened to each order line: kept, returned, cancelled. From your server | **No** | none |
 
-### Return history is not an endpoint
-
-There is no return-history call. It is two optional fields you add to each product you already
-send to `/search`, `/rerank` or `/catalog/ranked`:
-
-- `deliveredOrders`: how many orders of the product were delivered.
-- `evidenceReturns`: how many of those came back for a reason better product information could
-  have prevented, such as wrong size or not as described.
-
-Send them and the ranking also weighs how often a product stays bought. Leave them out and
-ranking is exactly what it would otherwise be. If you report each order line to
-[`POST /outcomes`](/api/v1/outcomes) instead, PULSE keeps these counts for you and you send
-neither. The rules for counting are in [Return history](/api/v1/ranking#return-history).
+Return Verification also reads return history sent as two fields on each product in a ranking
+call, `deliveredOrders` and `evidenceReturns`, for when you would rather send totals than order
+lines. [Return history](/api/v1/ranking#return-history) has the counting rules.
 
 ### Why four of them are free
 

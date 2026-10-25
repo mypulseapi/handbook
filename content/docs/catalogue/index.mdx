@@ -1,0 +1,49 @@
+---
+title: Catalogue products
+description: Four PULSE products that work on your product data, not your traffic. Find the missing facts that cost buying decisions, fix them in the right order, prove the fix, and keep it fixed.
+icon: ClipboardCheck
+---
+
+Most of what stops a shopper buying is a fact your catalogue does not record: the screen size, the
+fit, whether it works with what they already own. These four products find those gaps and prove
+the repairs, from a catalogue export and your order history. **No storefront change, no tracking
+script, no traffic needed.**
+
+| Product | The question it answers | Call | Counts toward usage |
+| --- | --- | --- | --- |
+| [Decision Audit](/catalogue/decision-audit) | Which missing facts cost the most buying decisions, and which do I fix first? | `POST /catalog/audit` | Yes |
+| [Decision Verification](/catalogue/decision-verification) | Did the repair actually make the catalogue answer what shoppers ask? | `POST /catalog/verify` with `repairs` | Yes |
+| [Decision Monitor](/catalogue/decision-monitor) | What has slipped since the last export, and where? | `POST /catalog/verify` without `repairs` | Yes |
+| [Return Verification](/catalogue/return-verification) | Which missing facts go with returns, and did a repair move them? | `POST /outcomes` | **No** |
+
+## The order they are used in
+
+<Steps>
+<Step>
+### Audit one category
+
+Start with the shelf that matters most. The audit returns the attributes worth recording, ranked
+by how many buying decisions each one moves.
+</Step>
+<Step>
+### Repair, then verify
+
+Fill the top of the list, export again, and send both exports. Verification grades each claimed
+fix against what actually changed.
+</Step>
+<Step>
+### Keep it measured
+
+Run the same comparison on every new export. A catalogue decays as suppliers change feeds and new
+products arrive, and the monitor says where.
+</Step>
+<Step>
+### Check the outcome that costs money
+
+Report what happened to each order line and Return Verification shows which gaps go with returns,
+and whether the repairs moved them.
+</Step>
+</Steps>
+
+Ready to show it to shoppers too? The [storefront products](/storefront) rank a live visit against
+the catalogue you just repaired.
