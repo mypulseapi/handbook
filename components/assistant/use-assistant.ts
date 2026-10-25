@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadMessages, saveMessages } from '@/lib/assistant/session';
 import notes from '@/lib/assistant/page-notes.json';
+import { ORIGINS, talk } from '@/lib/assistant/talk';
 
 export type Status = 'idle' | 'loading' | 'ready' | 'failed';
 
@@ -220,6 +221,24 @@ export function useAssistant(lang: string) {
           streaming: false,
         },
       ]);
+      // Small talk is answered here, at once, without starting the model: "hi" should not cost a
+      // reader a 23 MB download. See lib/assistant/talk.ts.
+      const quick = talk(trimmed, lang, ORIGINS);
+      if (quick?.final) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: nextId.current++,
+            role: 'assistant',
+            text: '',
+            full: quick.answer.body,
+            sources: [],
+            streaming: true,
+          },
+        ]);
+        return;
+      }
+
       setPending(true);
 
       if (!worker.current) {
@@ -235,7 +254,7 @@ export function useAssistant(lang: string) {
 
       send(trimmed);
     },
-    [send, start, status],
+    [send, start, status, lang],
   );
 
   /**
