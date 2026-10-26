@@ -12,8 +12,8 @@ and proves it worked, is the [API](/api).
 
 | Package | What it is | Status | Source |
 | --- | --- | --- | --- |
-| `@thepulseapi/sdk` | The browser SDK: signals, ranking, measurement. About 3 KB on the CDN | **On npm**, 0.2.0, MIT | Published on npm; readable in the package |
-| `@thepulseapi/docs-mcp` | MCP server: search these docs, and with a key, [`resolve_products`](/mcp) | **Source public**, MIT; npm publish pending | [`mypulseapi/handbook/mcp`](https://github.com/mypulseapi/handbook/tree/main/mcp) |
+| `@thepulseapi/sdk` | The browser SDK: signals, ranking, measurement. About 3 KB on the CDN | **On npm**, 0.2.0, MIT | [`mypulseapi/pulse`](https://github.com/mypulseapi/pulse/tree/main/packages/sdk) |
+| `@thepulseapi/mcp` | MCP server: search these docs, and with a key, [`resolve_products`](/mcp) | **Source public**, MIT; npm publish pending | [`mypulseapi/pulse`](https://github.com/mypulseapi/pulse/tree/main/packages/mcp) |
 
 ```bash
 npm install @thepulseapi/sdk
@@ -22,8 +22,8 @@ npm install @thepulseapi/sdk
 Until the MCP server is on npm, run it from source:
 
 ```bash
-git clone https://github.com/mypulseapi/handbook.git
-cd handbook/mcp && npm install
+git clone https://github.com/mypulseapi/pulse.git
+cd pulse/packages/mcp && npm install
 node server.mjs
 ```
 
@@ -47,7 +47,7 @@ problems; the API decides what is worth fixing.
 
 ## How to contribute
 
-1. **Open an issue first** on [GitHub](https://github.com/mypulseapi/handbook/issues): a bug, a
+1. **Open an issue first** on [GitHub](https://github.com/mypulseapi/pulse/issues): a bug, a
    language the parser misreads, an adapter you need.
 2. **Then a pull request**, small and with a test. Contribution terms are being finalised; we will
    publish them before accepting larger changes.
