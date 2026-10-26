@@ -1,0 +1,92 @@
+---
+title: Bắt đầu nhanh
+description: Từ con số không tới một danh mục được xếp hạng trong khoảng mười dòng mã.
+icon: Rocket
+---
+
+<Steps>
+
+<Step>
+
+### Lấy key
+
+Bạn cần một tài khoản người bán PULSE với gói đăng ký đang hoạt động; phần
+[giới thiệu](/vi#get-your-account-ready) hướng dẫn cả hai. Sau đó đăng nhập vào
+<Ext to="apiKey">bảng điều khiển</Ext> và mở **Integration → API keys**.
+Tạo một key, đặt tên theo nơi nó sẽ chạy, và sao chép ngay lập tức.
+
+<Callout type="warn" title="Chỉ hiển thị một lần">
+  Key đầy đủ chỉ được trả về khi tạo. Chỉ bản băm của nó được lưu. Nếu bạn làm mất, hãy thu hồi và
+  tạo key khác.
+</Callout>
+
+**Organization id** của bạn nằm trên cùng trang đó. Bạn cần cả hai.
+
+</Step>
+
+<Step>
+
+### Cài đặt
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+</Step>
+
+<Step>
+
+### Bắt đầu một phiên
+
+```ts title="pulse.ts"
+import { PulseClient } from '@thepulseapi/sdk';
+
+export const pulse = new PulseClient();
+
+await pulse.init({
+  apiKey: 'pk_live_...',
+  organizationId: 'org_...',
+});
+```
+
+`init()` cũng ghi lại thiết bị, nguồn giới thiệu và thời điểm trong ngày một lần mỗi phiên, trừ khi
+bạn truyền `autoTrack: false`.
+
+</Step>
+
+<Step>
+
+### Gửi những gì người mua đã làm
+
+```ts
+await pulse.track([
+  { type: 'category_view', value: 'helmets-safety' },
+  { type: 'price_filter', value: '500000-1500000' },
+]);
+```
+
+</Step>
+
+<Step>
+
+### Xếp hạng danh mục
+
+```ts
+const { results } = await pulse.search(products);
+
+results[0].scoreBreakdown; // why this one came first
+```
+
+Mỗi kết quả đều kèm các tín hiệu khớp với nó, để bạn cho người mua thấy vì sao, hoặc tự xem vì sao khi
+nó trông có vẻ sai.
+
+</Step>
+
+</Steps>
+
+## Không dùng bundler
+
+```html title="index.html"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js"></script>
+<script>
+  Pulse.init({ apiKey: 'pk_live_...', organizationId: 'org_...' });
+</script>
+```

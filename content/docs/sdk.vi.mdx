@@ -1,0 +1,110 @@
+---
+title: Tài liệu SDK
+description: Mọi phương thức của PulseClient, cấu hình nó nhận, và các hàm gói xuất kèm.
+icon: Package
+---
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+## Phiên
+
+| Phương thức | Trả về | |
+| --- | --- | --- |
+| `init(config)` | `TrackResponse \| null` | Bắt đầu một phiên và gửi các tín hiệu tự động một lần |
+| `getSession()` | `SessionResponse` | Phiên hiện tại và các persona đã suy ra |
+| `getSessionId()` | `string` | Id của phiên hiện tại |
+| `resetSession()` | `void` | Xoá phiên và bắt đầu lại |
+| `onPersona(cb)` | `void` | Đăng ký nhận cập nhật persona |
+
+## Tín hiệu và xếp hạng
+
+| Phương thức | Trả về | |
+| --- | --- | --- |
+| `track(signals)` | `TrackResponse` | Gửi tín hiệu của người mua |
+| `search(products, options?)` | `SearchResponse` | Xếp hạng các sản phẩm bạn gửi |
+| `rankedCatalog(options?)` | `RankedCatalogResponse` | Xếp hạng danh mục đã đồng bộ lên PULSE |
+| `event(type, data?)` | `EventResponse` | Ghi lại một sự kiện có tên |
+
+<Callout>
+  `search` và `rankedCatalog` không dùng thay cho nhau được. `search` xếp hạng những gì bạn đưa cho
+  nó; `rankedCatalog` xếp hạng những gì PULSE đã có.
+</Callout>
+
+## Lượt hiển thị
+
+| Phương thức | | |
+| --- | --- | --- |
+| `exposure(decisionId, items)` | `void` | Ghi lại những gì thực sự đã hiển thị, có bộ đệm |
+| `flushExposures()` | `Promise<void>` | Gửi ngay các lượt hiển thị trong bộ đệm |
+
+## Cấu hình
+
+<PropsTable
+  props={{
+    apiKey: { type: 'string', required: true, description: 'Key công khai, pk_live_...' },
+    organizationId: { type: 'string', required: true, description: 'Lấy từ bảng điều khiển' },
+    endpoint: { type: 'string', default: 'https://api.thepulseapi.com', description: 'Chỉ đổi khi phát triển cục bộ' },
+    autoTrack: { type: 'boolean', default: 'true', description: 'Ghi thiết bị, nguồn giới thiệu và thời gian khi gọi init()' },
+    sessionTtlMs: { type: 'number', default: '1800000', description: 'Thời gian không hoạt động trước khi có phiên mới' },
+    anonymousId: { type: 'string', description: 'Chỉ là nhãn danh tính. Không bao giờ đi vào suy luận.' },
+    debug: { type: 'boolean', default: 'false', description: 'Ghi log chi tiết' },
+  }}
+/>
+
+## Ngoài client [#beyond-the-client]
+
+`PulseClient` là phần lớn của gói nhưng không phải tất cả. Các hàm dưới đây cũng được xuất, cho những
+trường hợp bạn cần một tín hiệu mà không cần client, hoặc cần xem SDK đã lưu đệm những gì.
+
+### Ghi tín hiệu
+
+`init()` tự gọi `captureAutoSignals()` khi `autoTrack` bật, nên bạn chỉ cần gọi trực tiếp các hàm này
+khi muốn có tín hiệu vào một thời điểm khác, hoặc muốn một tín hiệu mà bộ tự động bỏ qua.
+
+| Hàm xuất | Trả về | |
+| --- | --- | --- |
+| `captureAutoSignals()` | `Signal[]` | Thiết bị, nguồn giới thiệu và thời gian trong một lệnh. Đúng những gì `init()` gửi |
+| `captureDeviceSignal()` | `Signal \| null` | Loại thiết bị từ user agent |
+| `captureReferrerSignal()` | `Signal \| null` | Lượt truy cập đến từ đâu |
+| `captureTimeSignal()` | `Signal` | Thời điểm trong ngày. Không bao giờ null, vì luôn có đồng hồ |
+| `captureEnhancedReferrerSignals()` | `Signal[]` | Chi tiết chiến dịch và kênh, ngoài nguồn giới thiệu thông thường |
+| `captureDeviceInfoAsync(): Promise` | `DeviceInfo` | Thông tin thiết bị đầy đủ hơn, gồm cả client hints |
+| `captureGeoInfo(): Promise` | `GeoInfo \| null` | Vị trí ước lượng từ IP |
+| `geoToSignals(geo)` | `Signal[]` | Chuyển một `GeoInfo` thành tín hiệu |
+| `captureWeatherInfo(lat, lon, apiKey?): Promise` | `WeatherInfo \| null` | Thời tiết tại một điểm |
+| `weatherToSignals(weather)` | `Signal[]` | Chuyển một `WeatherInfo` thành tín hiệu |
+| `captureCulturalCalendar(countryCode)` | `Signal[]` | Các sự kiện theo mùa và văn hoá diễn ra hôm nay |
+| `parseUserAgent(ua)` | `DeviceInfo` | Phân tích một chuỗi user agent bạn đã có |
+
+<Callout type="warn" title="captureWeatherInfo cần key riêng của bạn">
+  Nó gọi OpenWeatherMap và trả về `null` nếu không có `apiKey`, nên không có gì hỏng nếu bạn bỏ qua.
+  Gói miễn phí cho 1.000 lệnh gọi mỗi ngày, đó là lý do kết quả được lưu đệm theo phiên thay vì gọi
+  theo từng trang.
+</Callout>
+
+<Callout>
+  `captureAutoSignals()` được xuất ra cho một lỗi cụ thể. `init()` gửi các tín hiệu tự động đúng một
+  lần và tự nuốt lỗi của nó, nên một phiên có `init()` thất bại sẽ không bao giờ gửi lại chúng và
+  thiếu dữ liệu suốt cả phiên. Các tín hiệu này không tốn lệnh gọi mạng riêng, nên gọi lại hàm này ở
+  lần tải trang sau rẻ hơn phương án còn lại.
+</Callout>
+
+### Ngữ cảnh phiên
+
+Thiết bị, vị trí và thời tiết là thuộc tính của phiên chứ không phải của trang: chúng không thể thay
+đổi giữa trang này và trang sau. SDK ghi chúng một lần, đặt khoá bộ đệm theo id phiên để nó không tồn
+tại lâu hơn người truy cập mà nó mô tả, rồi dùng lại. Bạn hiếm khi cần đụng vào phần này.
+
+| Hàm xuất | Trả về | |
+| --- | --- | --- |
+| `readSessionContext(sessionId)` | `SessionContext \| null` | Bộ đệm, hoặc null nếu nó thuộc về phiên khác |
+| `writeSessionContext(sessionId, patch)` | `void` | Gộp thêm trường vào bộ đệm |
+| `isWeatherFresh(ctx, now?)` | `boolean` | Dữ liệu thời tiết còn trong TTL hay không |
+| `clearSessionContext()` | `void` | Xoá bộ đệm |
+| `WEATHER_TTL_MS` | `number` | 10 phút |
+
+<Callout>
+  Thời tiết là trường duy nhất ở đây có TTL. Mọi thứ khác không đổi trong suốt phiên, nhưng một phiên
+  30 phút có thể kéo dài hơn một cơn mưa, và một tín hiệu `weather:rain` điều khiển gợi ý sau khi trời
+  đã nắng là bộ máy đang sai một cách tự tin.
+</Callout>
