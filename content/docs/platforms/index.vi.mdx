@@ -1,0 +1,44 @@
+---
+title: Tổng quan
+description: "Những gì chạy được trên cửa hàng dùng nền tảng có sẵn hôm nay, và những gì vẫn là thẻ script chứ chưa phải ứng dụng."
+icon: Blocks
+---
+
+<Callout type="warn" title="PULSE chưa có ứng dụng hay plugin">
+  Không có trên Shopify App Store, không có trong thư mục plugin WordPress, không có trên Magento
+  Marketplace. Ai nói khác là đang mô tả một kế hoạch. Thứ có hôm nay là thẻ script, và nó chạy được
+  trên cả ba.
+</Callout>
+
+Điều đó ít giới hạn hơn bạn nghĩ. PULSE cần ba thứ từ một cửa hàng: script, một lệnh `init` với key
+của bạn, và các tín hiệu mô tả người mua đang xem gì. Mọi nền tảng ở đây đều cung cấp được cả ba từ
+chính các mẫu giao diện của nó, cũng là nơi duy nhất biết người mua đang ở trang nào.
+
+<Cards>
+  <Card icon={<Boxes />} title="Shopify" href="/vi/platforms/shopify" description="theme.liquid, với tín hiệu lấy từ các đối tượng Liquid." />
+  <Card icon={<Boxes />} title="WordPress và WooCommerce" href="/vi/platforms/wordpress" description="wp_enqueue_script, với tín hiệu lấy từ các điều kiện của WooCommerce." />
+  <Card icon={<Boxes />} title="Magento 2" href="/vi/platforms/magento" description="Layout XML và một khối template." />
+</Cards>
+
+## Một ứng dụng sẽ thêm được gì
+
+Đáng nói rõ bạn bỏ lỡ gì khi dán script thay vì cài ứng dụng:
+
+| | Thẻ script, hôm nay | Ứng dụng hoặc plugin |
+| --- | --- | --- |
+| Cài đặt | Dán vào một tệp giao diện | Một cú nhấp, không sửa giao diện |
+| Key | Gõ vào giao diện | Nhập trong màn hình quản trị |
+| Còn lại khi đổi giao diện | Không | Có |
+| Đồng bộ danh mục | Bạn gửi sản phẩm theo từng yêu cầu | Được đẩy lên và luôn cập nhật |
+| Tín hiệu | Bạn tự viết cho từng mẫu | Được ánh xạ sẵn |
+
+Bốn dòng đầu là sự tiện lợi. Dòng thứ năm mới là nơi khác biệt thật sự, và cũng là lý do một plugin
+không chỉ là đóng gói: một plugin tốt biết "trang bộ sưu tập" nghĩa là gì trên nền tảng đó và gửi đúng
+tín hiệu mà không cần được bảo.
+
+## Nền tảng khác
+
+Bất cứ thứ gì cho phép thêm script vào trang đều chạy được SDK trình duyệt, và bất cứ thứ gì gửi được
+yêu cầu HTTPS đều gọi thẳng được API. Nếu nền tảng của bạn không có trong danh sách,
+[hướng dẫn Alpine](/vi/frameworks/alpine) là dạng gần nhất: một thẻ script và các thuộc tính HTML,
+không cần bước build. Với phía máy chủ, xem [Backend](/vi/backend).

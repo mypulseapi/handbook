@@ -1,0 +1,34 @@
+---
+title: Angular
+description: Một service có thể inject, khởi tạo khi trình duyệt đã chạy.
+icon: Shield
+---
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+```ts title="src/app/pulse.service.ts"
+import { Injectable } from '@angular/core';
+import { PulseClient } from '@thepulseapi/sdk';
+
+@Injectable({ providedIn: 'root' })
+export class PulseService extends PulseClient {}
+```
+
+Khởi tạo từ `APP_INITIALIZER`, hoặc từ component đầu tiên chạy trong trình duyệt:
+
+```ts title="src/app/app.config.ts"
+import { APP_INITIALIZER } from '@angular/core';
+import { PulseService } from './pulse.service';
+
+export const appConfig = {
+  providers: [
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      deps: [PulseService],
+      useFactory: (pulse: PulseService) => () =>
+        pulse.init({ apiKey: 'pk_live_...', organizationId: 'org_...' }),
+    },
+  ],
+};
+```

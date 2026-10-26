@@ -1,0 +1,30 @@
+---
+title: Astro
+description: Island dùng theo hướng dẫn React hoặc Vue. Một trang thường chỉ cần một thẻ script.
+icon: Rocket
+---
+
+Astro dùng framework island mà bạn đang có, nên với island hãy làm theo
+[React](/vi/frameworks/react) hoặc [Vue](/vi/frameworks/vue).
+
+Với một trang Astro thông thường, đây là toàn bộ phần tích hợp:
+
+```astro title="src/layouts/Base.astro"
+<script>
+  import { PulseClient } from '@thepulseapi/sdk';
+
+  const pulse = new PulseClient();
+  pulse.init({
+    apiKey: import.meta.env.PUBLIC_PULSE_API_KEY,
+    organizationId: import.meta.env.PUBLIC_PULSE_ORG_ID,
+  });
+</script>
+```
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+Hoặc bỏ qua bước cài đặt và dùng bản dựng từ CDN:
+
+```astro
+<script is:inline src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js"></script>
+```

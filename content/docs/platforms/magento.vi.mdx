@@ -1,0 +1,96 @@
+---
+title: Magento 2
+description: Layout XML và một khối template, đó là cách Magento thêm script.
+icon: Boxes
+---
+
+<Callout type="warn" title="Không có trên Marketplace">
+  Chưa có extension PULSE nào. Đây là một module nhỏ bạn tự thêm, theo đúng dạng Magento yêu cầu.
+</Callout>
+
+Magento không nhận một thẻ script dán vào. Mã giao diện thuộc về template, template được gắn bằng
+layout XML, và cả hai nằm trong một module. Tức là ba tệp trước khi có gì chạy, và đó là đặc điểm của
+nền tảng chứ không phải của PULSE.
+
+## Module
+
+```php title="app/code/Pulse/Tracking/registration.php"
+<?php
+\Magento\Framework\Component\ComponentRegistrar::register(
+    \Magento\Framework\Component\ComponentRegistrar::MODULE,
+    'Pulse_Tracking',
+    __DIR__
+);
+```
+
+```xml title="app/code/Pulse/Tracking/etc/module.xml"
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Pulse_Tracking" setup_version="1.0.0"/>
+</config>
+```
+
+## Tải SDK
+
+`default.xml` áp dụng cho mọi trang, đúng điều bạn cần cho `init`.
+
+```xml title="app/code/Pulse/Tracking/view/frontend/layout/default.xml"
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js" src_type="url" async="true"/>
+    </head>
+    <body>
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="pulse.init"
+                   template="Pulse_Tracking::init.phtml"/>
+        </referenceContainer>
+    </body>
+</page>
+```
+
+`src_type="url"` là bắt buộc. Thiếu nó, Magento coi đường dẫn là một tài nguyên tĩnh cục bộ và cố tìm
+nó trong `pub/static`, nơi nó không tồn tại.
+
+```php title="app/code/Pulse/Tracking/view/frontend/templates/init.phtml"
+<script>
+    window.addEventListener('load', function () {
+        Pulse.init({
+            apiKey: <?= $block->escapeJs($block->getPulseApiKey()) ?>,
+            organizationId: <?= $block->escapeJs($block->getPulseOrgId()) ?>
+        });
+    });
+</script>
+```
+
+## Tín hiệu theo trang
+
+Trang ngành hàng và trang sản phẩm mỗi loại có layout handle riêng, nên mỗi trang có thể gắn khối
+riêng mà không cần logic điều kiện.
+
+```xml title="view/frontend/layout/catalog_category_view.xml"
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="before.body.end">
+            <block class="Pulse\Tracking\Block\Category"
+                   name="pulse.category"
+                   template="Pulse_Tracking::category.phtml"/>
+        </referenceContainer>
+    </body>
+</page>
+```
+
+Tệp tương ứng cho sản phẩm là `catalog_product_view.xml`. Mỗi template gửi một lệnh `track` dựng từ
+đối tượng registry mà khối của nó xác định.
+
+<Callout title="Key thuộc về cấu hình hệ thống">
+  Viết cứng chúng trong template nghĩa là phải triển khai lại mỗi khi đổi key. Một trường `system.xml`
+  đọc qua `ScopeConfigInterface` đưa chúng vào trang quản trị, cũng là nơi người vận hành cửa hàng mong
+  tìm thấy.
+</Callout>
