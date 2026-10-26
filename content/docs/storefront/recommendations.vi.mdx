@@ -1,0 +1,37 @@
+---
+title: Recommendations
+description: "PULSE Recommendations xếp hạng một dải gợi ý theo lượt truy cập đang diễn ra, để người mua lần đầu cũng nhận được gợi ý phù hợp mà không cần lịch sử mua hàng. Một lệnh gọi, cùng với trang chứa nó."
+icon: Sparkles
+---
+
+Hầu hết công cụ gợi ý cần lịch sử: các lần mua trước, đăng nhập, nhiều tuần nhấp chuột. Người truy
+cập lần đầu nhận được danh sách bán chạy, tức dải gợi ý của tất cả mọi người. PULSE xếp hạng dải gợi
+ý theo điều **lượt truy cập này** cho thấy, nên phiên đầu tiên được phục vụ tốt như phiên thứ một
+trăm.
+
+**Dành cho ai:** cửa hàng mà phần lớn khách truy cập là người mới hoặc ẩn danh, điều đúng với hầu hết
+các sàn thương mại điện tử ở Đông Nam Á.
+
+## Lệnh gọi
+
+Yêu cầu dải gợi ý ngay trong lệnh gọi xếp hạng trang. `recommendCount` trả về đúng số sản phẩm đó,
+mỗi sản phẩm được xếp hạng từ phần còn lại sau chính trang.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/ranked" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "categorySlug": "headphones",
+    "recommendCount": 6,
+    "includeBreakdown": true
+  }'
+```
+
+Phản hồi gồm `items` cho trang và `recommendations` cho dải gợi ý, tối đa 50, mỗi mục kèm điểm số và,
+khi có `includeBreakdown`, lý do đằng sau. Nó xếp hạng danh mục bạn đã đồng bộ lên PULSE. Tài liệu:
+[`POST /catalog/ranked`](/vi/api/v1/ranking#post-catalogranked).
+
+**Tính vào mức sử dụng:** có, một yêu cầu cho cả trang và dải gợi ý của nó.

@@ -1,0 +1,97 @@
+---
+title: Return Verification
+description: "Return Verification của PULSE cho thấy thông tin sản phẩm còn thiếu nào đi cùng hàng bị trả, bản sửa có làm chúng thay đổi không, và điều đó đáng giá bao nhiêu theo chi phí của bạn. Báo kết quả đơn hàng bằng một lệnh gọi API miễn phí."
+icon: Undo2
+---
+
+Tỷ lệ trả hàng cho biết có điều gì đó không ổn. **Lý do** trả hàng cho biết đó là gì: quá to, không
+đúng mô tả, không dùng được với thiết bị của tôi. Return Verification đọc các lý do đó đối chiếu với
+danh mục của bạn và trả lời ba câu hỏi.
+
+1. **Thông tin sản phẩm còn thiếu nào đi cùng hàng bị trả?** Với mỗi thuộc tính, tỷ lệ trả hàng ở nơi
+   nó bị thiếu so với nơi nó được ghi, trong cùng thương hiệu và khoảng giá.
+2. **Bản sửa có làm chúng thay đổi không?** Sau khi đội của bạn lấp một khoảng trống, các sản phẩm đã
+   sửa được so sánh với những sản phẩm tương tự chưa sửa, trong cùng các tuần.
+3. **Điều đó đáng giá bao nhiêu?** Mức giảm đã được xác minh, định giá theo chi phí bạn cung cấp, trừ
+   đi những đơn hàng mà bản sửa có thể đã làm mất.
+
+**Dành cho ai:** người bán có chi phí trả hàng đáng kể, điều đúng với hầu hết người bán trên các sàn
+thanh toán khi nhận hàng, và muốn biết bản sửa trang sản phẩm nào đáng trả tiền.
+
+## Các lệnh gọi
+
+| Lệnh gọi | Nó làm gì | Tính vào mức sử dụng |
+| --- | --- | --- |
+| [`POST /outcomes`](/vi/api/v1/outcomes) | Báo điều gì đã xảy ra với từng dòng đơn hàng: giữ lại, trả kèm lý do, hoàn tiền, huỷ. Từ máy chủ của bạn | **Không** |
+| `deliveredOrders` và `evidenceReturns` trên mỗi sản phẩm | Cùng lịch sử đó dưới dạng hai tổng số, gửi kèm một [lệnh xếp hạng](/vi/api/v1/ranking#return-history) thay vì từng dòng đơn hàng | Là một phần của lệnh đó |
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/outcomes" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "organizationId": "org_abc123",
+    "lines": [{
+      "orderId": "SO-10442",
+      "merchantProductId": "sku-123",
+      "orderedAt": "2026-10-01T09:30:00Z",
+      "status": "returned",
+      "returnReason": "Size different from expected",
+      "returnedAt": "2026-10-12T15:00:00Z"
+    }]
+  }'
+```
+
+Việc báo kết quả miễn phí là có chủ ý: tính phí cho dữ liệu chứng minh bản sửa hiệu quả sẽ khiến việc
+tắt nó đi trở thành lựa chọn hợp lý.
+
+<Callout title="Nó không hứa giảm hàng trả">
+  Nó đo lịch sử đơn hàng của chính bạn và nói rõ khi có quá ít đơn để kết luận. Một trang sản phẩm rõ
+  ràng hơn cũng có thể làm mất một đơn hàng lẽ ra được giữ, và phần định giá cho thấy điều đó thay vì
+  che đi.
+</Callout>
+
+## Hàng trả nào được tính
+
+Chỉ những lần trả hàng mà **thông tin sản phẩm tốt hơn có thể đã ngăn được**: sai kích cỡ, không đúng
+mô tả, không tương thích, sai màu hay chất liệu. Hư hỏng khi vận chuyển, hàng giả, gửi nhầm sản phẩm,
+kiện hàng rỗng và đơn thanh toán khi nhận bị từ chối được đếm và để riêng, vì không thay đổi nào trên
+trang sản phẩm sửa được chúng. Đơn bị huỷ và giao thất bại cũng không được tính vào số đơn, vì sản
+phẩm chưa từng có cơ hội được giữ lại.
+
+Mã lý do của các sàn thường mơ hồ. Một mã như "trả hàng trong tình trạng nguyên vẹn hoặc còn niêm
+phong" trộn lẫn đổi ý với vấn đề kích cỡ. Khi bạn gửi được bình luận của người mua hoặc lý do đã được
+sàn đánh giá lại, chúng sẽ được dùng, và báo cáo cho thấy bao nhiêu phần khối lượng trả hàng của bạn
+mà các mã để lại không rõ ràng.
+
+## Bạn gửi gì
+
+Có hai cách, và bạn có thể dùng cả hai.
+
+| | Phân tích một lần | Liên tục |
+| --- | --- | --- |
+| **Cái gì** | Một ngành hàng trong danh mục, và sáu đến mười hai tháng đơn hàng kèm lý do trả | Kết quả của từng dòng đơn hàng khi nó xảy ra |
+| **Thế nào** | Một tệp xuất, chạy cùng chúng tôi trong giai đoạn thử nghiệm | [`POST /outcomes`](/vi/api/v1/outcomes) từ máy chủ của bạn |
+| **Trường** | Sản phẩm, ngày đặt, ngày trả, lý do, phương thức thanh toán nếu có | Như trên, theo từng dòng, thêm `decisionId` để nối với việc xếp hạng |
+
+**Không có dữ liệu cá nhân ở cả hai.** Tệp xuất có tên, số điện thoại hay địa chỉ sẽ bị từ chối, và
+API bỏ qua mọi trường không có trong danh sách.
+
+## Nó kết nối với việc xếp hạng thế nào
+
+Cùng lịch sử trả hàng đó cung cấp cho yếu tố `retention` khi bạn dùng Decision API, nên những sản phẩm
+bị trả vì lý do sửa được sẽ xếp thấp hơn một chút với những người mua dễ bị ảnh hưởng nhất.
+
+- Nó **tắt** cho tới khi có lịch sử trả hàng, và việc xếp hạng không đổi khi không có nó.
+- Người mua hỏi về kích cỡ sẽ đặt nặng hơn các lần trả liên quan tới kích cỡ.
+- Với `margin` và `returnCost` của bạn, nó xếp hạng theo giá trị một lần mua còn giữ được sau khi trừ
+  hàng trả, nên một sản phẩm biên lợi nhuận cao bị trả nhiều hơn một chút vẫn có thể đứng đầu.
+- Luôn có một phần phiên được xếp hạng mà không dùng nó, để một sản phẩm bị xếp thấp vẫn có thể cho
+  thấy tình trạng trả hàng đã cải thiện.
+
+Chi tiết: [một điểm số gồm những gì](/vi/api/v1/ranking#what-a-score-is-made-of) và
+[kết quả đơn hàng](/vi/api/v1/outcomes).
+
+## Khác Decision Verification thế nào
+
+[Decision Verification](/vi/catalogue/decision-verification) đo lại **danh mục** của bạn: giờ nó có trả lời được câu người mua hỏi không. Return Verification kiểm tra **kết quả làm bạn tốn tiền**: lượng hàng trả đi cùng thông tin còn thiếu đó có thực sự giảm không.

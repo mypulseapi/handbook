@@ -1,0 +1,38 @@
+---
+title: Category pages
+description: "PULSE sắp xếp lưới sản phẩm của trang ngành hàng và trang đích cho người vừa đến, để một chiến dịch đưa một nghìn người tới cùng một trang vẫn cho mỗi người thấy sản phẩm họ cần."
+icon: LayoutGrid
+---
+
+Một chiến dịch đưa một nghìn người tới cùng một trang ngành hàng, và tất cả đều thấy cùng một lưới
+sản phẩm. Người đến từ một liên kết so sánh giá và người đến từ một bài gợi ý quà tặng muốn thấy những
+sản phẩm khác nhau trước. PULSE sắp xếp lưới theo điều mỗi lượt truy cập cho thấy, đồng thời giữ lại
+một phần lượt truy cập được xem thứ tự mặc định của bạn, để sự khác biệt đo được.
+
+**Dành cho ai:** người phụ trách trưng bày đang chạy chiến dịch và trang đích, và mọi ngành hàng có
+nhiều sản phẩm hơn số hiển thị được ở màn hình đầu tiên.
+
+## Lệnh gọi
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/ranked" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "categorySlug": "helmets-safety",
+    "page": 1,
+    "limit": 24
+  }'
+```
+
+- `categorySlug` nhận slug của chính bạn hoặc slug cấp cha; bỏ trống để xếp hạng toàn bộ danh mục.
+- Toàn bộ ngành hàng được xếp hạng, còn `limit`, tối đa 200, chỉ quyết định trả về bao nhiêu, nên
+  trang hai tiếp tục đúng thứ tự đó.
+- Gửi `signals` trong cùng lệnh gọi để ghi lại điều khách vừa làm trước khi xếp hạng.
+
+Với SDK: `await pulse.rankedCatalog({ limit: 24 })`. Tài liệu:
+[`POST /catalog/ranked`](/vi/api/v1/ranking#post-catalogranked).
+
+**Tính vào mức sử dụng:** có, một yêu cầu cho mỗi trang.

@@ -1,0 +1,43 @@
+---
+title: Decision Monitor
+description: "Decision Monitor của PULSE so sánh mỗi tệp xuất danh mục mới với lần trước và cho biết kệ hàng nào sa sút và vì sao, trước khi người mua nhận ra. Định kỳ, từ một lệnh gọi API."
+icon: BellRing
+---
+
+Danh mục xuống cấp. Nhà cung cấp đổi nguồn cấp, một dòng sản phẩm mới về mà không có kích cỡ, một lần
+sửa hàng loạt làm trống một cột. Không ai nhận ra cho tới khi doanh số kệ hàng đó giảm. Decision
+Monitor so sánh mỗi tệp xuất với lần trước và báo điều gì đã sa sút, trên kệ hàng nào, theo ngôn ngữ
+của quyết định.
+
+**Dành cho ai:** những đội đã sửa dữ liệu một lần và muốn biết nó vẫn đúng.
+
+## Bạn nhận lại gì
+
+- Sản phẩm được thêm và bị xoá kể từ lần xuất trước.
+- Mọi thuộc tính bị **giảm chất lượng**, với tỷ lệ sản phẩm mà người mua có thể quyết định được trước
+  và sau.
+- Các yêu cầu mua mà danh mục **mới không còn trả lời được**, để bạn biết cần xem kệ hàng nào.
+- Không có khai báo, không chấm điểm: Monitor báo thay đổi, nó không đánh giá công việc của ai.
+
+## Lệnh gọi
+
+Monitor là [`POST /catalog/verify`](/vi/api/v1/audit#post-catalogverify) không có `repairs`. Không có
+endpoint thứ hai, vì giám sát và xác minh là cùng một phép tính; khác biệt duy nhất là có khai báo gì
+hay không.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/verify" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "before": "<last week'"'"'s export>",
+    "after":  "<this week'"'"'s export>",
+    "organizationId": "org_abc123",
+    "category": "Helmets"
+  }'
+```
+
+Chạy nó theo lịch từ phía bạn, ví dụ một tác vụ hằng tuần sau khi nguồn cấp của nhà cung cấp về, và
+giữ `organizationId` để mỗi kết quả được lưu.
+
+**Tính vào mức sử dụng:** có, một yêu cầu cho mỗi lần so sánh.
