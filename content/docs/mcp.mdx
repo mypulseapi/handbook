@@ -1,6 +1,6 @@
 ---
 title: MCP for agents
-description: Connect the PULSE documentation to Claude, Cursor or any MCP client, so an agent can search and read every page instead of guessing.
+description: Connect PULSE to Claude, ChatGPT, Cursor or any MCP client, so an agent searches the documentation instead of guessing, and asks the Decision API which products really meet a shopper's requirements.
 icon: Bot
 ---
 
@@ -31,7 +31,8 @@ stdio.
 <Callout title="It runs on your machine, not ours">
   This site is a static export, so there is no server here to host an HTTP endpoint on. The
   package runs wherever your agent runs and fetches the published documentation index, which
-  means nothing about your prompts or your code reaches us.
+  means nothing about your prompts or your code reaches us. The one exception is
+  `resolve_products`, which sends its own input to the PULSE API, and only once you set a key.
 </Callout>
 
 ## What tools does it expose?
@@ -41,8 +42,32 @@ stdio.
 | `search_docs` | Full-text search across every page. Returns the matching section, its URL and a score |
 | `get_page` | One page as Markdown, by path, such as `/quickstart` or `/api/v1/audit` |
 | `list_pages` | Every page with its title, for orienting before a search |
+| `resolve_products` | Which candidates meet the shopper's requirements, which fail, and which the listing cannot tell, with what is missing. Needs an API key |
 
-All three take a `lang` of `en` or `vi`.
+The three docs tools take a `lang` of `en` or `vi`.
+
+## How does an agent decide with it?
+
+An agent asked to recommend a product has two bad options without it: recommend from what it
+thinks it read, or refuse. `resolve_products` gives it a third: say exactly what the listings
+show. It calls [`POST /decide`](/api/v1/decide), so add your key to the config:
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "pulse": {
+      "command": "npx",
+      "args": ["-y", "@thepulseapi/docs-mcp"],
+      "env": { "PULSE_API_KEY": "pk_live_..." }
+    }
+  }
+}
+```
+
+Ask *"which of these laptops have at least 16GB of RAM and cost under $1,500?"* and the agent
+gets, per laptop, `fits`, `fails` or `cannot_tell`, with the missing facts named. A product
+whose listing never states its RAM is reported as exactly that, rather than guessed into the
+answer or silently dropped. Each call counts as one decision on your plan.
 
 ## Why is the search lexical rather than semantic?
 
