@@ -363,6 +363,20 @@ const TERMS: {
       vi: `Pulse làm việc với người bán ở Việt Nam và khắp Đông Nam Á, mỗi nơi bắt đầu với một ngành hàng. Tìm kiếm hiểu tiếng Việt, Thái, Bahasa và tiếng Anh, còn các sản phẩm cho danh mục dùng được với mọi bản xuất, dù bạn bán ở đâu. Trụ sở chính ở Singapore, đội kỹ thuật ở Thành phố Hồ Chí Minh. [Liên hệ đội ngũ](${l.contact}).`,
     }),
   },
+  {
+    names: [
+      "open source",
+      "opensource",
+      "github",
+      "license",
+      "licence",
+      "ma nguon mo",
+    ],
+    reply: (l) => ({
+      en: `The browser SDK (\`@thepulseapi/sdk\`) and the MCP server for agents are **MIT licensed**. The query parser, evidence formats and return-reason taxonomy are planned. Finding problems is open; deciding what is worth fixing is the API. [Open source](${l.site}/opensource) · [For developers](${l.docs}/opensource).`,
+      vi: `SDK cho trình duyệt (\`@thepulseapi/sdk\`) và máy chủ MCP cho tác tử AI dùng **giấy phép MIT**. Bộ phân tích câu tìm kiếm, định dạng bằng chứng và bảng phân loại lý do trả hàng đang được dự kiến. Tìm vấn đề là mở; quyết định điều gì đáng sửa là API. [Mã nguồn mở](${l.site}/opensource) · [Cho lập trình viên](${l.docs}/opensource).`,
+    }),
+  },
 ];
 
 const ASKING_ABOUT =

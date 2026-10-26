@@ -1,0 +1,57 @@
+---
+title: Open source
+description: Which PULSE code is MIT licensed, how to install and run it, and how to contribute on GitHub. Finding problems is open; deciding what is worth fixing is the API.
+icon: FolderGit2
+---
+
+The code that runs on your storefront or your machine is open, so you can read exactly what it
+does before it goes anywhere near a checkout. What decides which fix or promotion is worth its cost,
+and proves it worked, is the [API](/api).
+
+## What is released
+
+| Package | What it is | Status | Source |
+| --- | --- | --- | --- |
+| `@thepulseapi/sdk` | The browser SDK: signals, ranking, measurement. About 3 KB on the CDN | **On npm**, 0.2.0, MIT | Published on npm; readable in the package |
+| `@thepulseapi/docs-mcp` | MCP server: search these docs, and with a key, [`resolve_products`](/mcp) | **Source public**, MIT; npm publish pending | [`mypulseapi/handbook/mcp`](https://github.com/mypulseapi/handbook/tree/main/mcp) |
+
+```bash
+npm install @thepulseapi/sdk
+```
+
+Until the MCP server is on npm, run it from source:
+
+```bash
+git clone https://github.com/mypulseapi/handbook.git
+cd handbook/mcp && npm install
+node server.mjs
+```
+
+In your MCP client, point `command` at `node` and `args` at the full path of `server.mjs`.
+
+## What is planned
+
+| Planned | What it will do |
+| --- | --- |
+| Query parser | Turn a shopper's words into requirements: budget, who it is for, the occasion, in Vietnamese, Thai, Bahasa and English |
+| Decision evidence formats | One way to describe buying requirements, product evidence and order outcomes |
+| Return-reason taxonomy | Map marketplace return reasons to what went wrong, separating what a listing could have prevented |
+
+No dates: each is released when it is ready, and this page changes the day it is.
+
+## What stays behind the API
+
+Ranking and prioritisation, Decision Verification, the Promotion Audit's noise checks and
+economics, and anything learned from customers' data, which is never published. Open code finds
+problems; the API decides what is worth fixing.
+
+## How to contribute
+
+1. **Open an issue first** on [GitHub](https://github.com/mypulseapi/handbook/issues): a bug, a
+   language the parser misreads, an adapter you need.
+2. **Then a pull request**, small and with a test. Contribution terms are being finalised; we will
+   publish them before accepting larger changes.
+
+## Licence
+
+MIT. Use, change and ship it in commercial work, keeping the licence notice with the code.
