@@ -1,0 +1,23 @@
+---
+title: Ghi lượt hiển thị
+description: POST /exposure, thứ giúp đo được chất lượng xếp hạng.
+icon: Eye
+---
+
+Không thể chấm điểm việc xếp hạng nếu không biết thực sự đã hiển thị gì. Tỷ lệ nhấp trên những kết quả
+không ai nhìn thấy không phải là một phép đo.
+
+## `POST /exposure`
+
+```ts
+pulse.exposure(decisionId, items);   // buffered
+await pulse.flushExposures();        // send now
+```
+
+`exposure` có bộ đệm, vì một lưới sản phẩm hiển thị nhiều mục cùng lúc và gửi một yêu cầu cho mỗi thẻ
+sản phẩm là vô lý. `flushExposures` gửi những gì đang chờ, và SDK cũng tự gửi khi trang bị ẩn.
+
+<Callout title="Gửi những gì đã hiển thị, không phải những gì bạn đã yêu cầu">
+  Nếu bạn yêu cầu 24 mà chỉ hiện 12 ở màn hình đầu, lượt hiển thị trung thực là những gì người mua thực
+  sự thấy. Báo thừa lượt hiển thị sẽ làm thứ hạng của chính bạn trông tệ hơn thực tế.
+</Callout>

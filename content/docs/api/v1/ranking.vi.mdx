@@ -1,0 +1,125 @@
+---
+title: Xếp hạng sản phẩm
+description: /catalog/ranked, /search, /rerank và /suggest.
+icon: ListOrdered
+---
+
+## `POST /catalog/ranked`
+
+Xếp hạng danh mục đã đồng bộ lên PULSE.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/ranked" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "limit": 24
+  }'
+```
+
+```ts
+const { items } = await pulse.rankedCatalog({ limit: 24 });
+```
+
+## `POST /search`
+
+Xếp hạng các sản phẩm **bạn gửi**, theo phiên.
+
+```ts
+const { results } = await pulse.search(products, { limit: 24 });
+
+results[0].scoreBreakdown; // the factors behind this score, each from 0 to 1
+```
+
+## `POST /rerank`
+
+Sắp xếp lại một tập kết quả bạn đã tạo ở nơi khác, cách nhẹ nhất để đặt PULSE phía trước một công cụ
+tìm kiếm bạn muốn giữ.
+
+## `POST /suggest`
+
+Gợi ý truy vấn được chấm điểm theo phiên hiện tại.
+
+<Callout type="warn">
+  `search` và `rankedCatalog` không dùng thay cho nhau được. Một cái xếp hạng những gì bạn đưa cho nó,
+  cái kia xếp hạng những gì PULSE đang giữ. Gửi một danh mục bạn đã đồng bộ tới `search` là gửi thừa
+  dữ liệu.
+</Callout>
+
+## Một điểm số gồm những gì [#what-a-score-is-made-of]
+
+Mỗi sản phẩm được xếp hạng đều kèm các yếu tố tạo ra điểm số của nó. Mỗi yếu tố là một số từ 0 đến 1,
+và điểm số là trung bình có trọng số của **những yếu tố có dữ liệu để tính**. Một yếu tố không có dữ
+liệu sẽ bị loại khỏi phép trung bình, không bị tính là không, nên một danh mục không gửi đánh giá sẽ
+không bị trừ điểm vì điều đó.
+
+| Trường | Nó đo gì | Cần |
+| --- | --- | --- |
+| `personaBoost` | Sản phẩm phù hợp đến đâu với điều phiên này đang tìm mua | vài tín hiệu trong phiên |
+| `qualityBoost` | Điểm đánh giá, số lượt đánh giá đứng sau nó, lượng bán, mức giảm giá | `ratingAverage`, `reviewCount`, `quantitySold`, `compareAtPrice` |
+| `baseScore` | Sản phẩm khớp với từ ngữ trong truy vấn đến đâu | một truy vấn |
+| `priceBoost` | Giá có nằm trong ngân sách của phiên này không | `price` |
+| `affinityBoost` | Sở thích thuộc tính được ghi cho ngành hàng này | mức ưa thích theo ngành hàng |
+| `audienceFit` | Kệ hàng của sản phẩm có nhắm tới người có khả năng đang xem không | dữ liệu đối tượng cho ngành hàng |
+| `retention` | Sản phẩm bị trả lại bao lâu một lần vì lý do mà trang sản phẩm có thể ngăn được, so với phần còn lại của kệ. 0,5 là tỷ lệ của chính kệ hàng | `deliveredOrders`, `evidenceReturns` |
+
+### Truy vấn bằng chính lời của người mua [#queries-in-the-shoppers-own-words]
+
+`baseScore` được tính trên những từ gọi tên sản phẩm. Trước khi chấm điểm, PULSE đọc phần còn lại của
+truy vấn để biết nó nói gì về lần mua: giới hạn giá, mua cho ai, dịp gì, và có gấp không. Nó làm được
+điều này bằng **tiếng Việt, tiếng Thái, Bahasa (Indonesia và Malaysia) và tiếng Anh**, có hoặc không
+có dấu tiếng Việt.
+
+| Truy vấn | Được hiểu là |
+| --- | --- |
+| `tai nghe cho mẹ dưới 1tr5` | tai nghe, cho mẹ, tối đa 1.500.000 |
+| `ซื้อนาฬิกาให้พ่อ งบ 5 พัน` | đồng hồ, cho bố, tối đa 5.000 |
+| `kado ulang tahun untuk istri di bawah 2 juta` | quà sinh nhật, cho vợ, tối đa 2.000.000 |
+| `running shoes for my wife under RM300` | giày chạy bộ, cho vợ, tối đa 300 |
+
+Giá được đọc theo cách người mua trong khu vực vẫn viết, gồm `500k`, `2 triệu`, `S$150`, `RM2,000`,
+`₱2,500`, `3,000 บาท`, `750rb` và `2 juta`. Chúng được so với trường `price` của bạn đúng như khi gõ,
+không quy đổi tiền tệ, nên hãy gửi giá bằng đơn vị tiền mà người mua của bạn dùng khi tìm kiếm.
+
+### Lịch sử trả hàng [#return-history]
+
+`retention` tắt cho tới khi PULSE có lịch sử trả hàng. Không có nó, việc xếp hạng giữ nguyên như bình
+thường. Có hai cách cung cấp: báo [kết quả đơn hàng](/vi/api/v1/outcomes) và PULSE tự giữ số đếm, hoặc
+gửi tổng số trên mỗi sản phẩm như dưới đây.
+
+```ts
+const products = [
+  { id: "sku-123", deliveredOrders: 1840, evidenceReturns: 37 },
+];
+```
+
+- `deliveredOrders` chỉ đếm đơn đã giao. Bỏ ra các đơn bị huỷ, chưa thanh toán và giao thất bại.
+- `evidenceReturns` đếm các lần trả vì lý do mà thông tin sản phẩm tốt hơn có thể đã ngăn được: sai
+  kích cỡ, không đúng mô tả, không tương thích. **Không bao giờ** tính hư hỏng khi vận chuyển, hàng
+  giả, gửi nhầm sản phẩm, hay đơn thanh toán khi nhận bị từ chối, vì không thay đổi nào trên trang sản
+  phẩm sửa được chúng.
+- Một sản phẩm có ít đơn sẽ được kéo về gần tỷ lệ của kệ hàng thay vì lấy nguyên con số, và một sản
+  phẩm bạn không gửi lịch sử sẽ có điểm 0,5.
+
+`POST /catalog/ranked` đọc cùng các con số đó từ thuộc tính của từng sản phẩm trong danh mục PULSE
+đang giữ, dưới đúng các tên này. Sản phẩm bạn báo qua `/outcomes` thì không cần cả hai.
+
+### Kinh tế của bạn, tuỳ chọn
+
+Thêm `margin` (một đơn được giữ đóng góp bao nhiêu) và `returnCost` (một lần trả hàng tốn bao nhiêu),
+cùng một loại tiền trên cả kệ. Khi có cả hai trên từ hai sản phẩm trở lên, `retention` xếp hạng theo
+giá trị một lần mua còn giữ được sau khi trừ hàng trả, không chỉ theo tỷ lệ trả hàng, nên một sản phẩm
+biên lợi nhuận cao bị trả nhiều hơn một chút vẫn có thể đứng đầu. PULSE không bao giờ ước tính các con
+số này thay bạn.
+
+```ts
+const products = [
+  { id: "sku-123", deliveredOrders: 1840, evidenceReturns: 37, margin: 180000, returnCost: 45000 },
+];
+```
+
+Người mua hỏi về kích cỡ sẽ đặt nặng hơn các lần trả liên quan tới kích cỡ của sản phẩm đó, và một
+phần nhỏ phiên được xếp hạng hoàn toàn không dùng `retention`, để một sản phẩm bị xếp thấp vẫn có cơ hội
+cho thấy tình trạng trả hàng đã cải thiện.

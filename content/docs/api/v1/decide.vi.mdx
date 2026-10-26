@@ -1,0 +1,72 @@
+---
+title: Quyết định cho tác tử
+description: "POST /decide cho tác tử AI biết sản phẩm ứng viên nào đáp ứng yêu cầu của người mua, cái nào không, và cái nào trang sản phẩm không đủ thông tin, kèm tên các thông tin còn thiếu."
+icon: Scale
+---
+
+Một tác tử được yêu cầu gợi ý sản phẩm hoặc tin vào điều nó nghĩ là đã đọc, hoặc từ chối.
+`POST /decide` cho nó câu trả lời thứ ba: chính xác những gì mỗi trang sản phẩm cho thấy. Theo từng
+ứng viên và từng yêu cầu, nó trả về **meets**, **fails** hoặc **unknown**, và cho mỗi sản phẩm một kết
+luận `fits`, `fails` hoặc `cannot_tell`, kèm các thông tin còn thiếu.
+
+Đây là thứ mà công cụ MCP `resolve_products` gọi tới. Xem [MCP cho tác tử](/vi/mcp).
+
+## `POST /decide`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/decide" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "query": "laptop for my daughter, under $1,500",
+    "requirements": [{ "attribute": "ram", "op": "gte", "value": 16 }],
+    "products": [
+      { "id": "a", "title": "Dell XPS 15 1TB 32GB RAM", "price": 1700 },
+      { "id": "b", "title": "Lenovo IdeaPad Slim 5", "price": 1100 },
+      { "id": "c", "title": "ASUS Vivobook 14", "description": "16GB RAM, 512GB SSD", "price": 1200 }
+    ]
+  }'
+```
+
+```json
+{
+  "requirements": [
+    { "attribute": "ram", "op": "gte", "value": 16 },
+    { "attribute": "price", "op": "lte", "value": 1500 }
+  ],
+  "products": [
+    { "id": "a", "verdict": "fails", "missing": [] },
+    { "id": "b", "verdict": "cannot_tell", "missing": ["ram"] },
+    { "id": "c", "verdict": "fits", "missing": [] }
+  ],
+  "summary": { "fits": 1, "fails": 1, "cannotTell": 1 }
+}
+```
+
+Mỗi sản phẩm còn có `requirements`, mỗi yêu cầu một mục với `status`, `value` được dùng để quyết định
+và `source` của nó. Phản hồi nhắc lại cách truy vấn được hiểu trong `intent`: các từ chỉ sản phẩm, ngân
+sách, mua cho ai.
+
+| Trường | Bắt buộc | Ý nghĩa |
+| --- | --- | --- |
+| `query` | không | Lời của người mua. Một ngân sách trong đó ("under 2 triệu", "below RM2,000") trở thành một yêu cầu `price` |
+| `requirements` | không | Tối đa 20, mỗi mục `{ attribute, op, value }`. `op` là `lte`, `gte`, `eq` hoặc `neq` |
+| `products` | có | Từ 1 đến 50 ứng viên, mỗi mục `{ id, title?, description?, price?, attributes? }` |
+
+Gửi ít nhất một yêu cầu, hoặc một truy vấn có nêu ngân sách. Khi không có gì để kiểm tra, lệnh gọi trả
+về `400` thay vì coi mọi sản phẩm là phù hợp.
+
+## Nó đọc một sản phẩm thế nào
+
+- **Trường dữ liệu trước.** Một giá trị trong `attributes` hoặc `price` là lời của người bán và được
+  ưu tiên.
+- **Sau đó là văn bản.** Một thông tin chỉ có trong tiêu đề hoặc mô tả vẫn được tính, đánh dấu
+  `"source": "extracted"`. Hiện bộ đọc văn bản biết các thông tin laptop: `ram` và `storage` theo GB,
+  `screen` theo inch, và `cpu`.
+- **Không bao giờ đoán.** Một giá trị bị thiếu, hoặc ghi theo cách không so sánh được, là `unknown`, và
+  sản phẩm là `cannot_tell`. Một khoảng trống trên trang sản phẩm không bao giờ được tính là đạt.
+
+## Chi phí
+
+Mỗi lệnh gọi được tính là một quyết định trong gói của bạn. Nó không đọc gì về người truy cập và không
+lưu gì, nên không cần phiên.

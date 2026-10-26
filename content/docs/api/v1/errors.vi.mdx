@@ -1,0 +1,51 @@
+---
+title: Lỗi
+description: Cấu trúc phản hồi thực tế, và ý nghĩa của từng mã.
+icon: TriangleAlert
+---
+
+Mọi lỗi đều có cùng một cấu trúc bao ngoài.
+
+```json title="401 Unauthorized"
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid or revoked API key"
+  },
+  "timestamp": "2026-10-19T08:27:01.722Z",
+  "path": "/api/v1/session",
+  "correlationId": "a4cc87c6bf160f30"
+}
+```
+
+<Callout title="correlationId là trường hữu ích">
+  Hãy nêu nó khi bạn báo một vấn đề. Đó là cách tìm ra một yêu cầu cụ thể trong log, và nó biến câu
+  "hôm qua thứ hạng trông có vẻ sai" thành một lần tra cứu.
+</Callout>
+
+## Các mã
+
+| Mã | HTTP | Thường có nghĩa là gì |
+| --- | --- | --- |
+| `BAD_REQUEST` | 400 | Body sai định dạng, hoặc body rỗng với content type JSON |
+| `UNAUTHORIZED` | 401 | Thiếu key, sai key, hoặc key đã bị thu hồi. Kiểm tra header là `x-api-key` |
+| `FORBIDDEN` | 403 | Key hợp lệ nhưng không dành cho dữ liệu của tổ chức này |
+| `NOT_FOUND` | 404 | Không có route đó. Kiểm tra tiền tố `/api/v1` |
+| `TOO_MANY_REQUESTS` | 429 | Bị giới hạn tần suất ở gateway |
+| `SERVICE_UNAVAILABLE` | 503 | Một dịch vụ phía sau đang lỗi và bị ngắt nhanh bởi circuit breaker |
+
+## Hai mã đáng phân biệt
+
+<Accordions>
+<Accordion title="401 ở mọi yêu cầu, kể cả những yêu cầu hôm qua vẫn chạy">
+Một key đã bị thu hồi hoặc hết hạn trả về 401 giống hệt một lỗi gõ nhầm. Key có thể được đặt hạn
+dùng khi tạo. Hãy kiểm tra bảng điều khiển trước khi gỡ lỗi mã của bạn.
+</Accordion>
+
+<Accordion title="404 trên một đường dẫn có trong tài liệu">
+URL gốc có cả phiên bản: `https://api.thepulseapi.com/api/v1`. Một yêu cầu tới
+`thepulseapi.com/v1/...` sẽ đến trang web giới thiệu chứ không phải API, và trông chẳng giống lỗi API
+chút nào.
+</Accordion>
+</Accordions>
