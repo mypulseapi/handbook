@@ -373,7 +373,7 @@ const TERMS: {
       "ma nguon mo",
     ],
     reply: (l) => ({
-      en: `The browser SDK (\`@thepulseapi/sdk\`) and the MCP server for agents are **MIT licensed**. The query parser, evidence formats and return-reason taxonomy are planned. Finding problems is open; deciding what is worth fixing is the API. [Open source](${l.site}/opensource) · [For developers](${l.docs}/opensource).`,
+      en: `The browser SDK (\`@thepulseapi/sdk\`) and the MCP server for agents are **MIT licensed**. The query parser, evidence formats and return-reason taxonomy are planned. Finding problems is open; deciding what is worth fixing is the API. [Opensource](${l.site}/opensource) · [For developers](${l.docs}/opensource).`,
       vi: `SDK cho trình duyệt (\`@thepulseapi/sdk\`) và máy chủ MCP cho tác tử AI dùng **giấy phép MIT**. Bộ phân tích câu tìm kiếm, định dạng bằng chứng và bảng phân loại lý do trả hàng đang được dự kiến. Tìm vấn đề là mở; quyết định điều gì đáng sửa là API. [Mã nguồn mở](${l.site}/opensource) · [Cho lập trình viên](${l.docs}/opensource).`,
     }),
   },
