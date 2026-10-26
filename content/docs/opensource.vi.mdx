@@ -1,0 +1,57 @@
+---
+title: Mã nguồn mở
+description: Mã nguồn PULSE nào dùng giấy phép MIT, cách cài đặt và chạy, và cách đóng góp trên GitHub. Tìm vấn đề là mở; quyết định điều gì đáng sửa là API.
+icon: FolderGit2
+---
+
+Mã chạy trên cửa hàng hoặc máy của bạn là mã nguồn mở, để bạn đọc được chính xác nó làm gì trước
+khi nó tới gần trang thanh toán. Phần quyết định bản sửa hay khuyến mãi nào đáng chi phí, và chứng
+minh nó có tác dụng, là [API](/vi/api).
+
+## Những gì đã phát hành
+
+| Gói | Là gì | Trạng thái | Mã nguồn |
+| --- | --- | --- | --- |
+| `@thepulseapi/sdk` | SDK cho trình duyệt: tín hiệu, xếp hạng, đo lường. Khoảng 3 KB trên CDN | **Có trên npm**, 0.2.0, MIT | Phát hành trên npm; đọc được trong gói |
+| `@thepulseapi/docs-mcp` | Máy chủ MCP: tìm trong tài liệu này, và khi có khóa, [`resolve_products`](/vi/mcp) | **Mã nguồn công khai**, MIT; đang chờ phát hành lên npm | [`mypulseapi/handbook/mcp`](https://github.com/mypulseapi/handbook/tree/main/mcp) |
+
+```bash
+npm install @thepulseapi/sdk
+```
+
+Trong lúc máy chủ MCP chưa có trên npm, hãy chạy từ mã nguồn:
+
+```bash
+git clone https://github.com/mypulseapi/handbook.git
+cd handbook/mcp && npm install
+node server.mjs
+```
+
+Trong ứng dụng MCP, đặt `command` là `node` và `args` là đường dẫn đầy đủ tới `server.mjs`.
+
+## Những gì dự kiến
+
+| Dự kiến | Sẽ làm gì |
+| --- | --- |
+| Bộ phân tích câu tìm kiếm | Biến lời người mua thành yêu cầu: ngân sách, mua cho ai, dịp gì, bằng tiếng Việt, Thái, Bahasa và tiếng Anh |
+| Định dạng bằng chứng quyết định | Một cách chung để mô tả yêu cầu mua, bằng chứng sản phẩm và kết quả đơn hàng |
+| Bảng phân loại lý do trả hàng | Ánh xạ lý do trả hàng của các sàn sang điều đã sai, tách phần trang sản phẩm có thể ngăn được |
+
+Không hứa ngày: mỗi phần được phát hành khi sẵn sàng, và trang này thay đổi ngay hôm đó.
+
+## Những gì ở lại sau API
+
+Xếp hạng và ưu tiên, Decision Verification, phần kiểm tra nhiễu và tính toán kinh tế của Promotion
+Audit, và mọi thứ học được từ dữ liệu khách hàng, thứ không bao giờ được công bố. Mã nguồn mở tìm
+ra vấn đề; API quyết định điều gì đáng sửa.
+
+## Cách đóng góp
+
+1. **Mở issue trước** trên [GitHub](https://github.com/mypulseapi/handbook/issues): một lỗi, một
+   ngôn ngữ mà bộ phân tích đọc sai, một adapter bạn cần.
+2. **Sau đó là pull request**, nhỏ và có kiểm thử. Điều khoản đóng góp đang được hoàn thiện; chúng
+   tôi sẽ công bố trước khi nhận các thay đổi lớn.
+
+## Giấy phép
+
+MIT. Dùng, sửa và đưa vào sản phẩm thương mại, miễn giữ thông báo giấy phép đi kèm mã nguồn.
