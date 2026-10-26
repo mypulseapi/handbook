@@ -9,11 +9,11 @@ kết nối sẽ tìm trong tài liệu và trích dẫn, thay vì nhớ nhầm 
 
 ## Kết nối thế nào?
 
-<InstallTabs pkg="@thepulseapi/docs-mcp" />
+<InstallTabs pkg="@thepulseapi/mcp" />
 
 <Callout title="Chưa có trên npm">
-  Gói đang được phát hành. Trong lúc chờ, hãy chạy từ mã nguồn: clone `mypulseapi/handbook`, rồi
-  `cd mcp && npm install`, và đặt `command` của ứng dụng là `node` với đường dẫn đầy đủ tới
+  Gói đang được phát hành. Trong lúc chờ, hãy chạy từ mã nguồn: clone `mypulseapi/pulse`, rồi
+  `cd packages/mcp && npm install`, và đặt `command` của ứng dụng là `node` với đường dẫn đầy đủ tới
   `server.mjs`. [Mã nguồn mở](/vi/opensource) có các bước.
 </Callout>
 
@@ -22,9 +22,9 @@ Hoặc trỏ thẳng client của bạn vào đó, không cần cài:
 ```json title="claude_desktop_config.json"
 {
   "mcpServers": {
-    "pulse-docs": {
+    "pulse": {
       "command": "npx",
-      "args": ["-y", "@thepulseapi/docs-mcp"]
+      "args": ["-y", "@thepulseapi/mcp"]
     }
   }
 }
@@ -72,7 +72,7 @@ chính xác ở điểm này trong khi embedding thì làm nhoè đi.
 này:
 
 ```bash
-PULSE_DOCS_ORIGIN=http://localhost:3000 npx @thepulseapi/docs-mcp
+PULSE_DOCS_ORIGIN=http://localhost:3000 npx @thepulseapi/mcp
 ```
 
 ## Đọc thẳng Markdown được không?

@@ -12,8 +12,8 @@ minh nó có tác dụng, là [API](/vi/api).
 
 | Gói | Là gì | Trạng thái | Mã nguồn |
 | --- | --- | --- | --- |
-| `@thepulseapi/sdk` | SDK cho trình duyệt: tín hiệu, xếp hạng, đo lường. Khoảng 3 KB trên CDN | **Có trên npm**, 0.2.0, MIT | Phát hành trên npm; đọc được trong gói |
-| `@thepulseapi/docs-mcp` | Máy chủ MCP: tìm trong tài liệu này, và khi có khóa, [`resolve_products`](/vi/mcp) | **Mã nguồn công khai**, MIT; đang chờ phát hành lên npm | [`mypulseapi/handbook/mcp`](https://github.com/mypulseapi/handbook/tree/main/mcp) |
+| `@thepulseapi/sdk` | SDK cho trình duyệt: tín hiệu, xếp hạng, đo lường. Khoảng 3 KB trên CDN | **Có trên npm**, 0.2.0, MIT | [`mypulseapi/pulse`](https://github.com/mypulseapi/pulse/tree/main/packages/sdk) |
+| `@thepulseapi/mcp` | Máy chủ MCP: tìm trong tài liệu này, và khi có khóa, [`resolve_products`](/vi/mcp) | **Mã nguồn công khai**, MIT; đang chờ phát hành lên npm | [`mypulseapi/pulse`](https://github.com/mypulseapi/pulse/tree/main/packages/mcp) |
 
 ```bash
 npm install @thepulseapi/sdk
@@ -22,8 +22,8 @@ npm install @thepulseapi/sdk
 Trong lúc máy chủ MCP chưa có trên npm, hãy chạy từ mã nguồn:
 
 ```bash
-git clone https://github.com/mypulseapi/handbook.git
-cd handbook/mcp && npm install
+git clone https://github.com/mypulseapi/pulse.git
+cd pulse/packages/mcp && npm install
 node server.mjs
 ```
 
@@ -47,7 +47,7 @@ ra vấn đề; API quyết định điều gì đáng sửa.
 
 ## Cách đóng góp
 
-1. **Mở issue trước** trên [GitHub](https://github.com/mypulseapi/handbook/issues): một lỗi, một
+1. **Mở issue trước** trên [GitHub](https://github.com/mypulseapi/pulse/issues): một lỗi, một
    ngôn ngữ mà bộ phân tích đọc sai, một adapter bạn cần.
 2. **Sau đó là pull request**, nhỏ và có kiểm thử. Điều khoản đóng góp đang được hoàn thiện; chúng
    tôi sẽ công bố trước khi nhận các thay đổi lớn.
