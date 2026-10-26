@@ -7,6 +7,7 @@
     "decision-audit",
     "decision-verification",
     "decision-monitor",
-    "return-verification"
+    "return-verification",
+    "promotion-audit"
   ]
 }

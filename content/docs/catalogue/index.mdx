@@ -15,33 +15,42 @@ script, no traffic needed.**
 | [Decision Verification](/catalogue/decision-verification) | Did the repair actually make the catalogue answer what shoppers ask? | `POST /catalog/verify` with `repairs` | Yes |
 | [Decision Monitor](/catalogue/decision-monitor) | What has slipped since the last export, and where? | `POST /catalog/verify` without `repairs` | Yes |
 | [Return Verification](/catalogue/return-verification) | Which missing facts go with returns, and did a repair move them? | `POST /outcomes` | **No** |
+| [Promotion Audit](/catalogue/promotion-audit) | Which vouchers, price cuts and free shipping paid for themselves after returns, and where should I give nothing? | `POST /interventions/audit` | Yes |
 
 ## The order they are used in
 
 <Steps>
 <Step>
+
 ### Audit one category
 
 Start with the shelf that matters most. The audit returns the attributes worth recording, ranked
 by how many buying decisions each one moves.
+
 </Step>
 <Step>
+
 ### Repair, then verify
 
 Fill the top of the list, export again, and send both exports. Verification grades each claimed
 fix against what actually changed.
+
 </Step>
 <Step>
+
 ### Keep it measured
 
 Run the same comparison on every new export. A catalogue decays as suppliers change feeds and new
 products arrive, and the monitor says where.
+
 </Step>
 <Step>
+
 ### Check the outcome that costs money
 
 Report what happened to each order line and Return Verification shows which gaps go with returns,
 and whether the repairs moved them.
+
 </Step>
 </Steps>
 

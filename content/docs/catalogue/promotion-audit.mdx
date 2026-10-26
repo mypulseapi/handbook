@@ -1,0 +1,47 @@
+---
+title: Promotion Audit
+description: PULSE Promotion Audit judges your vouchers, price cuts and free-shipping offers on the orders that stayed bought, after returns and failed deliveries, against doing nothing.
+icon: ChartPie
+---
+
+A voucher that lifts orders is not yet a voucher that paid. Some of those orders come back, some
+are refused at the door, and some shoppers would have bought at full price anyway. The Promotion
+Audit reads your own history and answers four questions.
+
+1. **Which offers left you better off than doing nothing?** Each offer's expected contribution per
+   shopper counts orders kept, returns a listing could have prevented, every other return, and
+   failed deliveries.
+2. **For which shoppers, and how many?** Per group you can see: new or repeat buyers, a region,
+   cash on delivery. Including where the answer is to give nothing.
+3. **Does fixing the listing beat a discount?** A repair is one more option, its one-off cost spread
+   over the shoppers it reaches.
+4. **What do shoppers really pay elsewhere?** Your price against the same product after vouchers,
+   cashback, coins and shipping, beside the sticker gap.
+
+**Who it is for:** a seller who runs promotions on one or more marketplaces and wants to know which
+ones to keep, before spending more.
+
+## It never guesses
+
+Every rate comes from your history or a test you ran. An offer with too little history is never
+recommended; neither is one that wins only inside the noise. In both cases the answer is a test,
+with the group and the offer named. Margin per kept order has no default: it is always yours.
+
+## The calls
+
+| Call | What it answers |
+| --- | --- |
+| [`POST /interventions/audit`](/api/v1/interventions#post-interventionsaudit) | Your history in, measured offers and a decision per group out |
+| [`POST /interventions/decide`](/api/v1/interventions#post-interventionsdecide) | The same decision from rates you already measured |
+| [`POST /interventions/landed`](/api/v1/interventions#post-interventionslanded) | The price a shopper actually pays on each marketplace |
+
+## Settings, and where they come from
+
+Return cost and failed-delivery cost fall back to defaults we maintain when you do not send them,
+and every response says which values were yours and which were ours, in `configuration`. Saved
+per-account settings are on the way; until then, send your own numbers with each call.
+
+## What it will not do
+
+It does not promise more profit or fewer returns: nothing has been measured on your history yet.
+It does not target individual shoppers, and it does not set prices for you.
