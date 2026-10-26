@@ -295,6 +295,22 @@ const TERMS: {
   },
   {
     names: [
+      "research",
+      "proof",
+      "evidence",
+      "is it proven",
+      "case study",
+      "case studies",
+      "nghien cuu",
+      "bang chung",
+    ],
+    reply: (l) => ({
+      en: `Every Pulse product rests on a measurement, and the [research page](${l.site}/research) lists each one with its data and its limit. Pulse has not yet run on a real merchant's own data, and it has no uplift figure: that needs a holdback on live traffic, which has not run. Products still waiting on a first merchant are marked as such. To run the measurement on your catalogue, [request a free Decision Audit](${l.contact}).`,
+      vi: `Mỗi sản phẩm Pulse dựa trên một phép đo, và [trang nghiên cứu](${l.site}/research) liệt kê từng phép đo kèm dữ liệu và giới hạn. Pulse chưa chạy trên dữ liệu của người bán thật, và chưa có con số tăng trưởng: con số đó cần một nhóm đối chứng trên lưu lượng thật, việc chưa diễn ra. Sản phẩm nào còn chờ người bán đầu tiên đều được ghi rõ. Để chạy phép đo trên danh mục của bạn, hãy [yêu cầu Decision Audit miễn phí](${l.contact}).`,
+    }),
+  },
+  {
+    names: [
       "usage",
       "what counts",
       "counted",
