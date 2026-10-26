@@ -1,0 +1,42 @@
+---
+title: Templates
+description: "Copy-paste starters for PULSE: add it to Claude Code, Cursor or Codex, check options in any domain, audit promotions, compare prices, rank a storefront."
+icon: Copy
+---
+
+Each template is a runnable file in the open-source [Open Pulse](https://github.com/mypulseapi/open-pulse)
+repository. Copy it, set `PULSE_API_KEY`, run it. The request shapes match the API exactly, and the
+expected output in each file was produced by PULSE's own decision code on the same input.
+
+| Template | What it does | For |
+| --- | --- | --- |
+| [Add PULSE to your AI agent](https://github.com/mypulseapi/open-pulse/blob/main/examples/agents) | The MCP server in Claude Code, Claude Desktop, Cursor or Codex, and how an agent should answer from its verdicts | AI agents |
+| [Check options against requirements](https://github.com/mypulseapi/open-pulse/blob/main/examples/decide-any-domain.mjs) | Suppliers and hotels: fits, fails or cannot tell, with what is missing. Any domain | Any developer |
+| [Recommend products from evidence](https://github.com/mypulseapi/open-pulse/blob/main/examples/decide.mjs) | A shopper's laptop request, with facts read from titles and descriptions | Commerce |
+| [Audit your promotions](https://github.com/mypulseapi/open-pulse/blob/main/examples/promotion-audit.mjs) | Which offers paid for themselves after returns and failed deliveries | Commerce |
+| [Compare real prices](https://github.com/mypulseapi/open-pulse/blob/main/examples/landed-price.mjs) | What a shopper pays on each marketplace after vouchers and shipping | Commerce |
+| [Rank a storefront](https://github.com/mypulseapi/open-pulse/blob/main/examples/browser-sdk.html) | The SDK from the CDN, no build step: session, signals, ranking, exposure | Storefronts |
+
+## The fastest one
+
+For an agent, one command:
+
+```bash
+claude mcp add pulse -- npx -y @thepulseapi/mcp
+```
+
+For code, one request:
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/decide" \
+  -H "Content-Type: application/json" -H "x-api-key: pk_live_..." \
+  -d '{ "requirements": [{ "attribute": "ip_rating", "op": "eq", "value": "IP67" }],
+        "products": [{ "id": "acme", "attributes": { "ip_rating": "IP67" } }, { "id": "corvid", "attributes": {} }] }'
+```
+
+`acme` fits; `corvid` comes back `cannot_tell`, missing `ip_rating`. See [Decide for an agent](/api/v1/decide).
+
+## Want another template?
+
+Open an issue on [GitHub](https://github.com/mypulseapi/open-pulse/issues) with the decision you are
+trying to make. Contributions are welcome under the repository's CLA.

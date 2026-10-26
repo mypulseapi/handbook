@@ -1,0 +1,33 @@
+---
+title: Mẫu
+description: "Mẫu sao chép dùng ngay cho PULSE: thêm vào Claude Code, Cursor hay Codex, kiểm tra lựa chọn theo yêu cầu ở mọi lĩnh vực, kiểm tra khuyến mãi, so giá thực trả."
+icon: Copy
+---
+
+Mỗi mẫu là một tệp chạy được trong kho mã nguồn mở [Open Pulse](https://github.com/mypulseapi/open-pulse).
+Sao chép, đặt `PULSE_API_KEY`, rồi chạy. Cấu trúc yêu cầu khớp chính xác với API, và kết quả mong đợi
+trong mỗi tệp được tạo bởi chính mã quyết định của PULSE trên cùng đầu vào.
+
+| Mẫu | Làm gì | Cho ai |
+| --- | --- | --- |
+| [Thêm PULSE vào tác tử AI](https://github.com/mypulseapi/open-pulse/blob/main/examples/agents) | Máy chủ MCP trong Claude Code, Claude Desktop, Cursor hay Codex, và cách tác tử trả lời theo phán quyết | Tác tử AI |
+| [Kiểm tra lựa chọn theo yêu cầu](https://github.com/mypulseapi/open-pulse/blob/main/examples/decide-any-domain.mjs) | Nhà cung cấp và khách sạn: đạt, không đạt hoặc không đủ thông tin, kèm điều còn thiếu. Mọi lĩnh vực | Mọi lập trình viên |
+| [Đề xuất sản phẩm theo bằng chứng](https://github.com/mypulseapi/open-pulse/blob/main/examples/decide.mjs) | Yêu cầu laptop của người mua, với dữ kiện đọc từ tiêu đề và mô tả | Thương mại |
+| [Kiểm tra khuyến mãi](https://github.com/mypulseapi/open-pulse/blob/main/examples/promotion-audit.mjs) | Ưu đãi nào thực sự có lãi sau khi trừ hàng trả và giao thất bại | Thương mại |
+| [So giá thực trả](https://github.com/mypulseapi/open-pulse/blob/main/examples/landed-price.mjs) | Người mua trả bao nhiêu ở mỗi sàn sau voucher và phí vận chuyển | Thương mại |
+| [Xếp hạng cửa hàng](https://github.com/mypulseapi/open-pulse/blob/main/examples/browser-sdk.html) | SDK từ CDN, không cần build: phiên, tín hiệu, xếp hạng, hiển thị | Cửa hàng |
+
+## Cách nhanh nhất
+
+Với tác tử AI, một lệnh:
+
+```bash
+claude mcp add pulse -- npx -y @thepulseapi/mcp
+```
+
+Với mã, một yêu cầu: xem [Decide for an agent](/vi/api/v1/decide).
+
+## Muốn thêm mẫu?
+
+Mở issue trên [GitHub](https://github.com/mypulseapi/open-pulse/issues) kèm quyết định bạn đang cần
+đưa ra. Đóng góp được chào đón theo CLA của kho mã.
