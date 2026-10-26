@@ -7,12 +7,12 @@ icon: Braces
 PULSE publishes **two separate interfaces**, and they are not the same size.
 
 <Cards>
-  <Card icon={<Braces />} title="The HTTP API" description="Fourteen endpoints. One header. Callable from a browser, a server, a cron job or curl. This is the product." />
+  <Card icon={<Braces />} title="The HTTP API" description="Seventeen endpoints. One header. Callable from a browser, a server, a cron job or curl. This is the product." />
   <Card icon={<Atom />} title="The browser SDK" description="A convenience layer over six of them, which also manages the session id, buffers exposures and captures device and referrer for you." />
 </Cards>
 
 <Callout type="warn" title="The SDK is a subset, not the whole product">
-  `@thepulseapi/sdk` has a method for six of the fourteen endpoints. Everything else, including
+  `@thepulseapi/sdk` has a method for six of the seventeen endpoints. Everything else, including
   the Decision Audit, is HTTP only. If you are evaluating what PULSE can do, read this page
   rather than the [SDK reference](/sdk).
 </Callout>
@@ -44,6 +44,10 @@ is for; this table is the map.
 | `POST /suggest` | Query suggestions, scored on the session | **No** | none |
 | **[Recommendations](/storefront/recommendations) and [Category pages](/storefront/category-pages)** | | | |
 | `POST /catalog/ranked` | Rank the catalogue PULSE holds, with a recommendation strip on request | Yes | `rankedCatalog()` |
+| **[Promotion Audit](/catalogue/promotion-audit)** | | | |
+| `POST /interventions/audit` | Which offers beat doing nothing on your history, after returns and failed deliveries | Yes | none |
+| `POST /interventions/decide` | The per-group decision from rates you measured | Yes | none |
+| `POST /interventions/landed` | What a shopper pays on each marketplace, after vouchers and shipping | Yes | none |
 | **[Decision API for agents](/api/v1/decide)** | | | |
 | `POST /decide` | Per candidate and requirement: meets, fails or cannot tell, for an AI agent | Yes | none; MCP `resolve_products` |
 | **Measurement, for every storefront product** | | | |

@@ -1,0 +1,102 @@
+---
+title: Promotion Audit API
+description: POST /interventions/audit, /decide and /landed. Judge offers on orders kept after returns and failed deliveries, choose per group including giving nothing, and compare landed prices.
+icon: ChartPie
+---
+
+Three stateless calls behind the [Promotion Audit](/catalogue/promotion-audit). Nothing is stored,
+and nothing is estimated for you: every rate is yours.
+
+Each **offer** has a `kind`: `none`, `price`, `voucher`, `shipping`, `repair` or `bundle`. Every
+group needs exactly one `none`, the comparison everything is judged against.
+
+## `POST /interventions/audit`
+
+Your history, one row per group and offer, including the periods with no offer.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/interventions/audit" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "economics": { "contribution": 120000 },
+    "cohortSize": { "provinces": 200000 },
+    "arms": [
+      { "cohort": "provinces", "kind": "none", "visitors": 100000, "orders": 2000,
+        "failedDeliveries": 200, "costPerOrder": 0,
+        "returns": [{ "reason": "too small", "count": 30 }, { "reason": "damaged in transit", "count": 20 }] },
+      { "cohort": "provinces", "kind": "shipping", "visitors": 100000, "orders": 3000,
+        "failedDeliveries": 300, "costPerOrder": 25228,
+        "returns": [{ "reason": "too small", "count": 45 }, { "reason": "damaged in transit", "count": 30 }] },
+      { "cohort": "provinces", "kind": "voucher", "visitors": 100000, "orders": 2300,
+        "failedDeliveries": 230, "costPerOrder": 20000,
+        "returns": [{ "reason": "too small", "count": 35 }, { "reason": "damaged in transit", "count": 23 }] }
+    ]
+  }'
+```
+
+An abridged response. `erc` is expected retained contribution per shopper; `miv` is its gain over
+doing nothing.
+
+```json
+{
+  "cohorts": [
+    {
+      "cohort": "provinces",
+      "choice": "shipping",
+      "test": null,
+      "reason": "beats_doing_nothing",
+      "options": [
+        { "kind": "shipping", "erc": 2208, "miv": 231 },
+        { "kind": "none", "erc": 1977, "miv": 0 },
+        { "kind": "voucher", "erc": 1812, "miv": -164 }
+      ]
+    }
+  ],
+  "shoppersByChoice": { "shipping": 200000 },
+  "expectedValue": 46290800,
+  "configuration": { "currency": "system", "returnCost": "system", "failedDeliveryCost": "system", "contribution": "request" }
+}
+```
+
+Return reasons are read like [Return Verification](/catalogue/return-verification): "too small" is a
+fact the listing could have given; "damaged in transit" and "wrong item" are not.
+
+**`reason`** is one of:
+
+| Value | Means |
+| --- | --- |
+| `beats_doing_nothing` | `choice` wins, even with its purchase rate at the cautious end of its interval |
+| `nothing_beats_doing_nothing` | No offer you measured did better than none |
+| `not_clear_of_noise` | An offer wins only at the point estimate; `test` names it |
+| `untested_option_could_win` | An offer with too little history might win; `test` names it |
+| `baseline_not_measured` | The no-offer row itself is too thin to compare against |
+
+An arm needs at least 1,000 visitors and 30 orders to count as measured.
+
+## `POST /interventions/decide`
+
+The same decision when you already have the rates, per group: `pPurchase`, `pDelivered`,
+`pReturnEvidence`, `pReturnOther`, `costPerOrder`, optional `fixedCost` (a repair), and `measured`.
+An option with `measured: false` is never chosen.
+
+## `POST /interventions/landed`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/interventions/landed" \
+  -H "Content-Type: application/json" -H "x-api-key: pk_live_..." \
+  -d '{ "own": { "marketplace": "tiki", "price": 2490000, "shipping": 45000, "voucher": 100000 },
+        "rivals": [{ "marketplace": "shopee", "price": 2450000, "voucher": 30000 }] }'
+```
+
+```json
+{ "own": 2435000, "cheapest": { "marketplace": "shopee", "landed": 2420000 }, "gap": 15000, "gapPct": 0.0062, "stickerGap": 40000 }
+```
+
+A 40,000 sticker gap is a 15,000 gap at the till.
+
+## Settings
+
+`economics` fields you leave out come from your saved settings, then from defaults we maintain;
+`configuration` in the response says which. `contribution` has no default: send it, or save it.
+Each call counts as one request on your plan.
