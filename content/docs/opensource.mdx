@@ -1,20 +1,76 @@
 ---
 title: Opensource
-description: Open Pulse, MIT licensed. A decision call any AI agent or program can use in any industry, its MCP server and SDK, how to run them, and how to contribute.
+description: "Open Pulse, MIT licensed: decision evidence that AI agents can inspect instead of guess. The MCP server and SDK you can install today, what is planned, and how to contribute."
 icon: FolderGit2
 ---
 
-**Open Pulse** ([github.com/mypulseapi/open-pulse](https://github.com/mypulseapi/open-pulse)) is the
-open-source half of PULSE. PULSE is a decision call: requirements and evidence in, and for every
-option a verdict out, **fits, fails or cannot tell, with what is missing**. It works in any industry
-where options have attributes, products, suppliers, hotels, plans, and it is built for AI agents
-such as Claude, ChatGPT, Claude Code and Codex as much as for your own code.
+**Open Pulse teaches software and AI agents what evidence a decision needs.** It is the
+open-source foundation of Pulse, MIT licensed, at
+[github.com/mypulseapi/open-pulse](https://github.com/mypulseapi/open-pulse). Install the MCP
+server and your agent can ask, for any options with attributes, which ones meet the requirements,
+and get back **fits, fails or cannot tell, with what is missing**. The decision engine runs behind
+the [Pulse API](/api).
 
-The client code is open, so you can read exactly what runs on your machine or your site. The
-decision engine runs behind the [API](/api).
+<Cards>
+  <Card title="Explore Open Pulse on GitHub" href="https://github.com/mypulseapi/open-pulse" description="The MCP server, the browser SDK, runnable examples and AGENTS.md." />
+  <Card title="Add it to your agent" href="/mcp" description="One line of config for Claude, Cursor, Codex and other MCP clients." />
+</Cards>
+
+## Start in a minute
+
+For an AI agent, add the MCP server to your client. Without a key it searches these docs; with one
+it calls `resolve_products`:
+
+```json
+{ "mcpServers": { "pulse": { "command": "npx", "args": ["-y", "@thepulseapi/mcp"],
+  "env": { "PULSE_API_KEY": "pk_live_..." } } } }
+```
+
+Then tell the agent: *"Before recommending an option, call resolve_products, and never state an
+attribute it marked unknown."*
+
+For a storefront, install the browser SDK:
+
+```package-install
+@thepulseapi/sdk
+```
+
+## Why it exists: product data is not decision data
+
+A catalogue knows the title, brand, price and colour. A buyer is asking whether the sofa fits
+through the door, whether the charger works with their laptop, and what is in the box. Those are
+**decision requirements**. When the evidence for one is missing, buried or contradictory, neither a
+shopper nor an agent can resolve the decision, and a language model, built to answer, will guess.
+
+| Step | What it holds |
+| --- | --- |
+| **Requirement** | What needs to be known |
+| **Product evidence** | The facts recorded, and where each came from |
+| **Visible evidence** | What a shopper or agent can actually see |
+| **Decision** | Whether the evidence is enough |
+| **Outcome** | What happened afterwards |
+
+A product can have data and still have an evidence problem. On our own 2,176-product
+demonstration catalogue, 52.6% of recorded values repeat what the photograph already shows
+([the research](https://thepulseapi.com/en/research)).
+
+## What an agent gets back
+
+A shopper asks whether a sofa fits through a 78 cm doorway. The listing gives the assembled width
+but not the package width:
+
+```text
+requirement  width <= 300 cm          meets
+requirement  package_width <= 78 cm   unknown
+verdict      cannot_tell
+missing      package_width
+```
+
+So the agent says it cannot confirm the fit, and that the seller would need to publish the package
+size. Every requirement is `meets`, `fails`, `unknown` or `conflicting`; every option is `fits`,
+`fails` or `cannot_tell`. The same call works for suppliers, hotels, plans and parts:
 
 ```js
-// Which suppliers meet the spec? Any domain: "products" is just the list of options.
 await fetch("https://api.thepulseapi.com/api/v1/decide", {
   method: "POST",
   headers: { "content-type": "application/json", "x-api-key": "pk_live_..." },
@@ -29,48 +85,59 @@ await fetch("https://api.thepulseapi.com/api/v1/decide", {
 // acme fits · corvid cannot_tell, missing ip_rating
 ```
 
-The repository has runnable examples for developers and agents, an `AGENTS.md` for coding agents,
-and a comparison with typed-decision models such as Jev.
+<Callout title="Abstention is a feature">
+  `cannot_tell` is the call working, not failing. Generate presentation from verified evidence;
+  never generate an unverified product fact such as dimensions, materials, compatibility,
+  certifications, what is in the box or warranty terms.
+</Callout>
 
-## What is released
+## What is released, and what is planned
 
-| Package | What it is | Status | Source |
-| --- | --- | --- | --- |
-| `@thepulseapi/sdk` | The browser SDK: signals, ranking, measurement. About 3 KB on the CDN | **On npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/sdk) |
-| `@thepulseapi/mcp` | MCP server: search these docs, and with a key, [`resolve_products`](/mcp) | **On npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/mcp) |
+| | What it is | Status |
+| --- | --- | --- |
+| [`@thepulseapi/mcp`](https://www.npmjs.com/package/@thepulseapi/mcp) | MCP server: docs search, and `resolve_products` with a key | **Available**, MIT |
+| [`@thepulseapi/sdk`](https://www.npmjs.com/package/@thepulseapi/sdk) | Browser SDK: signals, ranking, measurement. About 3 KB on the CDN | **Available**, 0.2.0, MIT |
+| Examples and `AGENTS.md` | Runnable code for developers and agents, and how an agent should answer | **Available** |
+| Requirement and evidence formats | One shared way to describe requirements, evidence and outcomes | Planned |
+| Evidence states and repair vocabulary | Missing, buried, invisible, unresolved, conflicting, not observable; record, show, reconcile, generate, ask, compute, abstain, don't fix | Planned |
+| Category packs | The requirements that matter per kind of product, and the evidence each needs | Planned |
+| Validators and connectors | For malformed evidence, and for commerce platforms, PIMs and feeds | Planned |
+| Query parser and return-reason taxonomy | Plain requests into requirements; return reasons into what went wrong | Planned |
 
-```bash
-npm install @thepulseapi/sdk
-```
+No dates: each item ships when it is ready, and this page changes the day it does.
 
-For an agent, add the MCP server to your client ([MCP for agents](/mcp) has the config):
+## Open and paid
 
-```bash
-npx -y @thepulseapi/mcp
-```
+**Open Pulse describes the evidence. Pulse decides what is worth doing about it.** The open side is
+the SDK, the MCP server, examples and, as they are released, the formats and category knowledge.
+The paid side is the [Decision Audit](/catalogue/decision-audit) that ranks which gap matters most,
+repair prioritisation, Decision Verification, Decision Monitor, Return Verification, the Promotion
+Audit, the Decision API in production, and learning from measured outcomes, which never leaves a
+customer's account.
 
-## What is planned
+## Contribute
 
-| Planned | What it will do |
-| --- | --- |
-| Query parser | Turn a shopper's words into requirements: budget, who it is for, the occasion, in Vietnamese, Thai, Bahasa and English |
-| Decision evidence formats | One way to describe buying requirements, product evidence and order outcomes |
-| Return-reason taxonomy | Map marketplace return reasons to what went wrong, separating what a listing could have prevented |
+You do not need to work on machine learning to contribute:
 
-No dates: each is released when it is ready, and this page changes the day it is.
+- **A requirement a category is missing**, the question buyers keep asking.
+- **A connector** from a platform, PIM or feed.
+- **Examples**, synthetic or safely shareable.
+- **Better agent tooling and docs.**
+- **A report that a model is wrong**: "this is not how buyers choose this product" is a good issue.
 
-## What stays behind the API
+Domain experts are contributors too: someone who knows furniture, electronics or industrial parts
+may know the evidence a decision needs better than the people writing the code. AI agents can
+propose a missing requirement; people review it before anything changes.
 
-Ranking and prioritisation, Decision Verification, the Promotion Audit's noise checks and
-economics, and anything learned from customers' data, which is never published. Open code finds
-problems; the API decides what is worth fixing.
+[Open an issue](https://github.com/mypulseapi/open-pulse/issues) first and read
+[CONTRIBUTING.md](https://github.com/mypulseapi/open-pulse/blob/main/CONTRIBUTING.md). Contribution
+terms are being finalised; we will publish them before accepting larger changes.
 
-## How to contribute
+## What Open Pulse is not
 
-1. **Open an issue first** on [GitHub](https://github.com/mypulseapi/open-pulse/issues): a bug, a
-   language the parser misreads, an adapter you need.
-2. **Then a pull request**, small and with a test. Contribution terms are being finalised; we will
-   publish them before accepting larger changes.
+Not a recommendation engine, a product description generator, a replacement for a PIM, a cart, a
+payment protocol or a marketplace. Not a promise that every missing field matters, and not a system
+that answers when the evidence is not enough.
 
 ## Licence
 

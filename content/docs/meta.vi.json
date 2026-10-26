@@ -4,6 +4,7 @@
     "index",
     "---Bắt đầu---",
     "quickstart",
+    "opensource",
     "templates",
     "---Sản phẩm---",
     "catalogue",
@@ -18,7 +19,6 @@
     "api",
     "sdk",
     "mcp",
-    "opensource",
     "---Đưa lên production---",
     "going-live",
     "changelog"
