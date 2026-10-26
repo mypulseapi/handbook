@@ -1,8 +1,15 @@
-import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-import Image from 'next/image';
-import { Globe, LayoutDashboard, Package } from 'lucide-react';
-import { appName, dashboardUrl, gitConfig, linkedinUrl, npmPackage, siteUrl } from './shared';
-import type { Language } from './i18n';
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import Image from "next/image";
+import { FolderGit2, Globe, LayoutDashboard, Package } from "lucide-react";
+import {
+  appName,
+  dashboardUrl,
+  gitConfig,
+  linkedinUrl,
+  npmPackage,
+  siteUrl,
+} from "./shared";
+import type { Language } from "./i18n";
 
 /**
  * The wordmark rather than a text title.
@@ -46,25 +53,56 @@ function Logo() {
  */
 function LinkedinMark() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="20" height="20">
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      width="20"
+      height="20"
+    >
       <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
     </svg>
   );
 }
 
-export function baseOptions(lang: Language = 'en'): BaseLayoutProps {
-  const home = lang === 'en' ? '/' : `/${lang}`;
+export function baseOptions(lang: Language = "en"): BaseLayoutProps {
+  const home = lang === "en" ? "/" : `/${lang}`;
 
   return {
     nav: {
       title: <Logo />,
       url: home,
-      transparentMode: 'none',
+      transparentMode: "none",
     },
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
     links: [
-      { icon: <Package />, text: 'npm', url: `https://www.npmjs.com/package/${npmPackage}`, external: true },
-      { icon: <LayoutDashboard />, text: 'Dashboard', url: dashboardUrl, external: true },
+      {
+        /*
+         * Opensource first, in Pulse Blue and bold: the dev's call (2026-10-26) that Open Pulse is the
+         * main selling point and was buried at the bottom of the Reference group. Same treatment as
+         * the marketing site's header, so the two sites point at it the same way.
+         */
+        icon: <FolderGit2 className="text-fd-primary" />,
+        text: (
+          <span className="font-semibold text-fd-primary">
+            {lang === "vi" ? "Mã nguồn mở" : "Opensource"}
+          </span>
+        ),
+        url: lang === "en" ? "/opensource" : `/${lang}/opensource`,
+        active: "nested-url",
+      },
+      {
+        icon: <Package />,
+        text: "npm",
+        url: `https://www.npmjs.com/package/${npmPackage}`,
+        external: true,
+      },
+      {
+        icon: <LayoutDashboard />,
+        text: "Dashboard",
+        url: dashboardUrl,
+        external: true,
+      },
       {
         /*
          * The link to the marketing site, as a blue glyph.
@@ -82,12 +120,12 @@ export function baseOptions(lang: Language = 'en'): BaseLayoutProps {
          * `text-fd-primary` is Pulse Blue, and it is a token rather than a hex so the dark theme
          * gets its lighter blue instead of a #2552FF that goes muddy on a dark surface.
          */
-        type: 'icon',
-        label: lang === 'vi' ? 'Trang chủ' : 'Website',
+        type: "icon",
+        label: lang === "vi" ? "Trang chủ" : "Website",
         icon: <Globe className="text-fd-primary" />,
-        text: lang === 'vi' ? 'Trang chủ' : 'Website',
+        text: lang === "vi" ? "Trang chủ" : "Website",
         // The marketing site is locale-prefixed, so send a Vietnamese reader to the Vietnamese one.
-        url: lang === 'vi' ? siteUrl.replace(/\/en$/, '/vi') : siteUrl,
+        url: lang === "vi" ? siteUrl.replace(/\/en$/, "/vi") : siteUrl,
         external: true,
       },
       {
@@ -98,10 +136,10 @@ export function baseOptions(lang: Language = 'en'): BaseLayoutProps {
          * The handbook claimed no profiles at all before this, while the marketing site claimed
          * two, so a crawler reading both saw one organisation disagree with itself.
          */
-        type: 'icon',
-        label: 'LinkedIn',
+        type: "icon",
+        label: "LinkedIn",
         icon: <LinkedinMark />,
-        text: 'LinkedIn',
+        text: "LinkedIn",
         url: linkedinUrl,
         external: true,
       },

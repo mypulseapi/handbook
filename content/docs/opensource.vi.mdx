@@ -1,58 +1,143 @@
 ---
 title: Mã nguồn mở
-description: Open Pulse, giấy phép MIT. Một lệnh ra quyết định mà mọi tác tử AI hay chương trình đều dùng được trong mọi ngành, kèm máy chủ MCP, SDK và cách đóng góp.
+description: "Open Pulse, giấy phép MIT: bằng chứng quyết định mà tác tử AI kiểm tra được thay vì đoán. Máy chủ MCP và SDK cài được hôm nay, phần dự kiến, và cách đóng góp."
 icon: FolderGit2
 ---
 
-**Open Pulse** ([github.com/mypulseapi/open-pulse](https://github.com/mypulseapi/open-pulse)) là nửa
-mã nguồn mở của PULSE. PULSE là một lệnh ra quyết định: đưa vào yêu cầu và bằng chứng, nhận lại phán
-quyết cho từng lựa chọn, **đạt, không đạt hoặc không đủ thông tin, kèm điều còn thiếu**. Nó dùng được
-trong mọi ngành mà các lựa chọn có thuộc tính, sản phẩm, nhà cung cấp, khách sạn, gói dịch vụ, và được
-làm cho các tác tử AI như Claude, ChatGPT, Claude Code và Codex cũng như cho mã của bạn.
+**Open Pulse dạy phần mềm và tác tử AI biết một quyết định cần bằng chứng gì.** Đây là nền tảng mã
+nguồn mở của Pulse, giấy phép MIT, tại
+[github.com/mypulseapi/open-pulse](https://github.com/mypulseapi/open-pulse). Cài máy chủ MCP và tác
+tử của bạn có thể hỏi, với bất kỳ lựa chọn nào có thuộc tính, lựa chọn nào đáp ứng yêu cầu, và nhận
+lại **đạt, không đạt hoặc không đủ thông tin, kèm điều còn thiếu**. Bộ máy ra quyết định chạy sau
+[Pulse API](/vi/api).
 
-Mã phía client là mở, để bạn đọc được chính xác những gì chạy trên máy hoặc website của bạn. Bộ máy ra
-quyết định chạy sau [API](/vi/api).
+<Cards>
+  <Card title="Xem Open Pulse trên GitHub" href="https://github.com/mypulseapi/open-pulse" description="Máy chủ MCP, SDK cho trình duyệt, ví dụ chạy được và AGENTS.md." />
+  <Card title="Thêm vào tác tử của bạn" href="/vi/mcp" description="Một dòng cấu hình cho Claude, Cursor, Codex và các ứng dụng MCP khác." />
+</Cards>
 
-## Những gì đã phát hành
+## Bắt đầu trong một phút
 
-| Gói | Là gì | Trạng thái | Mã nguồn |
-| --- | --- | --- | --- |
-| `@thepulseapi/sdk` | SDK cho trình duyệt: tín hiệu, xếp hạng, đo lường. Khoảng 3 KB trên CDN | **Có trên npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/sdk) |
-| `@thepulseapi/mcp` | Máy chủ MCP: tìm trong tài liệu này, và khi có khóa, [`resolve_products`](/vi/mcp) | **Có trên npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/mcp) |
+Với tác tử AI, thêm máy chủ MCP vào ứng dụng của bạn. Không có key, nó tìm trong tài liệu này; có
+key, nó gọi `resolve_products`:
 
-```bash
-npm install @thepulseapi/sdk
+```json
+{ "mcpServers": { "pulse": { "command": "npx", "args": ["-y", "@thepulseapi/mcp"],
+  "env": { "PULSE_API_KEY": "pk_live_..." } } } }
 ```
 
-Với tác tử AI, thêm máy chủ MCP vào ứng dụng của bạn ([MCP cho tác tử](/vi/mcp) có cấu hình):
+Sau đó dặn tác tử: *"Trước khi gợi ý một lựa chọn, hãy gọi resolve_products, và không bao giờ nêu
+một thuộc tính mà nó đánh dấu unknown."*
 
-```bash
-npx -y @thepulseapi/mcp
+Với cửa hàng, cài SDK cho trình duyệt:
+
+```package-install
+@thepulseapi/sdk
 ```
 
-## Những gì dự kiến
+## Vì sao có Open Pulse: dữ liệu sản phẩm không phải dữ liệu quyết định
 
-| Dự kiến | Sẽ làm gì |
+Danh mục biết tiêu đề, thương hiệu, giá và màu sắc. Người mua lại đang hỏi chiếc sofa có lọt qua cửa
+không, bộ sạc có dùng được với laptop của họ không, và trong hộp có gì. Đó là **yêu cầu quyết định**.
+Khi bằng chứng cho một yêu cầu bị thiếu, bị khuất hoặc mâu thuẫn, cả người mua lẫn tác tử đều không
+quyết định chắc chắn được, và một mô hình ngôn ngữ, vốn được tạo ra để trả lời, sẽ đoán.
+
+| Bước | Chứa gì |
 | --- | --- |
-| Bộ phân tích câu tìm kiếm | Biến lời người mua thành yêu cầu: ngân sách, mua cho ai, dịp gì, bằng tiếng Việt, Thái, Bahasa và tiếng Anh |
-| Định dạng bằng chứng quyết định | Một cách chung để mô tả yêu cầu mua, bằng chứng sản phẩm và kết quả đơn hàng |
-| Bảng phân loại lý do trả hàng | Ánh xạ lý do trả hàng của các sàn sang điều đã sai, tách phần trang sản phẩm có thể ngăn được |
+| **Yêu cầu** | Điều cần biết |
+| **Bằng chứng sản phẩm** | Các thông tin được ghi, và nguồn của từng thông tin |
+| **Bằng chứng nhìn thấy được** | Điều người mua hoặc tác tử thực sự thấy |
+| **Quyết định** | Bằng chứng có đủ hay không |
+| **Kết quả** | Điều gì xảy ra sau đó |
 
-Không hứa ngày: mỗi phần được phát hành khi sẵn sàng, và trang này thay đổi ngay hôm đó.
+Một sản phẩm có thể có dữ liệu mà vẫn có vấn đề về bằng chứng. Trên danh mục trình diễn 2.176 sản
+phẩm của chúng tôi, 52,6% giá trị được ghi lặp lại điều ảnh sản phẩm đã cho thấy
+([nghiên cứu](https://thepulseapi.com/vi/research)).
 
-## Những gì ở lại sau API
+## Tác tử nhận lại gì
 
-Xếp hạng và ưu tiên, Decision Verification, phần kiểm tra nhiễu và tính toán kinh tế của Promotion
-Audit, và mọi thứ học được từ dữ liệu khách hàng, thứ không bao giờ được công bố. Mã nguồn mở tìm
-ra vấn đề; API quyết định điều gì đáng sửa.
+Người mua hỏi chiếc sofa có lọt qua cửa rộng 78 cm không. Trang sản phẩm ghi chiều rộng khi lắp ráp
+nhưng không ghi chiều rộng kiện hàng:
 
-## Cách đóng góp
+```text
+requirement  width <= 300 cm          meets
+requirement  package_width <= 78 cm   unknown
+verdict      cannot_tell
+missing      package_width
+```
 
-1. **Mở issue trước** trên [GitHub](https://github.com/mypulseapi/open-pulse/issues): một lỗi, một
-   ngôn ngữ mà bộ phân tích đọc sai, một adapter bạn cần.
-2. **Sau đó là pull request**, nhỏ và có kiểm thử. Điều khoản đóng góp đang được hoàn thiện; chúng
-   tôi sẽ công bố trước khi nhận các thay đổi lớn.
+Vì vậy tác tử nói nó không thể xác nhận, và người bán cần công bố kích thước kiện hàng. Mỗi yêu cầu
+là `meets`, `fails`, `unknown` hoặc `conflicting`; mỗi lựa chọn là `fits`, `fails` hoặc
+`cannot_tell`. Cùng một lệnh dùng được cho nhà cung cấp, khách sạn, gói dịch vụ và linh kiện:
+
+```js
+await fetch("https://api.thepulseapi.com/api/v1/decide", {
+  method: "POST",
+  headers: { "content-type": "application/json", "x-api-key": "pk_live_..." },
+  body: JSON.stringify({
+    requirements: [{ attribute: "ip_rating", op: "eq", value: "IP67" }],
+    products: [
+      { id: "acme", attributes: { ip_rating: "IP67" } },
+      { id: "corvid", attributes: {} },
+    ],
+  }),
+});
+// acme fits · corvid cannot_tell, missing ip_rating
+```
+
+<Callout title="Không trả lời cũng là một tính năng">
+  `cannot_tell` là lệnh đang hoạt động đúng, không phải lỗi. Tạo cách trình bày từ bằng chứng đã xác
+  minh; không bao giờ tạo ra thông tin sản phẩm chưa xác minh như kích thước, chất liệu, khả năng
+  tương thích, chứng nhận, những gì có trong hộp hay điều khoản bảo hành.
+</Callout>
+
+## Đã phát hành và dự kiến
+
+| | Là gì | Trạng thái |
+| --- | --- | --- |
+| [`@thepulseapi/mcp`](https://www.npmjs.com/package/@thepulseapi/mcp) | Máy chủ MCP: tìm trong tài liệu, và `resolve_products` khi có key | **Đã có**, MIT |
+| [`@thepulseapi/sdk`](https://www.npmjs.com/package/@thepulseapi/sdk) | SDK cho trình duyệt: tín hiệu, xếp hạng, đo lường. Khoảng 3 KB trên CDN | **Đã có**, 0.2.0, MIT |
+| Ví dụ và `AGENTS.md` | Mã chạy được cho lập trình viên và tác tử, và cách tác tử nên trả lời | **Đã có** |
+| Định dạng yêu cầu và bằng chứng | Một cách chung để mô tả yêu cầu, bằng chứng và kết quả | Dự kiến |
+| Trạng thái bằng chứng và bộ từ vựng sửa lỗi | Thiếu, bị khuất, không hiển thị, chưa rõ, mâu thuẫn, không quan sát được; ghi lại, hiển thị, đối chiếu, tạo, hỏi, tính, không trả lời, không sửa | Dự kiến |
+| Gói ngành hàng | Các yêu cầu quan trọng với từng loại sản phẩm, và bằng chứng mỗi yêu cầu cần | Dự kiến |
+| Bộ kiểm tra và kết nối | Cho bằng chứng sai định dạng, và cho nền tảng thương mại, PIM và nguồn cấp | Dự kiến |
+| Bộ phân tích truy vấn và phân loại lý do trả hàng | Câu hỏi thường thành yêu cầu; lý do trả hàng thành điều đã sai | Dự kiến |
+
+Không có ngày cụ thể: mỗi mục phát hành khi sẵn sàng, và trang này thay đổi đúng ngày đó.
+
+## Mở và trả phí
+
+**Open Pulse mô tả bằng chứng. Pulse quyết định điều gì đáng làm với nó.** Phần mở là SDK, máy chủ
+MCP, các ví dụ và, khi phát hành, các định dạng và tri thức ngành hàng. Phần trả phí là
+[Decision Audit](/vi/catalogue/decision-audit) xếp hạng khoảng trống nào quan trọng nhất, ưu tiên
+bản sửa, Decision Verification, Decision Monitor, Return Verification, Promotion Audit, Decision API
+khi vận hành thật, và học từ kết quả đo được, thứ không bao giờ rời tài khoản của khách hàng.
+
+## Đóng góp
+
+Bạn không cần làm về học máy mới đóng góp được:
+
+- **Một yêu cầu mà ngành hàng còn thiếu**, câu người mua hay hỏi.
+- **Một kết nối** từ nền tảng, PIM hoặc nguồn cấp.
+- **Ví dụ**, dữ liệu tổng hợp hoặc chia sẻ an toàn được.
+- **Công cụ cho tác tử và tài liệu tốt hơn.**
+- **Báo một mô hình sai**: "người mua không chọn sản phẩm này như vậy" là một issue hữu ích.
+
+Chuyên gia ngành cũng là người đóng góp: người hiểu nội thất, điện tử hay linh kiện công nghiệp có thể
+biết rõ hơn người viết mã về bằng chứng một quyết định cần. Tác tử AI có thể đề xuất một yêu cầu còn
+thiếu; con người duyệt trước khi bất cứ điều gì thay đổi.
+
+Hãy [mở issue](https://github.com/mypulseapi/open-pulse/issues) trước và đọc
+[CONTRIBUTING.md](https://github.com/mypulseapi/open-pulse/blob/main/CONTRIBUTING.md). Điều khoản
+đóng góp đang được hoàn thiện; chúng tôi sẽ công bố trước khi nhận các thay đổi lớn.
+
+## Open Pulse không phải là
+
+Không phải bộ máy gợi ý, công cụ tạo mô tả sản phẩm, thứ thay thế PIM, giỏ hàng, giao thức thanh toán
+hay sàn thương mại. Không phải lời hứa rằng mọi trường còn thiếu đều quan trọng, và không phải hệ
+thống trả lời khi bằng chứng không đủ.
 
 ## Giấy phép
 
-MIT. Dùng, sửa và đưa vào sản phẩm thương mại, miễn giữ thông báo giấy phép đi kèm mã nguồn.
+MIT. Dùng, sửa và phát hành trong công việc thương mại, miễn giữ lại thông báo giấy phép cùng mã.

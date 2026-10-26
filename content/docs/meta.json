@@ -4,6 +4,7 @@
     "index",
     "---Start here---",
     "quickstart",
+    "opensource",
     "templates",
     "---Products---",
     "catalogue",
@@ -18,7 +19,6 @@
     "api",
     "sdk",
     "mcp",
-    "opensource",
     "---Ship it---",
     "going-live",
     "changelog"
