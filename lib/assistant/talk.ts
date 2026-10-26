@@ -280,6 +280,7 @@ const TERMS: {
       "how much",
       "plans",
       "subscription",
+      "rate card",
       "free tier",
       "trial",
       "gia",
@@ -288,8 +289,26 @@ const TERMS: {
       "bao nhieu tien",
     ],
     reply: (l) => ({
-      en: `Pulse is a paid merchant subscription; your plan sets how many requests your key can make. The plans are on the [pricing page](${l.pricing}). Measurement is never billed: \`/event\`, \`/exposure\`, \`/outcomes\` and \`/suggest\` are free, so proving the results never costs you anything. To talk about a pilot, [contact the team](${l.contact}).`,
-      vi: `Pulse là gói đăng ký trả phí cho người bán; gói của bạn quyết định số yêu cầu key được phép gửi. Các gói có trên [trang bảng giá](${l.pricing}). Việc đo lường không bao giờ bị tính phí: \`/event\`, \`/exposure\`, \`/outcomes\` và \`/suggest\` miễn phí, nên chứng minh kết quả không tốn gì của bạn. Muốn trao đổi về chương trình thử nghiệm, hãy [liên hệ đội ngũ](${l.contact}).`,
+      en: `One API key covers every product, and you pay for decisions, never for measurement. There is no rate card yet. **Build** is free: the open-source SDK, MCP server and templates. **Fix your catalogue**: the Decision Audit is free; repair and verification are priced per cycle, and Decision Monitor is recurring. **Decide live**: the Decision API, Search, Recommendations, Pages and the Promotion Audit API are priced per decision, agreed after a pilot. [Pricing](${l.pricing}) · [What counts toward usage](${l.pricing}#what-counts). To agree a pilot, [contact the team](${l.contact}).`,
+      vi: `Một API key dùng cho mọi sản phẩm, và bạn trả cho quyết định, không bao giờ cho đo lường. Hiện chưa có bảng giá cố định. **Xây dựng** miễn phí: SDK mã nguồn mở, máy chủ MCP và các mẫu. **Sửa danh mục của bạn**: Decision Audit miễn phí; sửa và xác minh tính theo từng chu kỳ, còn Decision Monitor tính định kỳ. **Quyết định trực tiếp**: Decision API, Search, Recommendations, Pages và Promotion Audit API tính theo quyết định, thoả thuận sau chương trình thử nghiệm. [Bảng giá](${l.pricing}) · [Những gì được tính vào mức sử dụng](${l.pricing}#what-counts). Muốn thoả thuận thử nghiệm, hãy [liên hệ đội ngũ](${l.contact}).`,
+    }),
+  },
+  {
+    names: [
+      "usage",
+      "what counts",
+      "counted",
+      "billed",
+      "billing",
+      "metered",
+      "quota",
+      "count toward usage",
+      "muc su dung",
+      "tinh phi",
+    ],
+    reply: (l) => ({
+      en: `Calls that read a visit or return a decision count toward usage: \`POST /decide\`, \`/search\` and \`/rerank\`, \`/catalog/ranked\`, \`/track\` and \`/session\`, the Promotion Audit API (\`/interventions/*\`), and \`/catalog/audit\` and \`/catalog/verify\`. Measurement never counts: \`/event\`, \`/exposure\`, \`/outcomes\` and \`/suggest\` are free, and so are the open-source SDK and MCP server. The full list is on the [pricing page](${l.pricing}#what-counts).`,
+      vi: `Những lệnh đọc lượt truy cập hoặc trả về quyết định được tính vào mức sử dụng: \`POST /decide\`, \`/search\` và \`/rerank\`, \`/catalog/ranked\`, \`/track\` và \`/session\`, Promotion Audit API (\`/interventions/*\`), cùng \`/catalog/audit\` và \`/catalog/verify\`. Đo lường không bao giờ được tính: \`/event\`, \`/exposure\`, \`/outcomes\` và \`/suggest\` miễn phí, SDK mã nguồn mở và máy chủ MCP cũng vậy. Danh sách đầy đủ có trên [trang bảng giá](${l.pricing}#what-counts).`,
     }),
   },
   {
