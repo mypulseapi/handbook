@@ -18,21 +18,17 @@ quyết định chạy sau [API](/vi/api).
 | Gói | Là gì | Trạng thái | Mã nguồn |
 | --- | --- | --- | --- |
 | `@thepulseapi/sdk` | SDK cho trình duyệt: tín hiệu, xếp hạng, đo lường. Khoảng 3 KB trên CDN | **Có trên npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/sdk) |
-| `@thepulseapi/mcp` | Máy chủ MCP: tìm trong tài liệu này, và khi có khóa, [`resolve_products`](/vi/mcp) | **Mã nguồn công khai**, MIT; đang chờ phát hành lên npm | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/mcp) |
+| `@thepulseapi/mcp` | Máy chủ MCP: tìm trong tài liệu này, và khi có khóa, [`resolve_products`](/vi/mcp) | **Có trên npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/mcp) |
 
 ```bash
 npm install @thepulseapi/sdk
 ```
 
-Trong lúc máy chủ MCP chưa có trên npm, hãy chạy từ mã nguồn:
+Với tác tử AI, thêm máy chủ MCP vào ứng dụng của bạn ([MCP cho tác tử](/vi/mcp) có cấu hình):
 
 ```bash
-git clone https://github.com/mypulseapi/open-pulse.git
-cd open-pulse/packages/mcp && npm install
-node server.mjs
+npx -y @thepulseapi/mcp
 ```
-
-Trong ứng dụng MCP, đặt `command` là `node` và `args` là đường dẫn đầy đủ tới `server.mjs`.
 
 ## Những gì dự kiến
 
