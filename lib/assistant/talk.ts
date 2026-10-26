@@ -166,6 +166,21 @@ const TERMS: {
     }),
   },
   {
+    names: [
+      "promotion audit",
+      "promotions",
+      "promotion",
+      "voucher",
+      "vouchers",
+      "free shipping",
+      "khuyen mai",
+    ],
+    reply: (l) => ({
+      en: `The **Promotion Audit** judges your vouchers, price cuts and free-shipping offers on the orders that stayed bought, after returns and failed deliveries, against doing nothing. It says where no offer paid, for how many shoppers, and where fixing the listing beats a discount; where the history is too thin it asks for a test instead of guessing. It runs on your own history through \`POST /interventions/audit\`. [Read more](${l.site}/product/promotion-audit) · [API](${l.docs}/api/v1/interventions).`,
+      vi: `**Promotion Audit** đánh giá voucher, giảm giá và miễn phí vận chuyển theo những đơn được giữ lại, sau khi trừ hàng bị trả và giao thất bại, so với việc không làm gì. Nó chỉ ra chỗ nào không ưu đãi nào có lãi, cho bao nhiêu người mua, và chỗ nào sửa trang sản phẩm có lợi hơn giảm giá; khi dữ liệu quá mỏng, nó đề nghị thử nghiệm thay vì đoán. Chạy trên lịch sử của chính bạn qua \`POST /interventions/audit\`. [Xem thêm](${l.site}/product/promotion-audit) · [API](${l.docs}/api/v1/interventions).`,
+    }),
+  },
+  {
     names: ["return verification", "returns", "return"],
     reply: (l) => ({
       en: `**Return Verification** reads your orders and their return reasons against your catalogue. It shows which missing product facts go with returns, whether a repair moved them, and what that was worth at your own costs. You report each order line to \`POST /outcomes\`, which is free. It does not promise fewer returns; it measures your own history. [Read more](${l.catalogue}/return-verification).`,
