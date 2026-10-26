@@ -1,19 +1,24 @@
 ---
 title: Mã nguồn mở
-description: Mã nguồn PULSE nào dùng giấy phép MIT, cách cài đặt và chạy, và cách đóng góp trên GitHub. Tìm vấn đề là mở; quyết định điều gì đáng sửa là API.
+description: Open Pulse, giấy phép MIT. Một lệnh ra quyết định mà mọi tác tử AI hay chương trình đều dùng được trong mọi ngành, kèm máy chủ MCP, SDK và cách đóng góp.
 icon: FolderGit2
 ---
 
-Mã chạy trên cửa hàng hoặc máy của bạn là mã nguồn mở, để bạn đọc được chính xác nó làm gì trước
-khi nó tới gần trang thanh toán. Phần quyết định bản sửa hay khuyến mãi nào đáng chi phí, và chứng
-minh nó có tác dụng, là [API](/vi/api).
+**Open Pulse** ([github.com/mypulseapi/open-pulse](https://github.com/mypulseapi/open-pulse)) là nửa
+mã nguồn mở của PULSE. PULSE là một lệnh ra quyết định: đưa vào yêu cầu và bằng chứng, nhận lại phán
+quyết cho từng lựa chọn, **đạt, không đạt hoặc không đủ thông tin, kèm điều còn thiếu**. Nó dùng được
+trong mọi ngành mà các lựa chọn có thuộc tính, sản phẩm, nhà cung cấp, khách sạn, gói dịch vụ, và được
+làm cho các tác tử AI như Claude, ChatGPT, Claude Code và Codex cũng như cho mã của bạn.
+
+Mã phía client là mở, để bạn đọc được chính xác những gì chạy trên máy hoặc website của bạn. Bộ máy ra
+quyết định chạy sau [API](/vi/api).
 
 ## Những gì đã phát hành
 
 | Gói | Là gì | Trạng thái | Mã nguồn |
 | --- | --- | --- | --- |
-| `@thepulseapi/sdk` | SDK cho trình duyệt: tín hiệu, xếp hạng, đo lường. Khoảng 3 KB trên CDN | **Có trên npm**, 0.2.0, MIT | [`mypulseapi/pulse`](https://github.com/mypulseapi/pulse/tree/main/packages/sdk) |
-| `@thepulseapi/mcp` | Máy chủ MCP: tìm trong tài liệu này, và khi có khóa, [`resolve_products`](/vi/mcp) | **Mã nguồn công khai**, MIT; đang chờ phát hành lên npm | [`mypulseapi/pulse`](https://github.com/mypulseapi/pulse/tree/main/packages/mcp) |
+| `@thepulseapi/sdk` | SDK cho trình duyệt: tín hiệu, xếp hạng, đo lường. Khoảng 3 KB trên CDN | **Có trên npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/sdk) |
+| `@thepulseapi/mcp` | Máy chủ MCP: tìm trong tài liệu này, và khi có khóa, [`resolve_products`](/vi/mcp) | **Mã nguồn công khai**, MIT; đang chờ phát hành lên npm | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/mcp) |
 
 ```bash
 npm install @thepulseapi/sdk
@@ -22,8 +27,8 @@ npm install @thepulseapi/sdk
 Trong lúc máy chủ MCP chưa có trên npm, hãy chạy từ mã nguồn:
 
 ```bash
-git clone https://github.com/mypulseapi/pulse.git
-cd pulse/packages/mcp && npm install
+git clone https://github.com/mypulseapi/open-pulse.git
+cd open-pulse/packages/mcp && npm install
 node server.mjs
 ```
 
@@ -47,7 +52,7 @@ ra vấn đề; API quyết định điều gì đáng sửa.
 
 ## Cách đóng góp
 
-1. **Mở issue trước** trên [GitHub](https://github.com/mypulseapi/pulse/issues): một lỗi, một
+1. **Mở issue trước** trên [GitHub](https://github.com/mypulseapi/open-pulse/issues): một lỗi, một
    ngôn ngữ mà bộ phân tích đọc sai, một adapter bạn cần.
 2. **Sau đó là pull request**, nhỏ và có kiểm thử. Điều khoản đóng góp đang được hoàn thiện; chúng
    tôi sẽ công bố trước khi nhận các thay đổi lớn.
