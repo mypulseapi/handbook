@@ -1,0 +1,105 @@
+---
+title: PHP
+description: cURL từ thư viện chuẩn, và Guzzle ở nơi framework đã có sẵn.
+icon: Boxes
+---
+
+Với phần trình duyệt của một ứng dụng PHP, xem [hướng dẫn Laravel](/vi/frameworks/laravel). Trang này
+là phần máy chủ: những lệnh gọi do chính PHP của bạn thực hiện.
+
+## PHP thuần
+
+```php title="Pulse.php"
+<?php
+
+final class Pulse
+{
+    private const BASE = 'https://api.thepulseapi.com/api/v1';
+
+    public function __construct(
+        private readonly string $apiKey,
+        private readonly string $organizationId,
+    ) {}
+
+    public function track(string $sessionId, array $signals): array
+    {
+        return $this->post('/track', ['sessionId' => $sessionId, 'signals' => $signals]);
+    }
+
+    public function rankedCatalog(string $sessionId, int $limit = 24): array
+    {
+        return $this->post('/catalog/ranked', ['sessionId' => $sessionId, 'limit' => $limit]);
+    }
+
+    private function post(string $path, array $body): array
+    {
+        // organizationId is read from the body rather than the key, and is required.
+        $body['organizationId'] = $this->organizationId;
+
+        $ch = curl_init(self::BASE . $path);
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'x-api-key: ' . $this->apiKey,
+            ],
+            // JSON_THROW_ON_ERROR, so a body that failed to encode is an exception
+            // rather than the string "false" posted to the API.
+            CURLOPT_POSTFIELDS => json_encode($body, JSON_THROW_ON_ERROR),
+        ]);
+
+        $response = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        curl_close($ch);
+
+        if ($response === false || $status >= 300) {
+            throw new RuntimeException("PULSE {$path}: {$status}");
+        }
+
+        return json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+    }
+}
+```
+
+## Laravel
+
+Guzzle đã có sẵn, được bọc dưới tên `Http`.
+
+```php title="app/Services/Pulse.php"
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+
+class Pulse
+{
+    public function rankedCatalog(string $sessionId, int $limit = 24): array
+    {
+        return Http::withHeaders(['x-api-key' => config('services.pulse.key')])
+            ->timeout(5)
+            ->post('https://api.thepulseapi.com/api/v1/catalog/ranked', [
+                'sessionId' => $sessionId,
+                'organizationId' => config('services.pulse.org'),
+                'limit' => $limit,
+            ])
+            ->throw()
+            ->json();
+    }
+}
+```
+
+```php title="config/services.php"
+'pulse' => [
+    'key' => env('PULSE_API_KEY'),
+    'org' => env('PULSE_ORG_ID'),
+],
+```
+
+<Callout type="warn" title="Đừng đặt nó trong view">
+  Một lệnh xếp hạng trong Blade template sẽ chạy ở mỗi lần render, không có timeout bạn kiểm soát và
+  không có cách dự phòng. Hãy xử lý nó trong controller, truyền kết quả vào, và hiển thị thứ tự danh
+  mục khi nó thất bại.
+</Callout>

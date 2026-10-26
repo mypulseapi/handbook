@@ -1,0 +1,59 @@
+---
+title: Node.js
+description: SDK cũng chạy trên máy chủ, và có sẵn fetch nếu bạn không muốn cài nó.
+icon: Atom
+---
+
+`@thepulseapi/sdk` là isomorphic. Cùng một gói chạy được trong Node, nên một trang render phía máy chủ
+có thể dùng chính client nó đã quen.
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+```ts title="pulse.server.ts"
+import { PulseClient } from '@thepulseapi/sdk';
+
+// One client per process. It holds no per-shopper state: the session id is passed per call.
+export const pulse = new PulseClient();
+
+pulse.init({
+  apiKey: process.env.PULSE_API_KEY!,
+  organizationId: process.env.PULSE_ORG_ID!,
+  autoTrack: false, // there is no browser here to capture a device or a referrer from
+});
+```
+
+<Callout type="warn" title="Tắt autoTrack trên máy chủ">
+  Nó tồn tại để ghi thiết bị, nguồn giới thiệu và thời gian từ trình duyệt. Trên máy chủ, những thông
+  tin đó mô tả trung tâm dữ liệu của bạn, và gửi chúng sẽ làm phiên lẫn tín hiệu về một cỗ máy không ai
+  dùng để mua sắm.
+</Callout>
+
+## Không dùng gói
+
+Node 18 trở lên có sẵn `fetch`, nên toàn bộ phần tích hợp chỉ là một hàm.
+
+```ts title="pulse.ts"
+const BASE = 'https://api.thepulseapi.com/api/v1';
+
+async function post<T>(path: string, body: Record<string, unknown>): Promise<T> {
+  const response = await fetch(`${BASE}${path}`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': process.env.PULSE_API_KEY!,
+    },
+    body: JSON.stringify({ organizationId: process.env.PULSE_ORG_ID, ...body }),
+    // fetch has no default timeout, and a hung ranking call should not hold a request.
+    signal: AbortSignal.timeout(5000),
+  });
+
+  if (!response.ok) throw new Error(`PULSE ${path}: ${response.status}`);
+  return response.json() as Promise<T>;
+}
+
+export const track = (sessionId: string, signals: unknown[]) =>
+  post('/track', { sessionId, signals });
+
+export const rankedCatalog = (sessionId: string, limit = 24) =>
+  post('/catalog/ranked', { sessionId, limit });
+```
