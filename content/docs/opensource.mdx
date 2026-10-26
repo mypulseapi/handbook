@@ -37,21 +37,17 @@ and a comparison with typed-decision models such as Jev.
 | Package | What it is | Status | Source |
 | --- | --- | --- | --- |
 | `@thepulseapi/sdk` | The browser SDK: signals, ranking, measurement. About 3 KB on the CDN | **On npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/sdk) |
-| `@thepulseapi/mcp` | MCP server: search these docs, and with a key, [`resolve_products`](/mcp) | **Source public**, MIT; npm publish pending | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/mcp) |
+| `@thepulseapi/mcp` | MCP server: search these docs, and with a key, [`resolve_products`](/mcp) | **On npm**, 0.2.0, MIT | [`mypulseapi/open-pulse`](https://github.com/mypulseapi/open-pulse/tree/main/packages/mcp) |
 
 ```bash
 npm install @thepulseapi/sdk
 ```
 
-Until the MCP server is on npm, run it from source:
+For an agent, add the MCP server to your client ([MCP for agents](/mcp) has the config):
 
 ```bash
-git clone https://github.com/mypulseapi/open-pulse.git
-cd open-pulse/packages/mcp && npm install
-node server.mjs
+npx -y @thepulseapi/mcp
 ```
-
-In your MCP client, point `command` at `node` and `args` at the full path of `server.mjs`.
 
 ## What is planned
 
