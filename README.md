@@ -38,7 +38,7 @@ information is worth paying to fix.
 | Website | [thepulseapi.com](https://thepulseapi.com) |
 | Dashboard | [app.thepulseapi.com](https://app.thepulseapi.com) |
 | SDK | [`@thepulseapi/sdk`](https://www.npmjs.com/package/@thepulseapi/sdk), MIT licensed |
-| Open source | [github.com/mypulseapi/open-pulse](https://github.com/mypulseapi/open-pulse) |
+| Opensource | [github.com/mypulseapi/open-pulse](https://github.com/mypulseapi/open-pulse) |
 | LinkedIn | [thepulseapi](https://www.linkedin.com/company/thepulseapi/) |
 
 The handbook is published in **English and Vietnamese**, English by default, and ships an
