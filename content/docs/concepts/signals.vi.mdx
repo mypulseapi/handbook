@@ -1,0 +1,43 @@
+---
+title: Tín hiệu
+description: Những gì bạn gửi, những gì được ghi tự động, và những gì cố ý không phải là tín hiệu.
+icon: Radio
+---
+
+Một tín hiệu là một quan sát về phiên hiện tại. Gửi chúng bằng [`track`](/vi/api/v1/track).
+
+```ts
+await pulse.track([
+  { type: 'category_view', value: 'helmets-safety' },
+  { type: 'product_view', value: 'sku-123' },
+  { type: 'price_filter', value: '500000-1500000' },
+]);
+```
+
+## Được ghi tự động
+
+`init()` gửi những tín hiệu này một lần mỗi phiên, trừ khi `autoTrack: false`:
+
+| | |
+| --- | --- |
+| **Thiết bị** | Loại và khả năng, đọc từ user agent |
+| **Nguồn giới thiệu** | Phiên đến từ đâu |
+| **Thời điểm trong ngày** | Khung giờ địa phương |
+
+Chúng không tốn thêm lệnh gọi mạng nào ngoài lệnh duy nhất đó, và được xuất riêng để ứng dụng chủ có
+thể gửi lại ở lần tải trang sau:
+
+```ts
+import { captureDeviceSignal, captureReferrerSignal, captureTimeSignal } from '@thepulseapi/sdk';
+```
+
+## Những gì không phải là tín hiệu
+
+<Callout type="error" title="anonymousId không bao giờ đi vào suy luận">
+  `anonymousId` là một nhãn danh tính. Không có gì trong bộ máy so khớp theo nó, nên gắn nhãn một
+  phiên không thể thay đổi điều được suy ra về phiên đó. Sự tách biệt này là có chủ ý: nó cho phép
+  quy một phiên về đúng chủ mà không làm sai lệch kết quả.
+</Callout>
+
+Tuổi, giới tính, chức danh và thu nhập **không** phải là đầu vào. Bộ máy đọc hành vi. Nếu bạn có các
+thuộc tính đó, chúng là dữ liệu đối chiếu để chấm kết quả, không phải đặc trưng để đưa vào.

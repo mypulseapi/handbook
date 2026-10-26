@@ -1,0 +1,39 @@
+---
+title: Laravel
+description: Một Blade partial cho phần trình duyệt. Bí mật nằm lại trên máy chủ.
+icon: Server
+---
+
+Laravel render trên máy chủ, nên phần trình duyệt là một thẻ script, thường đặt trong layout.
+
+```php title="config/services.php"
+'pulse' => [
+    'key' => env('PULSE_PUBLISHABLE_KEY'),
+    'org' => env('PULSE_ORGANIZATION_ID'),
+],
+```
+
+```blade title="resources/views/partials/pulse.blade.php"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js"></script>
+<script>
+  Pulse.init({
+    apiKey: @json(config('services.pulse.key')),
+    organizationId: @json(config('services.pulse.org')),
+  });
+</script>
+```
+
+```blade title="resources/views/layouts/app.blade.php"
+@include('partials.pulse')
+```
+
+<Callout type="warn" title="Key nào được đặt trong trang">
+  Key công khai `pk_live_` được thiết kế để hiển thị trong mã trình duyệt. Bất cứ thứ gì dùng để quản
+  trị tài khoản của bạn thì không. Dùng `@json()` thay vì nội suy chuỗi để một giá trị chứa dấu nháy
+  không thể thoát ra khỏi script.
+</Callout>
+
+## Gọi từ PHP
+
+Để làm việc với PULSE từ PHP thay vì trình duyệt, hãy dùng thẳng [REST API](/vi/api/v1). Hiện chưa
+có gói PHP.

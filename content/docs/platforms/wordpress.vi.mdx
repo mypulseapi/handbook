@@ -1,0 +1,119 @@
+---
+title: WordPress và WooCommerce
+description: wp_enqueue_script trong một plugin nhỏ, với tín hiệu lấy từ các điều kiện của WooCommerce.
+icon: Boxes
+---
+
+<Callout type="warn" title="Không có trong thư mục plugin">
+  Chưa có plugin PULSE nào để cài. Dưới đây là một plugin ngắn bạn tự viết, khoảng hai mươi dòng và
+  không cần hơn thế.
+</Callout>
+
+## Viết thành plugin, không sửa giao diện
+
+Đặt nó ở `wp-content/plugins/pulse-tracking/pulse-tracking.php`. Một chỉnh sửa giao diện sẽ mất ở lần
+cập nhật giao diện tiếp theo; plugin thì không, còn child theme thì tốn công hơn mức cần.
+
+```php title="wp-content/plugins/pulse-tracking/pulse-tracking.php"
+<?php
+/**
+ * Plugin Name: PULSE tracking
+ * Description: Loads the PULSE SDK and sends signals from WooCommerce templates.
+ * Version: 1.0.0
+ */
+
+defined('ABSPATH') || exit;
+
+add_action('wp_enqueue_scripts', function () {
+    wp_enqueue_script(
+        'pulse-sdk',
+        'https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js',
+        [],
+        null,   // the CDN path is already versioned; a ?ver= query would only break caching
+        true    // in the footer, so it never blocks the first paint
+    );
+
+    // wp_add_inline_script with 'after' guarantees this runs once the SDK has loaded,
+    // which is what makes the global `Pulse` safe to touch here.
+    wp_add_inline_script('pulse-sdk', sprintf(
+        'Pulse.init({ apiKey: %s, organizationId: %s });',
+        wp_json_encode(PULSE_API_KEY),
+        wp_json_encode(PULSE_ORG_ID)
+    ), 'after');
+
+    $signals = pulse_signals_for_current_page();
+    if ($signals) {
+        wp_add_inline_script('pulse-sdk', 'Pulse.track(' . wp_json_encode($signals) . ');', 'after');
+    }
+});
+```
+
+Key đặt trong `wp-config.php`, không đặt trong tệp plugin:
+
+```php title="wp-config.php"
+define('PULSE_API_KEY', 'pk_live_...');
+define('PULSE_ORG_ID', 'org_...');
+```
+
+## Các tín hiệu
+
+WooCommerce đã trả lời câu "đây là trang gì" qua các thẻ điều kiện của nó. Toàn bộ phần ánh xạ là một
+hàm.
+
+```php title="wp-content/plugins/pulse-tracking/pulse-tracking.php"
+function pulse_signals_for_current_page(): array
+{
+    if (!function_exists('is_product')) {
+        return [];   // WooCommerce is not active; nothing here applies
+    }
+
+    if (is_product()) {
+        $product = wc_get_product(get_the_ID());
+        if (!$product) {
+            return [];
+        }
+
+        $terms = get_the_terms($product->get_id(), 'product_cat');
+        $signals = [['type' => 'product_view', 'value' => (string) $product->get_id()]];
+
+        if (is_array($terms) && $terms) {
+            $signals[] = ['type' => 'category_view', 'value' => $terms[0]->slug];
+        }
+
+        return $signals;
+    }
+
+    if (is_product_category()) {
+        $term = get_queried_object();
+        return [['type' => 'category_view', 'value' => $term->slug]];
+    }
+
+    if (is_search()) {
+        return [['type' => 'search', 'value' => get_search_query()]];
+    }
+
+    return [];
+}
+```
+
+<Callout title="Luôn dùng wp_json_encode">
+  Đó là `json_encode` của WordPress với các cờ đã đặt sẵn để nhúng vào HTML. Ghép chuỗi để dựng
+  JavaScript sẽ lỗi ở ngành hàng đầu tiên có dấu nháy trong tên, và chỉ lỗi với ngành hàng đó.
+</Callout>
+
+## Kết quả
+
+```php
+add_action('woocommerce_add_to_cart', function ($cart_item_key, $product_id) {
+    // Fires server-side, so this records the outcome where it actually happened
+    // rather than guessing from a click in the page.
+    wp_add_inline_script('pulse-sdk', sprintf(
+        'Pulse.event("add_to_cart", { productId: %s });',
+        wp_json_encode((string) $product_id)
+    ), 'after');
+}, 10, 2);
+```
+
+Với một lần mua, `woocommerce_thankyou` chạy trên trang xác nhận đơn hàng và có sẵn đơn hàng, đó là
+nơi đúng để ghi doanh thu. Đơn hàng hoàn tất ở nơi khác cần
+[lệnh gọi phía máy chủ](/vi/backend/php) thay thế.

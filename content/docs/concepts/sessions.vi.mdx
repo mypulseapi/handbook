@@ -1,0 +1,30 @@
+---
+title: Phiên
+description: Một phiên tồn tại bao lâu, cái gì xác định nó, và cách đặt lại.
+icon: Clock
+---
+
+Phiên là đơn vị mà mọi thứ gắn vào. Nó được tạo bởi `init()` và lưu trong bộ nhớ trình duyệt.
+
+```ts
+pulse.getSessionId();  // 'sess_...'
+pulse.resetSession();  // start clean
+await pulse.getSession(); // current personas, server side
+```
+
+## Thời gian tồn tại
+
+| | Mặc định | |
+| --- | --- | --- |
+| `sessionTtlMs` | 30 phút | Thời gian không hoạt động trước khi một phiên mới bắt đầu |
+
+## Theo dõi persona thay đổi
+
+```ts
+pulse.onPersona((update) => {
+  console.log(update.primary, update.confidence);
+});
+```
+
+Hữu ích khi tích hợp: nếu persona không bao giờ thay đổi, tín hiệu đang không đến nơi, và bạn thấy
+điều đó chỉ trong hai dòng thay vì trong một thứ hạng trông có vẻ sai sai.

@@ -1,0 +1,56 @@
+---
+title: Tổng quan
+description: PULSE từ phía máy chủ, bằng bất kỳ ngôn ngữ nào gửi được JSON qua HTTPS.
+icon: Server
+---
+
+Chưa có thư viện PULSE cho ngôn ngữ backend của bạn, và bạn cũng không cần. Mọi endpoint đều là
+`POST`, mọi body đều là JSON, và xác thực chỉ là một header.
+
+```
+POST https://api.thepulseapi.com/api/v1/<endpoint>
+Content-Type: application/json
+x-api-key: pk_live_...
+```
+
+Đó là toàn bộ bề mặt tích hợp. Các hướng dẫn trong phần này là cùng ba lệnh gọi đó, viết theo phong
+cách của từng ngôn ngữ, để bạn sao chép một cái và bỏ phần còn lại.
+
+## Lệnh gọi nào thuộc về máy chủ
+
+Phần lớn PULSE được thiết kế cho trình duyệt, nơi SDK đã lo phiên, gom lệnh gọi và bộ đệm lượt hiển
+thị. Hãy dùng thẳng HTTP API khi công việc thực sự ở phía máy chủ:
+
+<Cards>
+  <Card icon={<Server />} title="Trang render phía máy chủ" description="Xếp hạng một lưới sản phẩm khi SSR, lúc chưa có trình duyệt nào giữ phiên." />
+  <Card icon={<ClipboardCheck />} title="Kiểm tra danh mục" description="Một tác vụ định kỳ chấm một tệp xuất. Không có gì trong đó thuộc về trang web." />
+  <Card icon={<Activity />} title="Bù dữ liệu và pipeline" description="Phát lại các sự kiện bạn đã thu thập, hoặc ghi kết quả mà webhook thanh toán biết còn trình duyệt thì không." />
+</Cards>
+
+## Một điều cần làm đúng trước tiên
+
+`sessionId` và `organizationId` là bắt buộc ở hầu hết lệnh gọi, và cả hai lấy từ body chứ không từ
+API key. Yêu cầu thiếu chúng sẽ trả về `400` kèm tên trường. Xem [Gửi tín hiệu](/vi/api/v1/track).
+
+Phiên do bạn đặt tên. Đó là một chuỗi bạn tạo ra, tối đa 128 ký tự, và quy tắc duy nhất là cùng một
+người mua giữ cùng một phiên. Nếu trình duyệt đã chạy SDK, hãy đọc nó bằng `pulse.getSessionId()` và
+truyền cho máy chủ thay vì tạo phiên thứ hai cho cùng một người.
+
+<Callout type="warn" title="Chỉ có một loại key">
+  Key là `pk_live_`, loại công khai, và cùng một key dùng được từ trình duyệt lẫn từ máy chủ. Hiện
+  chưa có key bí mật riêng, nghĩa là một key lộ ra từ máy chủ của bạn không tệ hơn và cũng không tốt
+  hơn một key đọc được từ mã nguồn trang. Hãy giới hạn và xoay vòng key cho phù hợp.
+</Callout>
+
+## Các ngôn ngữ
+
+<Cards>
+  <Card icon={<Feather />} title="Python" href="/vi/backend/python" description="requests hoặc httpx, kèm ghi chú cho Django và FastAPI." />
+  <Card icon={<Hash />} title="C# và .NET" href="/vi/backend/csharp" description="HttpClient, có kiểu, kèm phần đăng ký DI." />
+  <Card icon={<Zap />} title="Go" href="/vi/backend/go" description="net/http và encoding/json. Không phụ thuộc gì." />
+  <Card icon={<Shield />} title="Rust" href="/vi/backend/rust" description="reqwest và serde." />
+  <Card icon={<Server />} title="Java" href="/vi/backend/java" description="java.net.http, có sẵn từ bản 11." />
+  <Card icon={<Leaf />} title="Ruby" href="/vi/backend/ruby" description="net/http từ thư viện chuẩn." />
+  <Card icon={<Boxes />} title="PHP" href="/vi/backend/php" description="cURL, và Guzzle cho Laravel." />
+  <Card icon={<Atom />} title="Node.js" href="/vi/backend/nodejs" description="SDK cũng chạy được phía máy chủ." />
+</Cards>

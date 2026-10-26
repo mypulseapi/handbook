@@ -1,0 +1,71 @@
+---
+title: Phiên bản
+description: "Cái gì có phiên bản, cái gì không, và điều gì xảy ra khi có thay đổi."
+icon: Milestone
+---
+
+## API có phiên bản. Hướng dẫn thì không.
+
+| | Có phiên bản | Vì sao |
+| --- | --- | --- |
+| **Tài liệu API** | **Có**, `/api/v1` | Đó là một hợp đồng. Một yêu cầu bạn viết năm ngoái phải tiếp tục chạy, nên trang mô tả nó phải tiếp tục tồn tại |
+| Hướng dẫn, khái niệm, framework | Không | Chúng mô tả hành vi, không phải hợp đồng. "Suy luận hoạt động thế nào" không có v1 và v2 |
+| Tài liệu SDK | Không | SDK đi theo API. Khi một phương thức cần phiên bản tối thiểu, trang sẽ ghi ngay tại chỗ |
+
+Phiên bản trong URL tài liệu khớp với phiên bản trong URL yêu cầu:
+
+```bash
+https://api.thepulseapi.com/api/v1/track   →   /api/v1/track
+```
+
+<Callout title="Chỉ có v1">
+  Chưa từng có phiên bản nào khác. Đường dẫn vẫn mang số phiên bản, vì chọn một URL bây giờ thì rẻ,
+  còn đổi nó sau khi mọi người đã liên kết tới thì đắt.
+</Callout>
+
+## Thế nào là thay đổi phá vỡ
+
+Một phiên bản chính mới chỉ ra đời khi một yêu cầu hiện có, đúng đắn, sẽ bắt đầu hoạt động khác đi.
+
+<Accordions>
+<Accordion title="Phá vỡ: cần phiên bản mới">
+- Xoá một endpoint, một trường, hoặc một giá trị được chấp nhận
+- Đổi tên bất cứ thứ gì trong yêu cầu hoặc phản hồi
+- Biến một trường yêu cầu tuỳ chọn thành bắt buộc
+- Thu hẹp một kiểu, ví dụ một chuỗi trở thành enum
+- Đổi ý nghĩa của một trường mà giữ nguyên tên. **Đây là trường hợp tệ nhất**, vì không có gì báo lỗi rõ ràng
+</Accordion>
+
+<Accordion title="Không phá vỡ: đưa vào phiên bản hiện tại">
+- Thêm một endpoint mới
+- Thêm một trường yêu cầu tuỳ chọn
+- Thêm một trường vào phản hồi. **Hãy đọc phản hồi một cách dễ dãi**: sẽ có những trường bạn chưa biết
+- Thêm một giá trị mới vào một enum đầu ra, trừ khi tài liệu nói tập giá trị là đóng
+- Làm thông báo kiểm tra hợp lệ rõ ràng hơn
+</Accordion>
+</Accordions>
+
+## Chúng tôi cam kết gì khi phiên bản thay đổi
+
+1. Một đường dẫn mới, `/api/v1/v2`, với **v1 vẫn được công bố và vẫn chạy**
+2. Một trang chuyển đổi nêu từng khác biệt về hành vi, không phải một bản tóm tắt
+3. Một thông báo ngừng hỗ trợ trên mỗi trang v1, trỏ tới trang v2 tương ứng
+4. Một ngày kết thúc cụ thể cho v1, không phải "một lúc nào đó"
+
+## SDK có phiên bản riêng
+
+[`@thepulseapi/sdk`](https://www.npmjs.com/package/@thepulseapi/sdk) theo
+[semver](https://semver.org) và đi theo API chứ không sao chép nó.
+
+<Callout type="warn" title="Khi SDK còn ở 0.x">
+  Trước 1.0, một phiên bản **phụ** có thể chứa thay đổi phá vỡ. Đó là ý nghĩa của 0.x trong semver,
+  và nên cố định một phiên bản chính xác cho tới 1.0.
+</Callout>
+
+Bản dựng trên CDN cũng có phiên bản theo cách đó, với một đường dẫn bất biến cho mỗi bản phát hành và
+một bản chính luôn trỏ tới bản mới nhất:
+
+```
+https://cdn.thepulseapi.com/sdk/v0.2.0/pulse.iife.js   exact, never changes
+https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js       patches arrive here
+```

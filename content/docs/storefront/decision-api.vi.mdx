@@ -1,0 +1,51 @@
+---
+title: Decision API
+description: "Decision API của PULSE đọc một lượt truy cập ẩn danh ngay khi nó diễn ra và cho biết người mua đang tìm gì, để mọi lệnh xếp hạng sau đó đều được cá nhân hoá từ cú nhấp đầu tiên."
+icon: Radio
+---
+
+Cá nhân hoá thường chỉ bắt đầu sau khi đăng nhập hoặc sau nhiều tuần có lịch sử. Decision API bắt
+đầu từ lượt xem trang đầu tiên. Mỗi tín hiệu bạn gửi, một ngành hàng được mở, một bộ lọc giá được
+đặt, một truy vấn được gõ, làm rõ thêm điều lượt truy cập này đang tìm mua, và mọi lệnh xếp hạng sau
+đó đều dùng thông tin này.
+
+**Dành cho ai:** cửa hàng có lưu lượng ẩn danh, tức phần lớn lưu lượng, và những đội không lưu dữ
+liệu cá nhân để cá nhân hoá.
+
+## Bạn nhận lại gì
+
+- Các **persona** suy ra được cho phiên tới thời điểm đó, mỗi persona có điểm từ 0 đến 1, từ
+  `POST /session` hoặc trong phản hồi của mỗi `POST /track`.
+- Thiết bị, nguồn giới thiệu và thời gian đọc từ chính yêu cầu, nên ngay cả một lệnh gọi không có
+  tín hiệu cũng mở phiên với một điểm khởi đầu.
+- Một phiên **giảm dần** khi lượt truy cập tiếp diễn, để mối quan tâm cũ không lấn át mối quan tâm
+  mới.
+
+## Các lệnh gọi
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/track" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "signals": [
+      { "type": "category_view", "value": "helmets-safety" },
+      { "type": "price_filter", "value": "500000-1500000" }
+    ]
+  }'
+```
+
+Từ trình duyệt, SDK làm điều tương tự trong một dòng: `await pulse.track([...])`. Tài liệu đầy đủ:
+[`POST /track`](/vi/api/v1/track) và [`POST /session`](/vi/api/v1/session). Các loại tín hiệu có trong
+[Tín hiệu](/vi/concepts/signals).
+
+**Tính vào mức sử dụng:** có, theo mỗi lệnh gọi `/track` và `/session`.
+
+## Tiếp theo
+
+<Cards>
+  <Card title="Xếp hạng kết quả tìm kiếm" href="/vi/storefront/search" description="Dùng phiên trên trang kết quả." />
+  <Card title="Bắt đầu nhanh" href="/vi/quickstart" description="Tín hiệu đầu tiên và danh sách xếp hạng đầu tiên, trong vài phút." />
+</Cards>

@@ -1,0 +1,23 @@
+---
+title: Tổng quan
+description: "Một lõi, không gắn với framework nào. Ba framework cần một mẫu adapter, ba cái không cần gì."
+icon: Boxes
+---
+
+Client là TypeScript thuần, không có phụ thuộc lúc chạy và không gắn với framework nào. Mọi API trình
+duyệt mà nó dùng đều nằm sau một phép kiểm tra `typeof`, nên import nó khi render phía máy chủ là an
+toàn. Chỉ `init()` cần trình duyệt.
+
+<Cards>
+  <Card icon={<Atom />} title="React và Next.js" href="/vi/frameworks/react" description="Provider và hook. An toàn với SSR." />
+  <Card icon={<Leaf />} title="Vue và Nuxt" href="/vi/frameworks/vue" description="Plugin và provide/inject." />
+  <Card icon={<Shield />} title="Angular" href="/vi/frameworks/angular" description="Một service có thể inject." />
+  <Card icon={<Rocket />} title="Astro" href="/vi/frameworks/astro" description="Island hoặc một thẻ script." />
+  <Card icon={<Zap />} title="Alpine" href="/vi/frameworks/alpine" description="Biến toàn cục, dùng thẳng từ HTML." />
+  <Card icon={<Server />} title="Laravel" href="/vi/frameworks/laravel" description="Blade partial, key nằm lại phía máy chủ." />
+</Cards>
+
+<Callout>
+  Astro, Alpine và Laravel không cần adapter nào. Astro dùng framework island mà bạn đang có, còn hai
+  cái kia chỉ là một thẻ script.
+</Callout>
