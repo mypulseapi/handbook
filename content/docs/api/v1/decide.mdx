@@ -1,0 +1,71 @@
+---
+title: Decide for an agent
+description: POST /decide tells an AI agent which candidate products meet a shopper's requirements, which fail, and which the listing cannot tell, with the missing facts named.
+icon: Scale
+---
+
+An agent asked to recommend a product either trusts what it thinks it read or refuses.
+`POST /decide` gives it a third answer: exactly what each listing shows. Per candidate and per
+requirement it says **meets**, **fails** or **unknown**, and gives each product a verdict of
+`fits`, `fails` or `cannot_tell`, with the facts that are missing.
+
+It is what the MCP tool `resolve_products` calls. See [MCP for agents](/mcp).
+
+## `POST /decide`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/decide" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "query": "laptop for my daughter, under $1,500",
+    "requirements": [{ "attribute": "ram", "op": "gte", "value": 16 }],
+    "products": [
+      { "id": "a", "title": "Dell XPS 15 1TB 32GB RAM", "price": 1700 },
+      { "id": "b", "title": "Lenovo IdeaPad Slim 5", "price": 1100 },
+      { "id": "c", "title": "ASUS Vivobook 14", "description": "16GB RAM, 512GB SSD", "price": 1200 }
+    ]
+  }'
+```
+
+```json
+{
+  "requirements": [
+    { "attribute": "ram", "op": "gte", "value": 16 },
+    { "attribute": "price", "op": "lte", "value": 1500 }
+  ],
+  "products": [
+    { "id": "a", "verdict": "fails", "missing": [] },
+    { "id": "b", "verdict": "cannot_tell", "missing": ["ram"] },
+    { "id": "c", "verdict": "fits", "missing": [] }
+  ],
+  "summary": { "fits": 1, "fails": 1, "cannotTell": 1 }
+}
+```
+
+Each product also carries `requirements`, one entry per requirement with its `status`, the
+`value` decided on and its `source`. The response repeats what the query was understood to mean
+as `intent`: the product words, the budget, who it is for.
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| `query` | no | The shopper's words. A budget in it ("under 2 triệu", "below RM2,000") becomes a `price` requirement |
+| `requirements` | no | Up to 20, each `{ attribute, op, value }`. `op` is `lte`, `gte`, `eq` or `neq` |
+| `products` | yes | 1 to 50 candidates, each `{ id, title?, description?, price?, attributes? }` |
+
+Send at least one requirement, or a query that states a budget. With nothing to check, the call
+answers `400` rather than calling every product a fit.
+
+## How it reads a product
+
+- **Fields first.** A value in `attributes` or `price` is the merchant's word and wins.
+- **Then the text.** A fact found only in the title or the description still counts, marked
+  `"source": "extracted"`. Today the text reader knows laptop facts: `ram` and `storage` in GB,
+  `screen` in inches, and `cpu`.
+- **Never a guess.** A value that is missing, or stated in a way that cannot be compared, is
+  `unknown`, and the product is `cannot_tell`. A gap in the listing never counts as a pass.
+
+## What it costs
+
+Each call counts as one decision on your plan. It reads nothing about a visitor and stores
+nothing, so it needs no session.

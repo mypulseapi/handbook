@@ -18,24 +18,25 @@
  * trade when the agent is itself a language model and can read three candidate sections and
  * decide. So this returns more, ranks it honestly, and lets the caller judge.
  */
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { z } from 'zod';
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
 
-const SITE = process.env.PULSE_DOCS_ORIGIN ?? 'https://developer.thepulseapi.com';
+const SITE =
+  process.env.PULSE_DOCS_ORIGIN ?? "https://developer.thepulseapi.com";
 const INDEX_URL = `${SITE}/search-index.json`;
 
 /** Tokens, lowercased, with the short noise words dropped. */
 const STOP = new Set(
-  'a an and are as at be but by для for from has have how i if in into is it its of on or that the then there these this to was what when where which who why will with you your'.split(
-    ' ',
+  "a an and are as at be but by для for from has have how i if in into is it its of on or that the then there these this to was what when where which who why will with you your".split(
+    " ",
   ),
 );
 
 function tokens(text) {
-  return (text.toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}_/-]*/gu) ?? []).filter(
-    (w) => w.length > 1 && !STOP.has(w),
-  );
+  return (
+    text.toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}_/-]*/gu) ?? []
+  ).filter((w) => w.length > 1 && !STOP.has(w));
 }
 
 /**
@@ -46,9 +47,11 @@ function tokens(text) {
  */
 function makeRanker(chunks) {
   const docs = chunks.map((c) => tokens(`${c.p} ${c.h} ${c.t}`));
-  const avgLen = docs.reduce((n, d) => n + d.length, 0) / Math.max(1, docs.length);
+  const avgLen =
+    docs.reduce((n, d) => n + d.length, 0) / Math.max(1, docs.length);
   const df = new Map();
-  for (const d of docs) for (const w of new Set(d)) df.set(w, (df.get(w) ?? 0) + 1);
+  for (const d of docs)
+    for (const w of new Set(d)) df.set(w, (df.get(w) ?? 0) + 1);
 
   const tf = docs.map((d) => {
     const m = new Map();
@@ -71,8 +74,12 @@ function makeRanker(chunks) {
       for (const w of qs) {
         const f = tf[i].get(w);
         if (!f) continue;
-        const idf = Math.log(1 + (N - (df.get(w) ?? 0) + 0.5) / ((df.get(w) ?? 0) + 0.5));
-        score += idf * ((f * (k1 + 1)) / (f + k1 * (1 - b + (b * docs[i].length) / avgLen)));
+        const idf = Math.log(
+          1 + (N - (df.get(w) ?? 0) + 0.5) / ((df.get(w) ?? 0) + 0.5),
+        );
+        score +=
+          idf *
+          ((f * (k1 + 1)) / (f + k1 * (1 - b + (b * docs[i].length) / avgLen)));
       }
       if (score > 0) scored.push({ i, score });
     }
@@ -94,7 +101,9 @@ function makeRanker(chunks) {
 }
 
 async function load() {
-  const res = await fetch(INDEX_URL, { headers: { accept: 'application/json' } });
+  const res = await fetch(INDEX_URL, {
+    headers: { accept: "application/json" },
+  });
   if (!res.ok) throw new Error(`Could not fetch ${INDEX_URL}: ${res.status}`);
   return res.json();
 }
@@ -103,19 +112,24 @@ const index = await load();
 const rank = makeRanker(index.chunks);
 const pageUrls = [...new Set(index.chunks.map((c) => c.u))].sort();
 
-const mcp = new McpServer({ name: 'pulse-docs', version: '0.1.0' });
+const mcp = new McpServer({ name: "pulse-docs", version: "0.2.0" });
 
 mcp.registerTool(
-  'search_docs',
+  "search_docs",
   {
-    title: 'Search the PULSE documentation',
+    title: "Search the PULSE documentation",
     description:
-      'Full-text search across every page of the PULSE developer documentation. Returns the ' +
-      'matching section of each page with its URL, so you can cite it or fetch the whole page ' +
-      'with get_page. Prefer this over guessing an endpoint or an SDK method.',
+      "Full-text search across every page of the PULSE developer documentation. Returns the " +
+      "matching section of each page with its URL, so you can cite it or fetch the whole page " +
+      "with get_page. Prefer this over guessing an endpoint or an SDK method.",
     inputSchema: {
-      query: z.string().describe('What you want to know, or a literal like /catalog/audit'),
-      lang: z.enum(['en', 'vi']).default('en').describe('Documentation language'),
+      query: z
+        .string()
+        .describe("What you want to know, or a literal like /catalog/audit"),
+      lang: z
+        .enum(["en", "vi"])
+        .default("en")
+        .describe("Documentation language"),
       limit: z.number().int().min(1).max(10).default(5),
     },
   },
@@ -124,22 +138,25 @@ mcp.registerTool(
     if (hits.length === 0) {
       return {
         content: [
-          { type: 'text', text: `No section of the documentation matches "${query}".` },
+          {
+            type: "text",
+            text: `No section of the documentation matches "${query}".`,
+          },
         ],
       };
     }
     return {
       content: [
         {
-          type: 'text',
+          type: "text",
           text: hits
             .map(
               (h) =>
                 `## ${h.chunk.p} — ${h.chunk.h}\n` +
-                `${SITE}${h.chunk.u}${h.chunk.a ? `#${h.chunk.a}` : ''}  (score ${h.score})\n\n` +
+                `${SITE}${h.chunk.u}${h.chunk.a ? `#${h.chunk.a}` : ""}  (score ${h.score})\n\n` +
                 h.chunk.t,
             )
-            .join('\n\n---\n\n'),
+            .join("\n\n---\n\n"),
         },
       ],
     };
@@ -147,47 +164,47 @@ mcp.registerTool(
 );
 
 mcp.registerTool(
-  'get_page',
+  "get_page",
   {
-    title: 'Read one documentation page',
+    title: "Read one documentation page",
     description:
-      'Fetch a full documentation page as Markdown. Use the url from search_docs, for example ' +
-      '/quickstart or /api/v1/audit.',
+      "Fetch a full documentation page as Markdown. Use the url from search_docs, for example " +
+      "/quickstart or /api/v1/audit.",
     inputSchema: {
-      url: z.string().describe('Page path, such as /quickstart or /vi/sdk'),
+      url: z.string().describe("Page path, such as /quickstart or /vi/sdk"),
     },
   },
   async ({ url }) => {
-    const path = url.startsWith('/') ? url : `/${url}`;
-    const slug = path.replace(/^\/(vi)(?=\/|$)/, '') || '/';
-    const lang = path.startsWith('/vi') ? '.vi' : '';
-    const target = `${SITE}/llms.mdx/docs${slug === '/' ? '' : slug}/content.md`;
+    const path = url.startsWith("/") ? url : `/${url}`;
+    const slug = path.replace(/^\/(vi)(?=\/|$)/, "") || "/";
+    const lang = path.startsWith("/vi") ? ".vi" : "";
+    const target = `${SITE}/llms.mdx/docs${slug === "/" ? "" : slug}/content.md`;
 
     const res = await fetch(target);
     if (!res.ok) {
       return {
         content: [
           {
-            type: 'text',
-            text: `No page at ${path}. Known pages:\n${pageUrls.join('\n')}`,
+            type: "text",
+            text: `No page at ${path}. Known pages:\n${pageUrls.join("\n")}`,
           },
         ],
         isError: true,
       };
     }
     void lang;
-    return { content: [{ type: 'text', text: await res.text() }] };
+    return { content: [{ type: "text", text: await res.text() }] };
   },
 );
 
 mcp.registerTool(
-  'list_pages',
+  "list_pages",
   {
-    title: 'List every documentation page',
+    title: "List every documentation page",
     description:
-      'Every page in the PULSE developer documentation, with its title. Useful for orienting ' +
-      'before searching.',
-    inputSchema: { lang: z.enum(['en', 'vi']).default('en') },
+      "Every page in the PULSE developer documentation, with its title. Useful for orienting " +
+      "before searching.",
+    inputSchema: { lang: z.enum(["en", "vi"]).default("en") },
   },
   async ({ lang }) => {
     const seen = new Map();
@@ -198,11 +215,103 @@ mcp.registerTool(
     return {
       content: [
         {
-          type: 'text',
-          text: [...seen.entries()].map(([u, title]) => `${u}  ${title}`).join('\n'),
+          type: "text",
+          text: [...seen.entries()]
+            .map(([u, title]) => `${u}  ${title}`)
+            .join("\n"),
         },
       ],
     };
+  },
+);
+
+/*
+ * The one tool that calls PULSE rather than reading the docs: the Decision API, sold per decision.
+ *
+ * Everything above runs on the caller's machine and sends nothing. This sends the shopper's words
+ * and the candidates to `POST /decide`, and only when the user has put an API key in the config,
+ * so a docs-only install never makes a call it did not ask for.
+ */
+const API = (
+  process.env.PULSE_API_URL ?? "https://api.thepulseapi.com/api/v1"
+).replace(/\/+$/, "");
+const KEY = process.env.PULSE_API_KEY;
+
+mcp.registerTool(
+  "resolve_products",
+  {
+    title: "Decide which products meet the shopper's requirements",
+    description:
+      "For each candidate product, says whether the evidence on the product (its fields, title and " +
+      "description) shows it meets each requirement, fails it, or cannot tell, and what is missing. " +
+      'Use it before recommending a product, so you can say "the listing does not state the RAM" ' +
+      "instead of guessing. Needs PULSE_API_KEY. Requirements use op lte, gte, eq or neq; a budget " +
+      'in the query, such as "under 2 triệu" or "below $1,500", becomes a price requirement.',
+    inputSchema: {
+      query: z
+        .string()
+        .max(500)
+        .optional()
+        .describe("The shopper's request in their own words"),
+      requirements: z
+        .array(
+          z.object({
+            attribute: z
+              .string()
+              .describe(
+                "For example ram, storage, screen, cpu, price, or any field name",
+              ),
+            op: z.enum(["lte", "gte", "eq", "neq"]),
+            value: z
+              .union([z.number(), z.string()])
+              .describe("GB for ram and storage, inches for screen"),
+          }),
+        )
+        .max(20)
+        .optional(),
+      products: z
+        .array(
+          z.object({
+            id: z.string(),
+            title: z.string().optional(),
+            description: z.string().max(20000).optional(),
+            price: z.number().optional(),
+            attributes: z.record(z.string(), z.unknown()).optional(),
+          }),
+        )
+        .min(1)
+        .max(50),
+    },
+  },
+  async (input) => {
+    if (!KEY) {
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text:
+              "resolve_products needs a PULSE API key. Create one in the dashboard under " +
+              'Integration, API keys, then add "env": { "PULSE_API_KEY": "pk_..." } to this ' +
+              "server in the MCP config. See https://developer.thepulseapi.com/mcp",
+          },
+        ],
+      };
+    }
+    const res = await fetch(`${API}/decide`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": KEY },
+      body: JSON.stringify(input),
+    });
+    const text = await res.text();
+    return res.ok
+      ? { content: [{ type: "text", text }] }
+      : {
+          isError: true,
+          content: [
+            { type: "text", text: `PULSE answered ${res.status}: ${text}` },
+          ],
+        };
   },
 );
 

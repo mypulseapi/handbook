@@ -1,7 +1,7 @@
 {
   "name": "@thepulseapi/docs-mcp",
-  "version": "0.1.0",
-  "description": "MCP server for the PULSE developer documentation. Search and read every page from an agent.",
+  "version": "0.2.0",
+  "description": "MCP server for PULSE: search and read the developer documentation, and ask the Decision API which products meet a shopper's requirements.",
   "license": "MIT",
   "type": "module",
   "bin": {
