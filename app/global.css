@@ -1,6 +1,6 @@
-@import 'tailwindcss';
-@import 'fumadocs-ui/css/neutral.css';
-@import 'fumadocs-ui/css/preset.css';
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
 
 /*
  * PULSE brand, from the Signal palette in pulse_brand_guidelines_final.md (v3, 16 Oct 2026,
@@ -17,6 +17,12 @@
   --color-fd-primary: oklch(0.534 0.258 265.7); /* Pulse Blue #2552FF */
   --color-fd-ring: oklch(0.534 0.258 265.7);
   --color-fd-accent-foreground: oklch(0.534 0.258 265.7);
+  /*
+   * Muted text, darkened from Fumadocs' 45% grey. That grey passed on white but not on the tinted
+   * surfaces it sits on most (sidebar, tabs, search, callouts): 4.05 to 4.35:1 against WCAG AA's
+   * 4.5, measured 2026-10-26. At 36% it clears AA on all of them.
+   */
+  --color-fd-muted-foreground: hsl(0, 0%, 36%);
 
   /* Geist for everything, Geist Mono for data and code only (guideline section 8). */
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
@@ -42,6 +48,8 @@
   --color-fd-accent-foreground: oklch(0.678 0.168 256.7);
   /* Cool black, replacing navy. Guideline section 5.1. */
   --color-fd-background: oklch(0.159 0.011 268);
+  /* Fumadocs' own dark value, restated: the light override above comes later and would win here. */
+  --color-fd-muted-foreground: hsla(0, 0%, 70%, 0.8);
 }
 
 /*
@@ -109,7 +117,11 @@
   font-weight: 400 !important;
   /* Fumadocs sets prose at `text-fd-foreground/90`, so the lede takes the same 90% rather than
      the solid token: at full strength it reads a shade heavier than the paragraph beneath it. */
-  color: color-mix(in oklab, var(--color-fd-foreground) 90%, transparent) !important;
+  color: color-mix(
+    in oklab,
+    var(--color-fd-foreground) 90%,
+    transparent
+  ) !important;
   line-height: var(--fd-leading-prose);
   letter-spacing: -0.011em;
   max-width: var(--fd-measure);
@@ -137,10 +149,10 @@ html > body[data-scroll-locked] {
  * browser default arrow. Links already get it; the rest have to be asked. Unlayered on purpose:
  * `@layer base` would lose to Fumadocs' own layered rules.
  */
-button:not(:disabled):not([aria-disabled='true']),
-[role='button']:not([aria-disabled='true']),
-[role='tab'],
-[role='option'],
+button:not(:disabled):not([aria-disabled="true"]),
+[role="button"]:not([aria-disabled="true"]),
+[role="tab"],
+[role="option"],
 summary,
 select,
 label[for] {
@@ -168,6 +180,14 @@ figure.shiki:not(.not-fumadocs-codeblock *) {
   --color-fd-secondary-foreground: hsl(210, 17%, 90%);
   --color-fd-muted: hsla(0, 0%, 100%, 6%);
 
+  /*
+   * The block's own background, whatever Fumadocs put on it. Inside a Tabs panel (every install
+   * and run command) the figure gets `bg-fd-secondary`, which the line above makes 8% white: on the
+   * page's light card that read as light grey, under tokens meant for a dark surface, so the
+   * command was barely legible (2026-10-26, reported on /opensource).
+   */
+  background-color: var(--color-fd-card);
+
   code span {
     color: var(--shiki-dark);
     font-style: var(--shiki-dark-font-style);
@@ -186,6 +206,14 @@ figure.shiki:not(.not-fumadocs-codeblock *) {
     line-height: 1.9;
   }
 
+  /*
+   * GitHub-dark's comment grey is 3.1:1 on this surface; its lighter grey clears AA. Matched on the
+   * value alone: after hydration React rewrites the inline style with spaces (`--shiki-dark: #6A737D`).
+   */
+  code span[style*="6A737D" i] {
+    color: #959da5;
+  }
+
   /* Air at the top and bottom, so the first and last line are not against the edge. */
   pre {
     padding-block: 0.5rem;
@@ -200,7 +228,7 @@ figure.shiki:not(.not-fumadocs-codeblock *) {
  * drawer and there is no rail to make room for.
  */
 @media (min-width: 48rem) {
-  #nd-notebook-layout[data-sidebar-collapsed='true'] {
+  #nd-notebook-layout[data-sidebar-collapsed="true"] {
     --fd-sidebar-col: 3.5rem !important;
   }
 }
@@ -212,8 +240,8 @@ figure.shiki:not(.not-fumadocs-codeblock *) {
  * blank row between sections (dev's review, 2026-10-25). Half of it still separates the groups.
  * Matched on the class, not on `p`, so nothing else in the sidebar moves.
  */
-#nd-sidebar p[class*='mt-6']:not(:first-child),
-#nd-sidebar-mobile p[class*='mt-6']:not(:first-child) {
+#nd-sidebar p[class*="mt-6"]:not(:first-child),
+#nd-sidebar-mobile p[class*="mt-6"]:not(:first-child) {
   margin-top: 0.75rem;
 }
 
@@ -343,4 +371,16 @@ figure.shiki:not(.not-fumadocs-codeblock *) {
   ::view-transition-new(root) {
     animation: none;
   }
+}
+
+/*
+ * The active sidebar link: Pulse Blue on a 10% blue tint measured 4.45:1, a hair under AA (2026-10-26).
+ * An 8% tint clears it and still reads as the current page. The id outranks Fumadocs' utility.
+ */
+#nd-sidebar a[data-active="true"] {
+  background-color: color-mix(
+    in oklab,
+    var(--color-fd-primary) 8%,
+    transparent
+  );
 }
