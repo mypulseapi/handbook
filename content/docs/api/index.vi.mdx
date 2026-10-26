@@ -1,0 +1,100 @@
+---
+title: PULSE cung cấp những gì
+description: "Mọi API được bán như một sản phẩm, lệnh gọi nào tính vào mức sử dụng, và SDK dừng ở đâu."
+icon: Braces
+---
+
+PULSE công bố **hai giao diện riêng biệt**, và chúng không cùng quy mô.
+
+<Cards>
+  <Card icon={<Braces />} title="HTTP API" description="Mười bảy endpoint. Một header. Gọi được từ trình duyệt, máy chủ, cron job hay curl. Đây là sản phẩm." />
+  <Card icon={<Atom />} title="SDK cho trình duyệt" description="Một lớp tiện ích trên sáu endpoint trong số đó, đồng thời quản lý id phiên, đệm lượt hiển thị và ghi thiết bị cùng nguồn giới thiệu cho bạn." />
+</Cards>
+
+<Callout type="warn" title="SDK là một phần, không phải toàn bộ sản phẩm">
+  `@thepulseapi/sdk` có phương thức cho sáu trong mười bảy endpoint. Mọi thứ khác, kể cả Decision
+  Audit, chỉ có qua HTTP. Nếu bạn đang đánh giá PULSE làm được gì, hãy đọc trang này thay vì
+  [tài liệu SDK](/vi/sdk).
+</Callout>
+
+## Bề mặt sản phẩm
+
+Mọi dòng dưới đây đều gọi được bằng một key công khai và header `x-api-key`. Không có gì ở đây cần
+đăng nhập.
+
+Được nhóm theo sản phẩm mà mỗi lệnh gọi thuộc về. Mỗi trang sản phẩm nói nó trả lời câu hỏi gì và dành
+cho ai; bảng này là bản đồ.
+
+| Endpoint | Dùng để làm gì | Tính vào mức sử dụng | Phương thức SDK |
+| --- | --- | --- | --- |
+| **[Decision Audit](/vi/catalogue/decision-audit)** | | | |
+| `POST /catalog/audit` | Thông tin còn thiếu nào làm mất nhiều quyết định mua nhất | Có | không có |
+| **[Decision Verification](/vi/catalogue/decision-verification) và [Decision Monitor](/vi/catalogue/decision-monitor)** | | | |
+| `POST /catalog/verify` | Bản sửa thực sự thay đổi gì; không có `repairs` thì là điều gì đã sa sút kể từ lần xuất trước | Có | không có |
+| **[Return Verification](/vi/catalogue/return-verification)** | | | |
+| `POST /outcomes` | Điều gì đã xảy ra với từng dòng đơn hàng: giữ lại, trả, huỷ. Từ máy chủ của bạn | **Không** | không có |
+| **[Decision API](/vi/storefront/decision-api)** | | | |
+| `POST /track` | Tín hiệu vào, persona ra | Có | `track()` |
+| `POST /track/behavior` | Một hành vi có tên | Có | không có |
+| `POST /track/keywords` | Một truy vấn tìm kiếm thô, được tách giúp bạn | Có | không có |
+| `POST /session` | Các persona đã suy ra tới thời điểm này | Có | `getSession()` |
+| **[Search](/vi/storefront/search)** | | | |
+| `POST /search` | Xếp hạng các sản phẩm bạn gửi | Có | `search()` |
+| `POST /rerank` | Sắp xếp lại tập kết quả từ công cụ của chính bạn | Có | không có |
+| `POST /suggest` | Gợi ý truy vấn, chấm điểm theo phiên | **Không** | không có |
+| **[Recommendations](/vi/storefront/recommendations) và [Category pages](/vi/storefront/category-pages)** | | | |
+| `POST /catalog/ranked` | Xếp hạng danh mục PULSE đang giữ, kèm dải gợi ý khi được yêu cầu | Có | `rankedCatalog()` |
+| **[Promotion Audit](/vi/catalogue/promotion-audit)** | | | |
+| `POST /interventions/audit` | Ưu đãi nào tốt hơn không làm gì trên lịch sử của bạn, sau khi trừ hàng trả và giao thất bại | Có | không có |
+| `POST /interventions/decide` | Quyết định theo từng nhóm từ các tỷ lệ bạn đã đo | Có | không có |
+| `POST /interventions/landed` | Người mua trả bao nhiêu trên mỗi sàn, sau voucher và phí vận chuyển | Có | không có |
+| **[Decision API cho tác tử](/vi/api/v1/decide)** | | | |
+| `POST /decide` | Theo từng ứng viên và yêu cầu: đạt, không đạt hoặc không đủ thông tin, cho một tác tử AI | Có | không có; MCP `resolve_products` |
+| **Đo lường, cho mọi sản phẩm cửa hàng** | | | |
+| `POST /event` | Một kết quả có tên | **Không** | `event()` |
+| `POST /exposure` | Những gì thực sự đã hiển thị | **Không** | `exposure()` |
+
+Return Verification cũng đọc lịch sử trả hàng gửi dưới dạng hai trường trên mỗi sản phẩm trong một
+lệnh xếp hạng, `deliveredOrders` và `evidenceReturns`, khi bạn muốn gửi tổng số thay vì từng dòng đơn
+hàng. [Lịch sử trả hàng](/vi/api/v1/ranking#return-history) có các quy tắc đếm.
+
+### Vì sao bốn lệnh trong số đó miễn phí
+
+`/event`, `/exposure` và `/outcomes` là cách bạn chứng minh việc xếp hạng có hiệu quả. Tính phí cho
+việc đo lường khiến tắt nó đi trở thành lựa chọn hợp lý, điều làm mù vòng học và phá giá trị sản phẩm
+cùng một lúc.
+
+`/suggest` chạy theo từng lần gõ phím. Tính phí nó như `/search` sẽ là tính tiền theo từng ký tự, nên
+người gõ đủ một truy vấn sẽ trả gấp mười lần cho một lần tìm kiếm.
+
+<Callout title="Mức sử dụng được nhóm theo đoạn đầu tiên của đường dẫn">
+  `/track` và `/track/behavior` đều được tính là `track`, còn `/catalog/ranked`, `/catalog/audit` và
+  `/catalog/verify` đều được tính là `catalog`. Hoá đơn của bạn hiển thị một dòng cho mỗi thao tác
+  thay vì một tổng, vì `/search` tốn tài nguyên tính toán thật còn `/session` hầu như không tốn gì.
+</Callout>
+
+## Bốn sản phẩm, và các lệnh gọi phía sau
+
+<Cards>
+  <Card icon={<ClipboardCheck />} title="Decision Audit" href="/vi/api/v1/audit" description="POST /catalog/audit. Trường nào nên ghi trước, đã xếp hạng, trong chính danh mục của bạn." />
+  <Card icon={<GitCompare />} title="Decision Verification" href="/vi/api/v1/audit" description="POST /catalog/verify với repairs. Tính lại sau khi làm và xem điều gì đã thay đổi." />
+  <Card icon={<BellRing />} title="Decision Monitor" href="/vi/api/v1/audit" description="Cùng lệnh gọi đó không có repairs. Danh mục xuống cấp; đây là thứ phát hiện ra." />
+  <Card icon={<Activity />} title="Decision API" href="/vi/api/v1" description="track, session, ranked, search, rerank, suggest. Phần chạy trực tiếp." />
+</Cards>
+
+Audit, Verification và Monitor là **một phép tính trên một bản so sánh khác biệt**. Không có endpoint
+thứ ba cho Monitor vì không có thứ thứ ba để tính: khác biệt duy nhất là có khai báo gì về thay đổi đó
+hay không.
+
+## Những gì không có trên trang này
+
+Có một API thứ hai, lớn hơn nhiều, đứng sau **JWT** chứ không phải API key: tổ chức, người dùng, vai
+trò, API key, quản lý danh mục, thanh toán và gói đăng ký. Đó là lớp quản trị mà
+[cổng người bán](https://app.thepulseapi.com) được xây dựng trên đó. Nó không bị tính mức sử dụng,
+không được bán như một sản phẩm, và chưa được ghi tài liệu ở đây.
+
+<Callout type="warn" title="Coi mọi thứ chưa có tài liệu là chưa được hỗ trợ">
+  Có những route tồn tại nhưng không có trên trang này. Một số là nội bộ, một số chỉ gọi được khi đăng
+  nhập, và một số được xử lý ở gateway mà không được phục vụ phía sau. Nếu nó không được viết ra ở
+  đây, đừng xây dựng dựa trên nó.
+</Callout>
