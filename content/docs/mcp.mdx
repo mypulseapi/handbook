@@ -10,11 +10,11 @@ that may not exist.
 
 ## How do I connect it?
 
-<InstallTabs pkg="@thepulseapi/docs-mcp" />
+<InstallTabs pkg="@thepulseapi/mcp" />
 
 <Callout title="Not on npm yet">
   The package is being published. Until then, run it from source: clone
-  `mypulseapi/handbook`, then `cd mcp && npm install`, and point your client's `command` at `node`
+  `mypulseapi/pulse`, then `cd packages/mcp && npm install`, and point your client's `command` at `node`
   with the full path of `server.mjs`. [Open source](/opensource) has the steps.
 </Callout>
 
@@ -23,9 +23,9 @@ Or point your client at it directly, with no install:
 ```json title="claude_desktop_config.json"
 {
   "mcpServers": {
-    "pulse-docs": {
+    "pulse": {
       "command": "npx",
-      "args": ["-y", "@thepulseapi/docs-mcp"]
+      "args": ["-y", "@thepulseapi/mcp"]
     }
   }
 }
@@ -63,7 +63,7 @@ show. It calls [`POST /decide`](/api/v1/decide), so add your key to the config:
   "mcpServers": {
     "pulse": {
       "command": "npx",
-      "args": ["-y", "@thepulseapi/docs-mcp"],
+      "args": ["-y", "@thepulseapi/mcp"],
       "env": { "PULSE_API_KEY": "pk_live_..." }
     }
   }
@@ -90,7 +90,7 @@ Set `PULSE_DOCS_ORIGIN` to serve from a different origin, which is mostly useful
 working on the documentation itself:
 
 ```bash
-PULSE_DOCS_ORIGIN=http://localhost:3000 npx @thepulseapi/docs-mcp
+PULSE_DOCS_ORIGIN=http://localhost:3000 npx @thepulseapi/mcp
 ```
 
 ## Can I just read the Markdown?

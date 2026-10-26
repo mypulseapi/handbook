@@ -38,10 +38,12 @@ information is worth paying to fix.
 | Website | [thepulseapi.com](https://thepulseapi.com) |
 | Dashboard | [app.thepulseapi.com](https://app.thepulseapi.com) |
 | SDK | [`@thepulseapi/sdk`](https://www.npmjs.com/package/@thepulseapi/sdk), MIT licensed |
+| Open source | [github.com/mypulseapi/pulse](https://github.com/mypulseapi/pulse) |
 | LinkedIn | [thepulseapi](https://www.linkedin.com/company/thepulseapi/) |
 
 The handbook is published in **English and Vietnamese**, English by default, and ships an
-[MCP server](./mcp) so an agent can answer from the documentation rather than from memory.
+[MCP server](https://github.com/mypulseapi/pulse/tree/main/packages/mcp), `@thepulseapi/mcp`,
+so an agent can answer from the documentation rather than from memory.
 
 This section mirrors the one in the website repository. The two are public entry points to the
 same company, and a visitor who lands on either should not have to guess what the other is.
