@@ -1,4 +1,4 @@
-import type { Answer } from './answer';
+import type { Answer } from "./answer";
 
 /**
  * The conversational layer, checked before any retrieval.
@@ -27,30 +27,35 @@ export interface Origins {
  * Trailing slashes off, so a link is never `//vi`.
  */
 export const ORIGINS: Origins = {
-  site: (process.env.NEXT_PUBLIC_SITE_URL || 'https://thepulseapi.com').replace(/\/+$/, ''),
-  docs: (process.env.NEXT_PUBLIC_DOCS_URL || 'https://developer.thepulseapi.com').replace(/\/+$/, ''),
+  site: (process.env.NEXT_PUBLIC_SITE_URL || "https://thepulseapi.com").replace(
+    /\/+$/,
+    "",
+  ),
+  docs: (
+    process.env.NEXT_PUBLIC_DOCS_URL || "https://developer.thepulseapi.com"
+  ).replace(/\/+$/, ""),
 };
 
-type Lang = 'en' | 'vi';
+type Lang = "en" | "vi";
 type Reply = { en: string; vi: string };
 
 /** Lower case, punctuation off, Vietnamese accents off, so "Xin chào!" and "xin chao" match alike. */
 export function normalise(text: string): string {
   return text
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/[^a-z0-9\s/-]/g, ' ')
-    .replace(/\s+/g, ' ')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9\s/-]/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
-const words = (q: string) => (q ? q.split(' ').length : 0);
+const words = (q: string) => (q ? q.split(" ").length : 0);
 
 function links(o: Origins, lang: Lang) {
-  const loc = lang === 'vi' ? '/vi' : '/en';
-  const docs = lang === 'vi' ? `${o.docs}/vi` : o.docs;
+  const loc = lang === "vi" ? "/vi" : "/en";
+  const docs = lang === "vi" ? `${o.docs}/vi` : o.docs;
   return {
     site: `${o.site}${loc}`,
     pricing: `${o.site}${loc}/pricing`,
@@ -67,7 +72,11 @@ function links(o: Origins, lang: Lang) {
    Small talk: the whole message is the greeting, the thanks, the question about the assistant.
    ------------------------------------------------------------------------- */
 
-const SMALL_TALK: { test: RegExp; maxWords: number; reply: (l: ReturnType<typeof links>) => Reply }[] = [
+const SMALL_TALK: {
+  test: RegExp;
+  maxWords: number;
+  reply: (l: ReturnType<typeof links>) => Reply;
+}[] = [
   {
     test: /^(hi+|hello+|hey+|hiya|yo|howdy|greetings|good (morning|afternoon|evening)|xin chao|chao( ban| anh| chi| em)?|alo|helo|hallo)\b/,
     maxWords: 5,
@@ -81,7 +90,7 @@ const SMALL_TALK: { test: RegExp; maxWords: number; reply: (l: ReturnType<typeof
     maxWords: 6,
     reply: () => ({
       en: "Doing well, thanks for asking. What would you like to know about Pulse? I can help with the products, the API, or pricing.",
-      vi: 'Tôi ổn, cảm ơn bạn đã hỏi. Bạn muốn biết gì về Pulse? Tôi có thể giúp về sản phẩm, API hoặc bảng giá.',
+      vi: "Tôi ổn, cảm ơn bạn đã hỏi. Bạn muốn biết gì về Pulse? Tôi có thể giúp về sản phẩm, API hoặc bảng giá.",
     }),
   },
   {
@@ -89,7 +98,7 @@ const SMALL_TALK: { test: RegExp; maxWords: number; reply: (l: ReturnType<typeof
     maxWords: 6,
     reply: () => ({
       en: "You're welcome. Ask me anything else whenever you like.",
-      vi: 'Không có gì. Bạn cần gì thêm cứ hỏi nhé.',
+      vi: "Không có gì. Bạn cần gì thêm cứ hỏi nhé.",
     }),
   },
   {
@@ -123,124 +132,220 @@ const SMALL_TALK: { test: RegExp; maxWords: number; reply: (l: ReturnType<typeof
    Answered when the question is about the term itself ("what is X", "X là gì", or just "X").
    ------------------------------------------------------------------------- */
 
-const TERMS: { names: string[]; reply: (l: ReturnType<typeof links>) => Reply }[] = [
+const TERMS: {
+  names: string[];
+  any?: boolean;
+  reply: (l: ReturnType<typeof links>) => Reply;
+}[] = [
   {
-    names: ['pulse', 'thepulseapi', 'pulse api'],
+    names: ["pulse", "thepulseapi", "pulse api"],
     reply: (l) => ({
       en: `Pulse is a service for e-commerce merchants, made by Resolve Labs. It measures whether your product catalogue can answer the questions shoppers ask before they buy, tells you which missing fact costs the most buying decisions, proves whether each fix worked, and can rank your storefront for each live visit. Every product is an API.\n\nStart with the [catalogue products](${l.catalogue}) or the [storefront products](${l.storefront}).`,
       vi: `Pulse là dịch vụ dành cho người bán thương mại điện tử, do Resolve Labs phát triển. Pulse đo xem danh mục sản phẩm của bạn có trả lời được những câu người mua hỏi trước khi mua hay không, chỉ ra thông tin còn thiếu nào làm mất nhiều quyết định mua nhất, chứng minh mỗi bản sửa có hiệu quả không, và có thể xếp hạng cửa hàng cho từng lượt truy cập. Mỗi sản phẩm là một API.\n\nBắt đầu với [sản phẩm cho danh mục](${l.catalogue}) hoặc [sản phẩm cho cửa hàng](${l.storefront}).`,
     }),
   },
   {
-    names: ['decision audit', 'audit'],
+    names: ["decision audit", "audit"],
     reply: (l) => ({
       en: `The **Decision Audit** ranks the missing facts in one category of your catalogue by how many buying decisions each one costs, so your team fixes the right column first, not just the emptiest. You send a CSV to \`POST /catalog/audit\` and get the attributes back in priority order, with where each missing value already lives. [Read more](${l.catalogue}/decision-audit).`,
       vi: `**Decision Audit** xếp hạng các thông tin còn thiếu trong một ngành hàng theo số quyết định mua mà mỗi thông tin làm mất, để đội của bạn sửa đúng cột trước chứ không chỉ cột trống nhất. Bạn gửi một tệp CSV tới \`POST /catalog/audit\` và nhận lại các thuộc tính theo thứ tự ưu tiên, kèm nơi giá trị còn thiếu đang nằm sẵn. [Xem thêm](${l.catalogue}/decision-audit).`,
     }),
   },
   {
-    names: ['decision verification', 'verification', 'verify'],
+    names: ["decision verification", "verification", "verify"],
     reply: (l) => ({
       en: `**Decision Verification** checks a repair. Send the catalogue export from before and after the work, list what was claimed, and \`POST /catalog/verify\` tells you what actually improved, what regressed, and any claim the new export does not bear out. No traffic or A/B test needed. [Read more](${l.catalogue}/decision-verification).`,
       vi: `**Decision Verification** kiểm tra một bản sửa. Gửi bản xuất danh mục trước và sau khi sửa, kèm những gì được cho là đã sửa, và \`POST /catalog/verify\` cho biết điều gì thực sự cải thiện, điều gì tụt lại, và tuyên bố nào bản xuất mới không chứng minh được. Không cần lưu lượng truy cập hay thử nghiệm A/B. [Xem thêm](${l.catalogue}/decision-verification).`,
     }),
   },
   {
-    names: ['decision monitor', 'monitor', 'monitoring'],
+    names: ["decision monitor", "monitor", "monitoring"],
     reply: (l) => ({
       en: `**Decision Monitor** compares each new catalogue export with the last one and tells you which shelf slipped and why, before shoppers notice. It is \`POST /catalog/verify\` without any repair claims, run on a schedule from your side. [Read more](${l.catalogue}/decision-monitor).`,
       vi: `**Decision Monitor** so sánh mỗi bản xuất danh mục mới với bản trước và cho biết nhóm hàng nào bị tụt và vì sao, trước khi người mua nhận ra. Đó là \`POST /catalog/verify\` không kèm tuyên bố sửa nào, chạy định kỳ từ phía bạn. [Xem thêm](${l.catalogue}/decision-monitor).`,
     }),
   },
   {
-    names: ['return verification', 'returns', 'return'],
+    names: ["return verification", "returns", "return"],
     reply: (l) => ({
       en: `**Return Verification** reads your orders and their return reasons against your catalogue. It shows which missing product facts go with returns, whether a repair moved them, and what that was worth at your own costs. You report each order line to \`POST /outcomes\`, which is free. It does not promise fewer returns; it measures your own history. [Read more](${l.catalogue}/return-verification).`,
       vi: `**Return Verification** đối chiếu đơn hàng và lý do trả hàng với danh mục của bạn. Nó cho thấy thông tin sản phẩm còn thiếu nào đi cùng hàng bị trả, bản sửa có làm chúng giảm không, và điều đó đáng giá bao nhiêu theo chi phí của chính bạn. Bạn gửi từng dòng đơn hàng tới \`POST /outcomes\`, miễn phí. Nó không hứa giảm hàng trả; nó đo lịch sử của chính bạn. [Xem thêm](${l.catalogue}/return-verification).`,
     }),
   },
   {
-    names: ['decision api', 'live ranking', 'personalisation', 'personalization', 'personalize', 'personalise', 'ca nhan hoa'],
+    names: [
+      "decision api",
+      "live ranking",
+      "personalisation",
+      "personalization",
+      "personalize",
+      "personalise",
+      "ca nhan hoa",
+    ],
     reply: (l) => ({
       en: `The **Decision API** reads an anonymous visit as it happens and works out what the shopper is shopping for, from the pages viewed, filters set and words searched. No login, no cookies, no personal data. Send signals to \`POST /track\`; every ranking call afterwards uses them. [Read more](${l.storefront}/decision-api).`,
       vi: `**Decision API** đọc một lượt truy cập ẩn danh ngay khi nó diễn ra và suy ra người mua đang tìm gì, từ các trang đã xem, bộ lọc đã chọn và từ khoá đã tìm. Không cần đăng nhập, không cookie, không dữ liệu cá nhân. Gửi tín hiệu tới \`POST /track\`; mọi lệnh xếp hạng sau đó đều dùng chúng. [Xem thêm](${l.storefront}/decision-api).`,
     }),
   },
   {
-    names: ['pulse search', 'search product', 'rerank', 'reranking'],
+    names: ["pulse search", "search product", "rerank", "reranking"],
     reply: (l) => ({
       en: `**Pulse Search** ranks results on what the shopper is deciding, not only on matching words, and reads the rest of the query too: a budget, who it is for, the occasion. Keep your search engine and reorder its results with \`POST /rerank\`, or rank products you pass in with \`POST /search\`. It reads Vietnamese, Thai, Bahasa and English. [Read more](${l.storefront}/search).`,
       vi: `**Pulse Search** xếp hạng kết quả theo điều người mua đang cân nhắc, không chỉ theo từ khớp, và đọc cả phần còn lại của câu tìm: ngân sách, mua cho ai, dịp gì. Giữ công cụ tìm kiếm hiện tại và sắp xếp lại kết quả bằng \`POST /rerank\`, hoặc xếp hạng sản phẩm bạn gửi vào bằng \`POST /search\`. Hiểu tiếng Việt, Thái, Bahasa và tiếng Anh. [Xem thêm](${l.storefront}/search).`,
     }),
   },
   {
-    names: ['recommendations', 'recommendation', 'goi y'],
+    names: ["recommendations", "recommendation", "goi y"],
     reply: (l) => ({
       en: `**Recommendations** rank a strip against the visit happening now, so a first-time shopper gets relevant picks without any purchase history. Add \`recommendCount\` to \`POST /catalog/ranked\` and the strip comes back with the page. [Read more](${l.storefront}/recommendations).`,
       vi: `**Recommendations** xếp hạng một dải gợi ý theo lượt truy cập đang diễn ra, nên người mua lần đầu cũng nhận được gợi ý phù hợp mà không cần lịch sử mua hàng. Thêm \`recommendCount\` vào \`POST /catalog/ranked\` và dải gợi ý trả về cùng trang. [Xem thêm](${l.storefront}/recommendations).`,
     }),
   },
   {
-    names: ['persona', 'personas'],
+    names: ["persona", "personas"],
     reply: (l) => ({
       en: `A **persona** is what a session appears to be shopping for, scored from 0 to 1, such as a gift buyer or a budget-led shopper. Pulse infers personas from the visit's signals, never from personal data, and they fade as the visit moves on. [Read more](${l.docs}/concepts/how-it-works).`,
       vi: `**Persona** là điều mà một phiên truy cập có vẻ đang tìm mua, được chấm từ 0 đến 1, ví dụ người mua quà hoặc người mua theo ngân sách. Pulse suy ra persona từ tín hiệu của lượt truy cập, không bao giờ từ dữ liệu cá nhân, và chúng nhạt dần khi lượt truy cập tiếp diễn. [Xem thêm](${l.docs}/concepts/how-it-works).`,
     }),
   },
   {
-    names: ['signal', 'signals', 'tin hieu'],
+    names: ["signal", "signals", "tin hieu"],
     reply: (l) => ({
       en: `A **signal** is one thing a visitor did: opened a category, set a price filter, searched for something. You send signals to \`POST /track\` as they happen, and each one sharpens what the session is shopping for. [The signal types](${l.docs}/concepts/signals).`,
       vi: `**Tín hiệu** là một hành động của khách truy cập: mở một ngành hàng, đặt bộ lọc giá, tìm một thứ gì đó. Bạn gửi tín hiệu tới \`POST /track\` ngay khi chúng xảy ra, và mỗi tín hiệu làm rõ hơn phiên truy cập đang tìm gì. [Các loại tín hiệu](${l.docs}/concepts/signals).`,
     }),
   },
   {
-    names: ['session', 'sessions', 'phien'],
+    names: ["session", "sessions", "phien"],
     reply: (l) => ({
       en: `A **session** is one anonymous visit, identified by a \`sessionId\` you choose. Pulse keeps what the visit implies for as long as it lasts, with no login and nothing personal stored. [Read more](${l.docs}/concepts/sessions).`,
       vi: `**Phiên truy cập** là một lượt ghé thăm ẩn danh, được nhận diện bằng \`sessionId\` do bạn chọn. Pulse giữ những gì lượt truy cập cho thấy trong suốt thời gian đó, không cần đăng nhập và không lưu gì cá nhân. [Xem thêm](${l.docs}/concepts/sessions).`,
     }),
   },
   {
-    names: ['holdback', 'hold back', 'control arm', 'control group', 'nhom doi chung'],
+    names: [
+      "holdback",
+      "hold back",
+      "control arm",
+      "control group",
+      "nhom doi chung",
+    ],
     reply: () => ({
       en: "The **holdback** is a share of visits that is always ranked without Pulse, in your own default order. Comparing the two is how a difference gets measured rather than asserted, and it is why Pulse never asks you to take a lift figure on trust.",
-      vi: '**Nhóm đối chứng** là một phần lượt truy cập luôn được xếp theo thứ tự mặc định của bạn, không qua Pulse. So sánh hai nhóm là cách đo khác biệt thay vì chỉ khẳng định, và là lý do Pulse không bao giờ yêu cầu bạn tin một con số tăng trưởng.',
+      vi: "**Nhóm đối chứng** là một phần lượt truy cập luôn được xếp theo thứ tự mặc định của bạn, không qua Pulse. So sánh hai nhóm là cách đo khác biệt thay vì chỉ khẳng định, và là lý do Pulse không bao giờ yêu cầu bạn tin một con số tăng trưởng.",
     }),
   },
   {
-    names: ['bits', 'bit', 'decision information'],
+    names: ["bits", "bit", "decision information"],
     reply: (l) => ({
       en: `**Decision information** is measured in bits. One bit halves the shelf a shopper is choosing from: 216 products down to 108. The audit reports how many bits each attribute would add if it were recorded everywhere, which is why it is not a completeness percentage. [Read more](${l.docs}/concepts/what-the-audit-measures).`,
       vi: `**Thông tin quyết định** được đo bằng bit. Một bit chia đôi kệ hàng người mua đang chọn: từ 216 sản phẩm còn 108. Bản kiểm tra báo mỗi thuộc tính sẽ thêm bao nhiêu bit nếu được ghi đầy đủ, nên nó không phải tỷ lệ phần trăm độ đầy đủ. [Xem thêm](${l.docs}/concepts/what-the-audit-measures).`,
     }),
   },
   {
-    names: ['api key', 'apikey', 'api keys', 'publishable key'],
+    names: ["api key", "apikey", "api keys", "publishable key"],
     reply: (l) => ({
       en: `Every request needs an API key in the \`x-api-key\` header. You need a merchant account and a subscription first; then create a key in the dashboard. The three steps are in [Get your account ready](${l.docs}#get-your-account-ready).`,
       vi: `Mỗi yêu cầu cần một API key trong header \`x-api-key\`. Trước hết bạn cần tài khoản người bán và gói đăng ký; sau đó tạo key trong bảng điều khiển. Ba bước nằm trong [Chuẩn bị tài khoản](${l.docs}#get-your-account-ready).`,
     }),
   },
   {
-    names: ['sdk', 'javascript sdk', 'npm'],
+    names: ["sdk", "javascript sdk", "npm"],
     reply: (l) => ({
       en: `The browser SDK, \`@thepulseapi/sdk\` on npm or from our CDN, wraps the storefront calls: \`track()\`, \`getSession()\`, \`search()\`, \`rankedCatalog()\`, \`event()\` and \`exposure()\`. The catalogue products are plain HTTP. [SDK reference](${l.docs}/sdk).`,
       vi: `SDK cho trình duyệt, \`@thepulseapi/sdk\` trên npm hoặc từ CDN của chúng tôi, gói các lệnh cho cửa hàng: \`track()\`, \`getSession()\`, \`search()\`, \`rankedCatalog()\`, \`event()\` và \`exposure()\`. Các sản phẩm cho danh mục dùng HTTP thuần. [Tài liệu SDK](${l.docs}/sdk).`,
     }),
   },
   {
-    names: ['pricing', 'price', 'prices', 'cost', 'how much', 'plans', 'subscription', 'free tier', 'trial', 'gia', 'bang gia', 'chi phi', 'bao nhieu tien'],
+    names: [
+      "pricing",
+      "price",
+      "prices",
+      "cost",
+      "how much",
+      "plans",
+      "subscription",
+      "free tier",
+      "trial",
+      "gia",
+      "bang gia",
+      "chi phi",
+      "bao nhieu tien",
+    ],
     reply: (l) => ({
       en: `Pulse is a paid merchant subscription; your plan sets how many requests your key can make. The plans are on the [pricing page](${l.pricing}). Measurement is never billed: \`/event\`, \`/exposure\`, \`/outcomes\` and \`/suggest\` are free, so proving the results never costs you anything. To talk about a pilot, [contact the team](${l.contact}).`,
       vi: `Pulse là gói đăng ký trả phí cho người bán; gói của bạn quyết định số yêu cầu key được phép gửi. Các gói có trên [trang bảng giá](${l.pricing}). Việc đo lường không bao giờ bị tính phí: \`/event\`, \`/exposure\`, \`/outcomes\` và \`/suggest\` miễn phí, nên chứng minh kết quả không tốn gì của bạn. Muốn trao đổi về chương trình thử nghiệm, hãy [liên hệ đội ngũ](${l.contact}).`,
     }),
   },
   {
-    names: ['mcp', 'agent', 'agents'],
+    names: ["mcp", "agent", "agents"],
     reply: (l) => ({
       en: `AI agents and coding assistants can read these docs through our MCP server, so they answer from the current reference rather than memory. [MCP for agents](${l.docs}/mcp).`,
       vi: `Các AI agent và trợ lý lập trình có thể đọc tài liệu này qua máy chủ MCP của chúng tôi, để trả lời từ tài liệu mới nhất thay vì trí nhớ. [MCP cho agent](${l.docs}/mcp).`,
+    }),
+  },
+  // The three broad questions page text answers badly: retrieval put the careers page ahead of
+  // the industry pages. `any`: answered whenever the question names them, at any length.
+  {
+    names: [
+      "industries",
+      "industry",
+      "sectors",
+      "sector",
+      "verticals",
+      "nganh nghe",
+      "linh vuc nao",
+    ],
+    any: true,
+    reply: (l) => ({
+      en: `Pulse works on any product catalogue, and the site has a page for six sectors: [Ecommerce and retail](${l.site}/industries/ecommerce), [FMCG and consumer goods](${l.site}/industries/fmcg), [Technology and electronics](${l.site}/industries/technology), [Furniture and homewares](${l.site}/industries/furniture), [Cosmetics and personal care](${l.site}/industries/cosmetics) and [B2B and industrial](${l.site}/industries/distribution). Each starts the same way: a Decision Audit on one category.`,
+      vi: `Pulse dùng được với mọi danh mục sản phẩm, và trang web có một trang cho sáu lĩnh vực: [Thương mại điện tử và bán lẻ](${l.site}/industries/ecommerce), [Hàng tiêu dùng nhanh](${l.site}/industries/fmcg), [Công nghệ và điện tử](${l.site}/industries/technology), [Nội thất và gia dụng](${l.site}/industries/furniture), [Mỹ phẩm và chăm sóc cá nhân](${l.site}/industries/cosmetics) và [B2B và công nghiệp](${l.site}/industries/distribution). Lĩnh vực nào cũng bắt đầu giống nhau: một Decision Audit trên một ngành hàng.`,
+    }),
+  },
+  {
+    names: [
+      "resolve labs",
+      "founder",
+      "founders",
+      "founded",
+      "who made",
+      "who built",
+      "who is behind",
+      "behind pulse",
+      "headquarters",
+      "the company",
+      "your company",
+      "nha sang lap",
+      "ai lam ra",
+      "cong ty",
+    ],
+    any: true,
+    reply: (l) => ({
+      en: `Pulse is made by **Resolve Labs**, founded in March 2026, with headquarters in Singapore and engineering in Ho Chi Minh City. It started with one shelf of 216 laptops, where ranking the gaps by how much data was missing gave almost the opposite order to ranking them by what shoppers said they needed. [About us](${l.site}/about).`,
+      vi: `Pulse do **Resolve Labs** làm ra, thành lập tháng 3 năm 2026, trụ sở chính ở Singapore và đội kỹ thuật ở Thành phố Hồ Chí Minh. Mọi thứ bắt đầu từ một kệ 216 chiếc laptop, nơi xếp hạng khoảng trống theo lượng dữ liệu còn thiếu cho ra thứ tự gần như ngược với xếp theo điều người mua nói họ cần. [Về chúng tôi](${l.site}/about).`,
+    }),
+  },
+  {
+    names: [
+      "markets",
+      "countries",
+      "which country",
+      "southeast asia",
+      "vietnam",
+      "viet nam",
+      "where is pulse",
+      "where are you",
+      "where do you work",
+      "where does pulse work",
+      "available in",
+      "o dau",
+      "hoat dong o dau",
+      "o nuoc nao",
+    ],
+    any: true,
+    reply: (l) => ({
+      en: `Pulse works with merchants in Vietnam and across Southeast Asia, starting with one category each. Search reads Vietnamese, Thai, Bahasa and English, and the catalogue products work on any export, wherever you sell. Headquarters are in Singapore, engineering in Ho Chi Minh City. [Talk to the team](${l.contact}).`,
+      vi: `Pulse làm việc với người bán ở Việt Nam và khắp Đông Nam Á, mỗi nơi bắt đầu với một ngành hàng. Tìm kiếm hiểu tiếng Việt, Thái, Bahasa và tiếng Anh, còn các sản phẩm cho danh mục dùng được với mọi bản xuất, dù bạn bán ở đâu. Trụ sở chính ở Singapore, đội kỹ thuật ở Thành phố Hồ Chí Minh. [Liên hệ đội ngũ](${l.contact}).`,
     }),
   },
 ];
@@ -250,12 +355,14 @@ const ASKING_ABOUT =
 
 function matchTerm(q: string) {
   // Longest name first, so "decision audit" wins over "audit" and "api key" over "key".
-  const all = TERMS.flatMap((t) => t.names.map((n) => ({ n, t }))).sort((a, b) => b.n.length - a.n.length);
+  const all = TERMS.flatMap((t) => t.names.map((n) => ({ n, t }))).sort(
+    (a, b) => b.n.length - a.n.length,
+  );
   for (const { n, t } of all) {
     const at = q.indexOf(n);
     if (at === -1) continue;
-    const before = at === 0 || q[at - 1] === ' ';
-    const after = at + n.length === q.length || q[at + n.length] === ' ';
+    const before = at === 0 || q[at - 1] === " ";
+    const after = at + n.length === q.length || q[at + n.length] === " ";
     if (before && after) return t;
   }
   return null;
@@ -272,7 +379,7 @@ export function talk(
   lang: string,
   o: Origins,
 ): { answer: Answer; final: boolean } | null {
-  const l: Lang = lang === 'vi' ? 'vi' : 'en';
+  const l: Lang = lang === "vi" ? "vi" : "en";
   const q = normalise(query);
   if (!q) return null;
   const n = words(q);
@@ -280,24 +387,30 @@ export function talk(
 
   for (const s of SMALL_TALK) {
     if (n <= s.maxWords && s.test.test(q)) {
-      return { answer: { body: s.reply(href)[l], sources: [], kind: 'answer' }, final: true };
+      return {
+        answer: { body: s.reply(href)[l], sources: [], kind: "answer" },
+        final: true,
+      };
     }
   }
 
   // Only when the question is about the term itself, so "how do I call the audit from Python"
   // still goes to retrieval and gets the Python page rather than a definition.
   const term = matchTerm(q);
-  if (term && (n <= 4 || ASKING_ABOUT.test(q))) {
-    return { answer: { body: term.reply(href)[l], sources: [], kind: 'answer' }, final: false };
+  if (term && (n <= 4 || term.any || ASKING_ABOUT.test(q))) {
+    return {
+      answer: { body: term.reply(href)[l], sources: [], kind: "answer" },
+      final: false,
+    };
   }
   return null;
 }
 
 /** Said when neither layer found anything. Friendlier than a bare refusal, and still honest. */
 export function unsure(lang: string, o: Origins): string {
-  const l: Lang = lang === 'vi' ? 'vi' : 'en';
+  const l: Lang = lang === "vi" ? "vi" : "en";
   const h = links(o, l);
-  return l === 'vi'
+  return l === "vi"
     ? `Tôi chưa tìm thấy câu trả lời cho câu đó trên trang của chúng tôi. Thử hỏi theo cách khác, ví dụ:\n- Decision Audit là gì?\n- Lấy API key như thế nào?\n- Chi phí bao nhiêu?\n\nHoặc xem [tài liệu](${h.docs}), [bảng giá](${h.pricing}), hay [liên hệ đội ngũ](${h.contact}) để hỏi trực tiếp.`
     : `I couldn't find that on our pages. Try asking another way, for example:\n- What is the Decision Audit?\n- How do I get an API key?\n- What does it cost?\n\nOr browse [the docs](${h.docs}), see [pricing](${h.pricing}), or [contact the team](${h.contact}) to ask a person.`;
 }
