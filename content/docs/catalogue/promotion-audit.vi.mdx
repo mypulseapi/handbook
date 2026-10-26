@@ -1,0 +1,49 @@
+---
+title: Promotion Audit
+description: "Promotion Audit của PULSE đánh giá voucher, giảm giá và miễn phí vận chuyển theo những đơn được giữ lại, sau khi trừ hàng trả và giao thất bại, so với việc không làm gì."
+icon: ChartPie
+---
+
+Một voucher làm tăng đơn hàng chưa phải là một voucher có lãi. Một số đơn bị trả lại, một số bị từ
+chối khi giao, và một số người mua lẽ ra vẫn mua với giá gốc. Promotion Audit đọc lịch sử của chính
+bạn và trả lời bốn câu hỏi.
+
+1. **Ưu đãi nào giúp bạn tốt hơn so với không làm gì?** Mức đóng góp kỳ vọng trên mỗi người mua của
+   từng ưu đãi tính cả đơn được giữ, hàng trả mà trang sản phẩm có thể ngăn được, mọi lần trả khác và
+   giao thất bại.
+2. **Cho những người mua nào, và bao nhiêu người?** Theo từng nhóm bạn có thể xem: người mua mới hay
+   mua lại, một vùng, thanh toán khi nhận hàng. Bao gồm cả nơi câu trả lời là không ưu đãi gì.
+3. **Sửa trang sản phẩm có tốt hơn giảm giá không?** Một bản sửa là thêm một lựa chọn, chi phí một lần
+   của nó được chia cho những người mua nó tiếp cận.
+4. **Ở nơi khác người mua thực sự trả bao nhiêu?** Giá của bạn so với cùng sản phẩm sau voucher, hoàn
+   tiền, xu và phí vận chuyển, bên cạnh chênh lệch giá niêm yết.
+
+**Dành cho ai:** người bán chạy khuyến mãi trên một hoặc nhiều sàn và muốn biết nên giữ ưu đãi nào,
+trước khi chi thêm.
+
+## Nó không bao giờ đoán
+
+Mọi tỷ lệ đều đến từ lịch sử của bạn hoặc một thử nghiệm bạn đã chạy. Một ưu đãi có quá ít lịch sử
+không bao giờ được đề xuất; một ưu đãi chỉ thắng trong phạm vi nhiễu cũng vậy. Trong cả hai trường
+hợp, câu trả lời là một thử nghiệm, có nêu rõ nhóm và ưu đãi. Biên lợi nhuận trên mỗi đơn được giữ
+không có giá trị mặc định: nó luôn là của bạn.
+
+## Các lệnh gọi
+
+| Lệnh gọi | Nó trả lời gì |
+| --- | --- |
+| [`POST /interventions/audit`](/vi/api/v1/interventions#post-interventionsaudit) | Đưa lịch sử của bạn vào, nhận lại các ưu đãi đã đo và một quyết định cho mỗi nhóm |
+| [`POST /interventions/decide`](/vi/api/v1/interventions#post-interventionsdecide) | Cùng quyết định đó từ các tỷ lệ bạn đã đo |
+| [`POST /interventions/landed`](/vi/api/v1/interventions#post-interventionslanded) | Mức giá người mua thực sự trả trên mỗi sàn |
+
+## Các thiết lập, và chúng đến từ đâu
+
+Chi phí trả hàng và chi phí giao thất bại sẽ dùng giá trị mặc định chúng tôi duy trì khi bạn không
+gửi, và mọi phản hồi đều cho biết giá trị nào là của bạn và giá trị nào là của chúng tôi, trong
+`configuration`. Thiết lập lưu theo tài khoản đang được phát triển; cho tới lúc đó, hãy gửi số liệu
+của bạn kèm mỗi lệnh gọi.
+
+## Những gì nó sẽ không làm
+
+Nó không hứa lợi nhuận cao hơn hay ít hàng trả hơn: chưa có gì được đo trên lịch sử của bạn. Nó không
+nhắm tới từng người mua, và nó không định giá thay bạn.

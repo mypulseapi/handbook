@@ -1,0 +1,84 @@
+---
+title: Shopify
+description: Một thẻ script trong theme.liquid, và tín hiệu dựng từ các đối tượng Liquid.
+icon: Boxes
+---
+
+<Callout type="warn" title="Không phải ứng dụng trên App Store">
+  Đây là một chỉnh sửa giao diện. Nó không còn khi bạn đổi giao diện, và nó đặt key của bạn trong một
+  tệp giao diện mà ai có quyền truy cập giao diện cũng đọc được. Key công khai được thiết kế để hiển
+  thị trong mã nguồn trang, nên đó là chuyện ngăn nắp chứ không phải chuyện bảo mật.
+</Callout>
+
+## 1. Thêm script
+
+**Online Store → Themes → Edit code → `layout/theme.liquid`**, ngay trước `</head>`:
+
+```liquid title="layout/theme.liquid"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js" async></script>
+<script>
+  window.addEventListener('load', function () {
+    Pulse.init({
+      apiKey: 'pk_live_...',
+      organizationId: 'org_...',
+    });
+  });
+</script>
+```
+
+Thẻ script cung cấp client dưới dạng biến toàn cục `Pulse`. `async` nghĩa là nó có thể chưa tải xong
+khi script nội tuyến chạy, đó là lý do `init` nằm trong một listener `load` thay vì được gọi ngay.
+
+## 2. Gửi tín hiệu từ các mẫu
+
+Liquid đã biết người mua đang xem gì. Mỗi mẫu gửi những gì nó biết.
+
+```liquid title="sections/main-collection-banner.liquid"
+<script>
+  window.addEventListener('load', function () {
+    Pulse.track([
+      { type: 'category_view', value: {{ collection.handle | json }} }
+    ]);
+  });
+</script>
+```
+
+```liquid title="sections/main-product.liquid"
+<script>
+  window.addEventListener('load', function () {
+    Pulse.track([
+      { type: 'product_view',  value: {{ product.id | json }} },
+      { type: 'category_view', value: {{ product.type | handleize | json }} },
+      { type: 'brand_view',    value: {{ product.vendor | handleize | json }} }
+    ]);
+  });
+</script>
+```
+
+<Callout title="Dùng bộ lọc json, không dùng dấu nháy">
+  `{{ product.vendor | json }}` thoát giá trị đúng cách. Tự bọc nó trong dấu nháy sẽ lỗi ở nhà cung
+  cấp đầu tiên có dấu nháy đơn trong tên, và chỉ lỗi với nhà cung cấp đó, đúng kiểu lỗi lọt được ra
+  môi trường thật.
+</Callout>
+
+## 3. Ghi lại kết quả
+
+Shopify tự phát các sự kiện của nó. Hãy chuyển tiếp những sự kiện có ý nghĩa.
+
+```liquid title="layout/theme.liquid"
+<script>
+  document.addEventListener('cart:item-added', function (event) {
+    Pulse.event('add_to_cart', { productId: event.detail?.id });
+  });
+</script>
+```
+
+Tên sự kiện khác nhau tuỳ giao diện: Dawn và các giao diện dựa trên nó phát `cart:item-added`, các
+giao diện cũ hơn phát sự kiện riêng. Hãy kiểm tra giao diện của bạn phát gì trước khi tin vào sự kiện
+này.
+
+## Những gì chưa được hỗ trợ
+
+Trang thanh toán. Shopify không cho script giao diện chạy trên trang thanh toán nếu không phải Plus,
+nên kết quả mua hàng phải đến từ máy chủ của bạn qua webhook, không phải từ trình duyệt. Xem
+[Backend](/vi/backend) để biết lệnh cần gọi khi webhook đến.

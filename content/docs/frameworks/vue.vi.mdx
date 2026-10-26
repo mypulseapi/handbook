@@ -1,0 +1,38 @@
+---
+title: Vue và Nuxt
+description: Một plugin, cung cấp cho ứng dụng, được bảo vệ khỏi SSR.
+icon: Leaf
+---
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+```ts title="plugins/pulse.ts"
+import { PulseClient } from '@thepulseapi/sdk';
+import type { App } from 'vue';
+
+export default {
+  install(app: App) {
+    const pulse = new PulseClient();
+
+    // Nuxt renders on the server first; init() is browser-only.
+    if (!import.meta.env.SSR) {
+      pulse.init({ apiKey: 'pk_live_...', organizationId: 'org_...' });
+    }
+
+    app.provide('pulse', pulse);
+  },
+};
+```
+
+```vue title="components/ProductCard.vue"
+<script setup lang="ts">
+import { inject } from 'vue';
+import type { PulseClient } from '@thepulseapi/sdk';
+
+const pulse = inject<PulseClient>('pulse')!;
+</script>
+
+<template>
+  <button @click="pulse.track([{ type: 'product_view', value: sku }])">View</button>
+</template>
+```

@@ -1,0 +1,89 @@
+---
+title: Báo kết quả đơn hàng
+description: "POST /outcomes, cho PULSE biết điều gì đã xảy ra với từng dòng đơn hàng, để việc xếp hạng ưu tiên những lần mua được giữ lại."
+icon: PackageCheck
+---
+
+Một lần mua chưa phải là kết thúc câu chuyện. Một số đơn bị trả lại, một số không bao giờ tới nơi. Báo
+điều gì đã xảy ra với từng dòng đơn hàng cho phép yếu tố `retention` xếp hạng theo những lần mua **được
+giữ lại**, không chỉ theo những lần mua được thực hiện. Xem
+[một điểm số gồm những gì](/vi/api/v1/ranking#what-a-score-is-made-of).
+
+## `POST /outcomes`
+
+Gửi từ **máy chủ** của bạn, mỗi khi một dòng đơn hàng đổi trạng thái: đã đặt, đã giao, bị trả, được
+hoàn tiền, bị huỷ. Báo lại cùng một dòng sẽ cập nhật nó thay vì thêm dòng thứ hai, nên hãy gửi cả dòng
+mỗi lần nó thay đổi.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/outcomes" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "organizationId": "org_abc123",
+    "lines": [
+      {
+        "orderId": "SO-10442",
+        "merchantProductId": "sku-123",
+        "decisionId": "3f1c0b2e-...",
+        "orderedAt": "2026-10-01T09:30:00Z",
+        "status": "returned",
+        "paymentMethod": "cod",
+        "returnReason": "I want to return item in original / sealed condition",
+        "reassessedReason": "Size different from expected",
+        "returnedAt": "2026-10-12T15:00:00Z",
+        "returnQuantity": 1,
+        "refundMinor": 49000000,
+        "currency": "VND"
+      }
+    ]
+  }'
+```
+
+Trả về `202` với `{ "written": 1 }`. Tối đa 1.000 dòng mỗi yêu cầu.
+
+- `organizationId` phải là tổ chức mà API key của bạn thuộc về; tổ chức khác sẽ bị từ chối với `403`.
+- Cùng một dòng xuất hiện hai lần trong một yêu cầu thì giữ lại dòng cuối.
+- Một dòng đã báo là bị trả sẽ vẫn là bị trả nếu một lần báo sau nói `kept`.
+
+| Trường | Bắt buộc | Ý nghĩa |
+| --- | --- | --- |
+| `orderId` | có | Mã đơn hàng của bạn. Cùng với `merchantProductId` nó xác định dòng đơn hàng |
+| `merchantProductId` | có | Id của sản phẩm trong danh mục của bạn, như đã đồng bộ lên PULSE |
+| `orderedAt` | có | Thời điểm đặt hàng, theo ISO 8601 |
+| `status` | có | `kept`, `returned`, `refunded`, `partial`, `cancelled` hoặc `failed_delivery` |
+| `decisionId` | không | `decisionId` của lần xếp hạng mà người mua đã mua từ đó. Nối kết quả với lần xếp hạng đó |
+| `paymentMethod` | không | Ví dụ `cod` hoặc `card` |
+| `returnReason` | không | Lý do người mua chọn |
+| `reassessedReason` | không | Cách sàn tự đánh giá sau khi xem xét trường hợp, như Reassessed Return Reason của Shopee. Được dùng thay cho lý do của người mua khi có |
+| `returnedAt` | khi trả hàng | Thời điểm hàng quay về. Bắt buộc khi `status` là `returned`, `refunded` hoặc `partial` |
+| `quantity`, `returnQuantity` | không | Số đơn vị đặt trên dòng (mặc định 1), và số đơn vị bị trả. Hàng trả được tính theo đơn vị, nên trả một trong năm là 20%, không phải 100% |
+| `refundMinor`, `currency` | không | Số tiền hoàn theo đơn vị nhỏ nhất (cent, đồng), và loại tiền |
+
+<Callout title="Không có dữ liệu cá nhân">
+  Không có trường nào cho tên, số điện thoại, địa chỉ hay email, và mọi trường không có trong danh sách
+  trên đều bị bỏ trước khi lưu. Không cần bất cứ thông tin nào về người mua.
+</Callout>
+
+## Hàng trả nào được tính
+
+Chỉ những lần trả mà **thông tin sản phẩm tốt hơn có thể đã ngăn được** mới ảnh hưởng tới thứ hạng: sai
+kích cỡ, không đúng mô tả, không tương thích, sai màu hay chất liệu. Hư hỏng khi vận chuyển, hàng giả,
+gửi nhầm sản phẩm, kiện hàng rỗng và đơn thanh toán khi nhận bị từ chối vẫn được lưu nhưng không bao giờ
+tính bất lợi cho sản phẩm, vì không thay đổi nào trên trang sản phẩm sửa được chúng. Đơn bị huỷ và giao
+thất bại không phải là đơn mà sản phẩm có cơ hội được giữ, nên cũng không tính vào số đơn đã giao.
+
+## Nối lần mua với lần xếp hạng
+
+Gửi mã đơn hàng của bạn trong sự kiện mua hàng, cùng `decisionId` bạn nhận được từ lần xếp hạng:
+
+```ts
+await pulse.event('purchase', { decisionId, orderId: 'SO-10442' });
+```
+
+Đó là điều cho phép một lần trả hàng vài tuần sau được truy ngược về lần xếp hạng trước lần mua.
+
+<Callout type="warn" title="Không tính phí, nhưng vẫn cần key">
+  Giống `/event` và `/exposure`, kết quả đơn hàng là đo lường và không bao giờ tính vào mức sử dụng.
+  Lệnh gọi vẫn cần API key của bạn, nên hãy gọi từ máy chủ, không phải từ trình duyệt.
+</Callout>

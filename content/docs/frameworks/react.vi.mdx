@@ -1,0 +1,54 @@
+---
+title: React và Next.js
+description: Tạo client một lần, dùng chung, và giữ init() trong trình duyệt.
+icon: Atom
+---
+
+<InstallTabs pkg="@thepulseapi/sdk" />
+
+## Một provider
+
+```tsx title="app/pulse-provider.tsx"
+'use client';
+import { createContext, useContext, useRef } from 'react';
+import { PulseClient } from '@thepulseapi/sdk';
+
+const PulseContext = createContext<PulseClient | null>(null);
+export const usePulse = () => useContext(PulseContext)!;
+
+export function PulseProvider({ children }: { children: React.ReactNode }) {
+  const pulse = useRef<PulseClient>(null);
+  pulse.current ??= new PulseClient();
+
+  useEffect(() => {
+    pulse.current!.init({
+      apiKey: process.env.NEXT_PUBLIC_PULSE_API_KEY!,
+      organizationId: process.env.NEXT_PUBLIC_PULSE_ORG_ID!,
+    });
+  }, []);
+
+  return <PulseContext.Provider value={pulse.current}>{children}</PulseContext.Provider>;
+}
+```
+
+<Callout title="Riêng với Next.js">
+  Component gọi `init()` phải là **client component**, vì phiên nằm trong trình duyệt. Ngoài ra
+  Server Components và SSR đều ổn: việc import không có tác dụng phụ và mọi API trình duyệt đều được
+  kiểm tra trước.
+</Callout>
+
+## Sử dụng
+
+```tsx title="components/product-card.tsx"
+'use client';
+import { usePulse } from '@/app/pulse-provider';
+
+export function ProductCard({ sku }: { sku: string }) {
+  const pulse = usePulse();
+  return (
+    <button onClick={() => pulse.track([{ type: 'product_view', value: sku }])}>
+      View
+    </button>
+  );
+}
+```

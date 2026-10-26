@@ -1,0 +1,40 @@
+---
+title: Search
+description: "PULSE Search xếp hạng kết quả theo điều người mua đang cân nhắc, không chỉ theo từ khớp. Giữ công cụ tìm kiếm của bạn và xếp lại kết quả, hoặc để PULSE xếp hạng sản phẩm bạn gửi. Đọc được tiếng Việt, Thái, Bahasa và Anh."
+icon: Search
+---
+
+Hai người mua cùng gõ "tai nghe". Một người mua quà với ngân sách giới hạn, người kia muốn chống ồn
+khi đi công tác. So khớp từ cho họ cùng một danh sách. PULSE Search xếp hạng mỗi danh sách cho đúng
+lượt truy cập của nó, và **đọc phần còn lại của truy vấn**: giới hạn giá, mua cho ai, dịp gì, có gấp
+không.
+
+**Dành cho ai:** mọi cửa hàng có ô tìm kiếm, dù bạn giữ công cụ hiện tại hay không.
+
+## Ba cách bắt đầu
+
+| Bạn có | Lệnh gọi | Nó làm gì |
+| --- | --- | --- |
+| Một công cụ tìm kiếm bạn muốn giữ | `POST /rerank` | Sắp xếp lại các kết quả nó đã trả về. Cách nhẹ nhất để bắt đầu |
+| Sẵn danh sách sản phẩm, không có công cụ | `POST /search` | Xếp hạng các sản phẩm bạn gửi, theo phiên |
+| Một ô tìm kiếm | `POST /suggest` | Gợi ý truy vấn được chấm điểm theo phiên. **Miễn phí**, vì nó chạy theo từng lần gõ phím |
+
+```ts
+const { results } = await pulse.search(products, { query: "tai nghe cho mẹ dưới 1tr5", limit: 24 });
+
+results[0].scoreBreakdown; // why this product came first, factor by factor
+```
+
+## Truy vấn bằng chính lời của người mua
+
+`tai nghe cho mẹ dưới 1tr5` được hiểu là tai nghe, cho mẹ, tối đa 1.500.000.
+`ซื้อนาฬิกาให้พ่อ งบ 5 พัน` là đồng hồ cho bố, tối đa 5.000. Giá viết dạng `500k`, `2 triệu`,
+`S$150`, `RM2,000`, `₱2,500`, `750rb` và `2 juta` đều được hiểu đúng như khi gõ. Xem thêm ở
+[Truy vấn bằng chính lời của người mua](/vi/api/v1/ranking#queries-in-the-shoppers-own-words).
+
+## Bạn nhận lại gì
+
+Mỗi kết quả đều kèm **phân tích điểm số**: độ phù hợp với phiên, chất lượng, mức khớp văn bản, giá,
+và khi bạn gửi lịch sử trả hàng, mức độ sản phẩm được giữ lại sau khi mua. [Một điểm số gồm những gì](/vi/api/v1/ranking#what-a-score-is-made-of).
+
+**Tính vào mức sử dụng:** có với `/search` và `/rerank`; `/suggest` miễn phí.

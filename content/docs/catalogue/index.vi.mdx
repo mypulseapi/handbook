@@ -1,0 +1,58 @@
+---
+title: Sản phẩm cho danh mục
+description: "Bốn sản phẩm PULSE làm việc trên dữ liệu sản phẩm của bạn, không phải lưu lượng. Tìm những thông tin còn thiếu làm mất quyết định mua, sửa đúng thứ tự, chứng minh bản sửa và giữ cho nó đúng."
+icon: ClipboardCheck
+---
+
+Phần lớn những gì khiến người mua dừng lại là một thông tin mà danh mục của bạn không ghi: kích
+thước màn hình, độ vừa vặn, có dùng được với thứ họ đang có không. Bốn sản phẩm này tìm ra các khoảng
+trống đó và chứng minh các bản sửa, từ một tệp xuất danh mục và lịch sử đơn hàng của bạn. **Không đổi
+cửa hàng, không mã theo dõi, không cần lưu lượng.**
+
+| Sản phẩm | Câu hỏi nó trả lời | Lệnh gọi | Tính vào mức sử dụng |
+| --- | --- | --- | --- |
+| [Decision Audit](/vi/catalogue/decision-audit) | Thông tin còn thiếu nào làm mất nhiều quyết định mua nhất, và tôi nên sửa cái nào trước? | `POST /catalog/audit` | Có |
+| [Decision Verification](/vi/catalogue/decision-verification) | Bản sửa có thực sự giúp danh mục trả lời được câu người mua hỏi không? | `POST /catalog/verify` với `repairs` | Có |
+| [Decision Monitor](/vi/catalogue/decision-monitor) | Điều gì đã sa sút kể từ lần xuất trước, và ở đâu? | `POST /catalog/verify` không có `repairs` | Có |
+| [Return Verification](/vi/catalogue/return-verification) | Thông tin còn thiếu nào đi cùng hàng bị trả, và bản sửa có làm chúng thay đổi không? | `POST /outcomes` | **Không** |
+| [Promotion Audit](/vi/catalogue/promotion-audit) | Voucher, giảm giá và miễn phí vận chuyển nào tự bù được chi phí sau khi trừ hàng trả, và ở đâu tôi không nên ưu đãi gì? | `POST /interventions/audit` | Có |
+
+## Thứ tự sử dụng
+
+<Steps>
+<Step>
+
+### Kiểm tra một ngành hàng
+
+Bắt đầu với kệ hàng quan trọng nhất. Bản kiểm tra trả về các thuộc tính đáng ghi, xếp theo số quyết
+định mua mà mỗi thuộc tính tác động.
+
+</Step>
+<Step>
+
+### Sửa, rồi xác minh
+
+Điền phần đầu danh sách, xuất lại, và gửi cả hai tệp xuất. Việc xác minh chấm từng bản sửa được
+khai báo theo những gì thực sự thay đổi.
+
+</Step>
+<Step>
+
+### Luôn được đo
+
+Chạy cùng phép so sánh trên mỗi tệp xuất mới. Danh mục xuống cấp khi nhà cung cấp đổi nguồn cấp và
+sản phẩm mới về, và Monitor cho biết ở đâu.
+
+</Step>
+<Step>
+
+### Kiểm tra kết quả tốn tiền
+
+Báo điều gì đã xảy ra với từng dòng đơn hàng và Return Verification cho thấy khoảng trống nào đi cùng
+hàng bị trả, và bản sửa có làm chúng thay đổi không.
+
+</Step>
+</Steps>
+
+Sẵn sàng cho người mua thấy luôn? Các [sản phẩm cho cửa hàng](/vi/storefront) xếp hạng một lượt truy
+cập trực tiếp theo danh mục bạn vừa sửa.

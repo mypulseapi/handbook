@@ -1,0 +1,74 @@
+---
+title: Kiểm tra danh mục
+description: "POST /catalog/audit và /catalog/verify, chấm dữ liệu danh mục thay vì xếp hạng nó."
+icon: ClipboardCheck
+---
+
+Các endpoint xếp hạng trả lời câu "sản phẩm nào trước". Hai endpoint này trả lời một câu khác:
+**danh mục này có trả lời được những câu người mua đang hỏi hay không.**
+
+Cả hai nhận CSV dưới dạng chuỗi trong body thay vì tải tệp lên. Một lần kiểm tra là một hàm thuần trên
+văn bản, nên multipart chỉ thêm một bộ phân tích, một tệp tạm và một bước dọn dẹp mà không được gì, ở
+kích thước mà một tệp xuất ngành hàng chỉ vài chục kilobyte.
+
+Không lệnh gọi nào lưu gì trừ khi bạn yêu cầu.
+
+## `POST /catalog/audit`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "csv": "id,category,size,material\n1,helmet,L,abs\n2,helmet,,\n",
+    "source": "merchant",
+    "amortisationHorizon": 5000
+  }'
+```
+
+<PropsTable
+  props={{
+    csv: { type: 'string', required: true, description: 'Dòng tiêu đề, rồi mỗi sản phẩm một dòng. Cột đầu là id; các cột còn lại là thuộc tính. Tối đa 2 MB, khoảng 20.000 sản phẩm với chừng mười hai cột.' },
+    source: { type: "'merchant' | 'extracted' | 'enriched' | 'inferred'", default: 'merchant', description: 'Các giá trị đến từ đâu, điều quyết định chúng được tin tới mức nào. Tệp xuất danh mục là người bán khai báo những gì họ có. Một lần làm giàu dữ liệu tự kiểm tra kết quả của chính nó nên khai là enriched và nhận mức trọng số thấp hơn tương ứng.' },
+    amortisationHorizon: { type: 'number', description: 'Một thông tin được ghi sẽ phục vụ bao nhiêu phiên trước khi lỗi thời. Cung cấp nó để nhận lại một hành động.' },
+  }}
+/>
+
+<Callout title="Vì sao khoảng thời gian này không được đoán thay bạn">
+  Không có nó, phản hồi sẽ không có `action`. So sánh "hỏi người mua" với "ghi thông tin một lần" cần
+  biết thông tin đó sẽ phục vụ bao nhiêu người mua, và chọn một con số thay bạn sẽ che đi giả định mà cả
+  phép so sánh dựa vào.
+</Callout>
+
+## `POST /catalog/verify`
+
+Cùng một yêu cầu làm hai việc. Chỉ gửi `before` và `after` thì nó là một bộ giám sát: điều gì đã thay
+đổi giữa hai tệp xuất, không có khai báo gì. Thêm `repairs` thì cùng bản so sánh đó chấm các khai báo.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/verify" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "before": "id,category,size\n1,helmet,\n",
+    "after":  "id,category,size\n1,helmet,L\n",
+    "repairs": [{ "attribute": "size", "method": "manual", "actualHours": 3 }],
+    "category": "Helmets"
+  }'
+```
+
+<PropsTable
+  props={{
+    before: { type: 'string', required: true, description: 'Danh mục trước khi làm, cùng định dạng với bản kiểm tra.' },
+    after: { type: 'string', required: true, description: 'Danh mục sau khi làm, được xuất lại.' },
+    repairs: { type: 'RepairClaim[]', description: 'Những gì bạn khai là đã sửa. Mỗi mục cần một attribute; method, estimatedHours và actualHours là tuỳ chọn. Bỏ cả mảng thì lệnh gọi trở thành giám sát.' },
+    source: { type: "'merchant' | 'extracted' | 'enriched' | 'inferred'", default: 'merchant', description: 'Các giá trị mới được tin tới mức nào.' },
+    organizationId: { type: 'string', description: 'Cung cấp thì kết quả được lưu. Bỏ trống thì phản hồi nói rõ không có gì được lưu.' },
+    category: { type: 'string', description: 'Tên riêng của bạn cho kệ hàng. Được ghi đúng như bạn đặt; PULSE không sở hữu hệ thống phân loại của bạn.' },
+  }}
+/>
+
+<Callout title="Không có endpoint thứ hai cho việc giám sát">
+  Giám sát và xác minh là cùng một phép tính trên cùng một bản so sánh. Khác biệt duy nhất là có khai
+  báo gì về nó hay không.
+</Callout>

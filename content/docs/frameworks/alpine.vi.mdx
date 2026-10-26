@@ -1,0 +1,33 @@
+---
+title: Alpine
+description: Không cần bước build. Biến toàn cục, dùng thẳng từ các thuộc tính HTML.
+icon: Zap
+---
+
+Alpine hoạt động dựa trên thuộc tính, nên bản dựng dạng thẻ script là lựa chọn tự nhiên. Không bundler,
+không cài đặt.
+
+```html title="index.html"
+<script src="https://cdn.thepulseapi.com/sdk/v0/pulse.iife.js"></script>
+<script>
+  Pulse.init({ apiKey: 'pk_live_...', organizationId: 'org_...' });
+</script>
+```
+
+Biến toàn cục `Pulse` **chính là** client, nên gọi nó trực tiếp từ Alpine:
+
+```html
+<div x-data="{ sku: 'sku-123' }">
+  <button x-on:click="Pulse.track([{ type: 'product_view', value: sku }])">
+    View
+  </button>
+
+  <button x-on:click="Pulse.track([{ type: 'add_to_cart', value: sku }])">
+    Add to cart
+  </button>
+</div>
+```
+
+<Callout>
+  Biến toàn cục không có default export. `Pulse.init` hoạt động; `Pulse.default.init` thì không.
+</Callout>

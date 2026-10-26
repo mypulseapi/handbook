@@ -1,0 +1,103 @@
+---
+title: Promotion Audit API
+description: "POST /interventions/audit, /decide và /landed. Đánh giá ưu đãi theo đơn được giữ sau khi trừ hàng trả và giao thất bại, chọn theo từng nhóm kể cả không ưu đãi gì, và so sánh giá thực trả."
+icon: ChartPie
+---
+
+Ba lệnh gọi không lưu trạng thái đứng sau [Promotion Audit](/vi/catalogue/promotion-audit). Không có
+gì được lưu, và không có gì được ước tính thay bạn: mọi tỷ lệ đều là của bạn.
+
+Mỗi **ưu đãi** có một `kind`: `none`, `price`, `voucher`, `shipping`, `repair` hoặc `bundle`. Mỗi nhóm
+cần đúng một `none`, mốc so sánh để đánh giá mọi thứ khác.
+
+## `POST /interventions/audit`
+
+Lịch sử của bạn, mỗi nhóm và mỗi ưu đãi một dòng, kể cả những giai đoạn không có ưu đãi.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/interventions/audit" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "economics": { "contribution": 120000 },
+    "cohortSize": { "provinces": 200000 },
+    "arms": [
+      { "cohort": "provinces", "kind": "none", "visitors": 100000, "orders": 2000,
+        "failedDeliveries": 200, "costPerOrder": 0,
+        "returns": [{ "reason": "too small", "count": 30 }, { "reason": "damaged in transit", "count": 20 }] },
+      { "cohort": "provinces", "kind": "shipping", "visitors": 100000, "orders": 3000,
+        "failedDeliveries": 300, "costPerOrder": 25228,
+        "returns": [{ "reason": "too small", "count": 45 }, { "reason": "damaged in transit", "count": 30 }] },
+      { "cohort": "provinces", "kind": "voucher", "visitors": 100000, "orders": 2300,
+        "failedDeliveries": 230, "costPerOrder": 20000,
+        "returns": [{ "reason": "too small", "count": 35 }, { "reason": "damaged in transit", "count": 23 }] }
+    ]
+  }'
+```
+
+Một phản hồi rút gọn. `erc` là đóng góp giữ lại kỳ vọng trên mỗi người mua; `miv` là phần tăng của nó
+so với không làm gì.
+
+```json
+{
+  "cohorts": [
+    {
+      "cohort": "provinces",
+      "choice": "shipping",
+      "test": null,
+      "reason": "beats_doing_nothing",
+      "options": [
+        { "kind": "shipping", "erc": 2208, "miv": 231 },
+        { "kind": "none", "erc": 1977, "miv": 0 },
+        { "kind": "voucher", "erc": 1812, "miv": -164 }
+      ]
+    }
+  ],
+  "shoppersByChoice": { "shipping": 200000 },
+  "expectedValue": 46290800,
+  "configuration": { "currency": "system", "returnCost": "system", "failedDeliveryCost": "system", "contribution": "request" }
+}
+```
+
+Lý do trả hàng được đọc như trong [Return Verification](/vi/catalogue/return-verification): "quá nhỏ"
+là thông tin trang sản phẩm lẽ ra đã cung cấp được; "hư hỏng khi vận chuyển" và "gửi nhầm hàng" thì
+không.
+
+**`reason`** là một trong các giá trị:
+
+| Giá trị | Nghĩa là |
+| --- | --- |
+| `beats_doing_nothing` | `choice` thắng, ngay cả khi tỷ lệ mua của nó ở đầu thận trọng của khoảng tin cậy |
+| `nothing_beats_doing_nothing` | Không ưu đãi nào bạn đã đo tốt hơn không có ưu đãi |
+| `not_clear_of_noise` | Một ưu đãi chỉ thắng ở ước lượng điểm; `test` nêu tên nó |
+| `untested_option_could_win` | Một ưu đãi có quá ít lịch sử có thể thắng; `test` nêu tên nó |
+| `baseline_not_measured` | Chính dòng không có ưu đãi quá mỏng để so sánh |
+
+Một nhánh cần ít nhất 1.000 người truy cập và 30 đơn hàng mới được tính là đã đo.
+
+## `POST /interventions/decide`
+
+Cùng quyết định đó khi bạn đã có sẵn các tỷ lệ, theo từng nhóm: `pPurchase`, `pDelivered`,
+`pReturnEvidence`, `pReturnOther`, `costPerOrder`, `fixedCost` tuỳ chọn (một bản sửa), và `measured`.
+Một lựa chọn có `measured: false` không bao giờ được chọn.
+
+## `POST /interventions/landed`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/interventions/landed" \
+  -H "Content-Type: application/json" -H "x-api-key: pk_live_..." \
+  -d '{ "own": { "marketplace": "tiki", "price": 2490000, "shipping": 45000, "voucher": 100000 },
+        "rivals": [{ "marketplace": "shopee", "price": 2450000, "voucher": 30000 }] }'
+```
+
+```json
+{ "own": 2435000, "cheapest": { "marketplace": "shopee", "landed": 2420000 }, "gap": 15000, "gapPct": 0.0062, "stickerGap": 40000 }
+```
+
+Chênh lệch 40.000 trên giá niêm yết chỉ còn 15.000 khi thanh toán.
+
+## Thiết lập
+
+Các trường `economics` bạn bỏ trống sẽ lấy từ thiết lập đã lưu của bạn, rồi tới giá trị mặc định chúng
+tôi duy trì; `configuration` trong phản hồi cho biết cái nào. `contribution` không có giá trị mặc định:
+hãy gửi nó, hoặc lưu nó. Mỗi lệnh gọi được tính là một yêu cầu trong gói của bạn.

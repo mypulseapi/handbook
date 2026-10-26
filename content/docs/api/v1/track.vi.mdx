@@ -1,0 +1,95 @@
+---
+title: Gửi tín hiệu
+description: POST /track, lệnh gọi mà mọi thứ khác phụ thuộc vào.
+icon: Radio
+---
+
+## `POST /track`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/track" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "signals": [
+      { "type": "category_view", "value": "helmets-safety" },
+      { "type": "price_filter", "value": "500000-1500000" }
+    ]
+  }'
+```
+
+Với SDK:
+
+```ts
+await pulse.track([
+  { type: 'category_view', value: 'helmets-safety' },
+  { type: 'price_filter', value: '500000-1500000' },
+]);
+```
+
+<Callout>
+  Tín hiệu được cộng dồn. Hãy gửi chúng khi chúng xảy ra thay vì gom cả phiên lại gửi một lần ở cuối:
+  điểm persona giảm dần theo thời gian, nên thứ tự mang ý nghĩa.
+</Callout>
+
+<Callout type="warn" title="organizationId là bắt buộc">
+  Mọi endpoint dưới đây đọc nó từ body, không phải từ API key. Bỏ nó đi sẽ trả về `400` kèm lỗi kiểm tra
+  nêu tên trường. SDK tự gửi nó cho bạn từ `init()`.
+</Callout>
+
+`/track` cũng ghi thiết bị, nguồn giới thiệu và thời gian từ chính yêu cầu, nên một lệnh gọi hoàn toàn
+không có `signals` vẫn đáng thực hiện: nó mở phiên với những gì yêu cầu đã cho biết.
+
+## `POST /track/behavior`
+
+Một hành vi có tên, khi bạn không có gì để nói về ngành hàng hay mức giá.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/track/behavior" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "behavior": "sort_price_asc",
+    "metadata": { "page": "category" }
+  }'
+```
+
+`behavior` là slug riêng của bạn, tối đa 128 ký tự. Sắp xếp theo giá tăng dần nói lên điều gì đó về
+người mua mà không lượt xem ngành hàng nào nói được.
+
+## `POST /track/keywords`
+
+Một truy vấn tìm kiếm, được chuyển thành tín hiệu từ khoá giúp bạn.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/track/keywords" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "sessionId": "sess_abc123",
+    "organizationId": "org_abc123",
+    "query": "mu bao hiem fullface"
+  }'
+```
+
+Gửi truy vấn thô. Việc tách từ diễn ra phía máy chủ, và truy vấn bị giới hạn 512 ký tự vì khối lượng
+xử lý tăng tuyến tính theo độ dài.
+
+## `POST /event`
+
+Một sự kiện có tên, cho những thứ không phải tín hiệu persona.
+
+```ts
+await pulse.event('checkout_started', { cartValue: 1250000 });
+```
+
+Khi có một lần mua, hãy gửi mã đơn hàng và `decisionId` của lần xếp hạng, để một
+[kết quả đơn hàng](/vi/api/v1/outcomes) sau đó có thể truy ngược về lần mua và lần xếp hạng:
+
+```ts
+await pulse.event('purchase', { decisionId, orderId: 'SO-10442' });
+```

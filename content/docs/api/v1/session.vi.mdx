@@ -1,0 +1,26 @@
+---
+title: Đọc phiên
+description: POST /session, trả về các persona đã suy ra tới thời điểm này.
+icon: Clock
+---
+
+## `POST /session`
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/session" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{ "sessionId": "sess_abc123" }'
+```
+
+```ts
+const session = await pulse.getSession();
+```
+
+Trả về phiên có được tìm thấy không và các persona đã tích luỹ cho nó. Một id phiên chưa từng được ghi
+sẽ trả về `found: false`, đó là cách nhanh nhất để xác nhận tín hiệu của bạn đang đến nơi.
+
+<Callout title="Dùng nó khi đang tích hợp">
+  Nếu `found` là false sau một lệnh `track`, tín hiệu đang không đến nơi. Đó là một yêu cầu để kiểm
+  tra, thay vì suy ngược từ một thứ hạng trông có vẻ hơi sai.
+</Callout>

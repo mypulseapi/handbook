@@ -1,0 +1,104 @@
+---
+title: Bản kiểm tra đo gì
+description: "Vì sao cột trống nhất thường là cột sai để sửa, một bit thông tin quyết định mang lại gì, và ba trường hợp thứ hạng bị sai."
+icon: ClipboardCheck
+---
+
+Bản kiểm tra trả về các thuộc tính theo thứ tự ưu tiên. Thứ tự đó chính là sản phẩm, và nó không phải
+thứ tự bạn có được khi đếm ô trống.
+
+## Sao không sửa luôn cột trống nhất?
+
+Vì độ trống và độ hữu ích là hai đại lượng khác nhau, và trên một kệ hàng thật chúng còn đảo ngược.
+
+Đây là hai thuộc tính từ danh mục 216 laptop chúng tôi dùng cho nghiên cứu của mình:
+
+| Thuộc tính | Bị thiếu trên | Xếp theo độ trống | Xếp theo giá trị quyết định |
+| --- | --- | --- | --- |
+| Bộ xử lý | 162 trên 216 | **thứ 1** | **cuối cùng** |
+| Kích thước màn hình | 80 trên 216 | thứ 4 | **thứ 1** |
+
+Bộ xử lý bị thiếu nhiều gấp đôi và hầu như không ai quyết định dựa vào nó: nó xuất hiện trong 2 trên
+32 yêu cầu mua chúng tôi đã thử. Kích thước màn hình xuất hiện trong 13. Điền bộ xử lý ở mọi nơi và
+bạn đã làm phần việc dễ thấy nhất trên bảng điều khiển nhưng tác động tới ít quyết định nhất.
+
+<Callout type="warn" title="Đây là toàn bộ lập luận">
+  Điểm độ đầy đủ đo danh mục của bạn so với chính nó. Bản kiểm tra đo nó so với điều người mua đang
+  cố quyết định. Hai cách cho ra hai danh sách việc khác nhau, và chỉ một trong số đó được xếp theo
+  giá trị mà nó mang lại.
+</Callout>
+
+## Một bit thông tin quyết định là gì?
+
+Một bit là một lần chia đôi kệ hàng.
+
+Nếu người mua đứng trước 216 sản phẩm và một thuộc tính chia chúng gọn làm đôi, thuộc tính đó đáng
+một bit: nó đưa 216 xuống 108. Hai bit đưa xuống 54. Bản kiểm tra báo mỗi thuộc tính sẽ đáng bao
+nhiêu **nếu được ghi ở mọi nơi**, trừ đi giá trị hiện tại của nó, và phần chênh lệch là thứ bản sửa
+mang lại.
+
+Đó là lý do con số này không phải tỷ lệ phần trăm. Tỷ lệ phần trăm cho biết một cột đầy tới đâu. Bit
+cho biết người mua tiến gần quyết định thêm bao nhiêu khi bạn điền cột đó.
+
+## Giá trị còn thiếu đang nằm ở đâu?
+
+Thường là trong văn bản bạn đã có. Trước khi đề nghị bất kỳ ai gõ thêm gì, bản kiểm tra thử khôi
+phục giá trị từ chính tiêu đề và mô tả của bạn.
+
+Trên cùng kệ laptop đó, **161 trên 216 kích thước màn hình còn thiếu đã nằm sẵn trong tiêu đề sản
+phẩm**. Đó là việc tách dữ liệu, không phải một dự án thu thập, và nó thay đổi chi phí bản sửa đủ để
+thay đổi việc có đáng làm hay không.
+
+Bản kiểm tra báo nguồn gốc của từng thuộc tính để bạn phân biệt:
+
+| Thông tin ở đâu | Bản sửa thực chất là gì |
+| --- | --- |
+| Đã có trong văn bản của bạn | Trích xuất. Rẻ, và thường xong trong ngày |
+| Trong nguồn cấp của nhà cung cấp | Ánh xạ. Một yêu cầu công việc, không phải một dự án |
+| Không ở đâu cả | Thu thập. Cần có người đi tìm |
+
+## Khi nào thứ hạng bị sai?
+
+Ba trường hợp, và chúng tôi muốn bạn nghe từ chính chúng tôi.
+
+<Steps>
+
+<Step>
+
+### Các giá trị đã ghi không mang tính đại diện
+
+Việc mô phỏng một danh mục đầy đủ chỉ có thể dựa trên những giá trị kệ hàng của bạn đã có. Nếu một
+thuộc tính được ghi trên hai mươi sản phẩm và hai mươi sản phẩm đó không điển hình cho cả dòng hàng,
+mô phỏng sẽ sai theo cách chúng tôi gọi tên được nhưng chưa sửa được.
+
+</Step>
+
+<Step>
+
+### Các yêu cầu không phải của bạn
+
+Các yêu cầu mua chúng tôi dùng để đối chiếu được soạn từ hướng dẫn ngành hàng công khai và các bộ
+lọc. Nếu người mua của bạn muốn điều gì đó những nguồn này không bao quát, thứ hạng sẽ không biết.
+Gửi cho chúng tôi nhật ký tìm kiếm và bộ lọc của chính bạn sẽ khắc phục điều này, và đó là điều có
+giá trị nhất bạn có thể bổ sung.
+
+</Step>
+
+<Step>
+
+### Thông tin chỉ có trong ảnh
+
+Một thông tin dinh dưỡng in trên bao bì, một chất liệu nhìn thấy trong ảnh. Chúng tôi có thể cho bạn
+biết thuộc tính đó còn thiếu trong các trường. Chúng tôi chưa đọc được nó từ hình ảnh của bạn, và sẽ
+nói rõ điều đó trên dòng tương ứng thay vì lặng lẽ chấm là không có.
+
+</Step>
+
+</Steps>
+
+## Tiếp theo là gì?
+
+<Cards>
+  <Card icon={<Braces />} title="Chạy nó" href="/vi/api/v1/audit" description="POST /catalog/audit và /catalog/verify, kèm cấu trúc yêu cầu và phản hồi." />
+  <Card icon={<Brain />} title="Phần chạy trực tiếp" href="/vi/concepts/how-it-works" description="Nửa còn lại: xếp hạng một phiên trực tiếp khi danh mục đã đủ khả năng." />
+</Cards>

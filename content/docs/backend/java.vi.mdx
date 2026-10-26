@@ -1,0 +1,81 @@
+---
+title: Java
+description: java.net.http, có trong JDK từ bản 11. Không phụ thuộc gì ngoài một thư viện JSON.
+icon: Server
+---
+
+```java title="PulseClient.java"
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+
+public final class PulseClient {
+    private static final String BASE = "https://api.thepulseapi.com/api/v1";
+
+    private final HttpClient http = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
+    private final ObjectMapper json = new ObjectMapper();
+    private final String apiKey;
+    private final String organizationId;
+
+    public PulseClient(String apiKey, String organizationId) {
+        this.apiKey = apiKey;
+        this.organizationId = organizationId;
+    }
+
+    public JsonNode track(String sessionId, Object signals) throws Exception {
+        return post("/track", Map.of(
+                "sessionId", sessionId,
+                "organizationId", organizationId,
+                "signals", signals));
+    }
+
+    public JsonNode rankedCatalog(String sessionId, int limit) throws Exception {
+        return post("/catalog/ranked", Map.of(
+                "sessionId", sessionId,
+                "organizationId", organizationId,
+                "limit", limit));
+    }
+
+    private JsonNode post(String path, Map<String, Object> body) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder(URI.create(BASE + path))
+                .header("Content-Type", "application/json")
+                .header("x-api-key", apiKey)
+                // connectTimeout above only covers establishing the connection. This is the
+                // one that bounds a server which accepted the socket and then went quiet.
+                .timeout(Duration.ofSeconds(5))
+                .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body)))
+                .build();
+
+        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= 300) {
+            throw new IllegalStateException("PULSE " + path + ": " + response.statusCode());
+        }
+        return json.readTree(response.body());
+    }
+}
+```
+
+`HttpClient` an toàn với đa luồng và giữ nhóm kết nối, nên hãy tạo một lần và giữ lại. Trong Spring,
+điều đó nghĩa là một `@Bean`, không phải một lệnh `new` bên trong controller.
+
+```java
+@Bean
+PulseClient pulseClient(
+        @Value("${pulse.api-key}") String apiKey,
+        @Value("${pulse.organization-id}") String organizationId) {
+    return new PulseClient(apiKey, organizationId);
+}
+```
+
+<Callout type="warn" title="Hai timeout, không phải một">
+  `connectTimeout` trên client và `timeout` trên yêu cầu làm hai việc khác nhau. Chỉ đặt cái đầu, thì
+  một máy chủ nhận kết nối của bạn rồi đứng im sẽ giữ luồng vô thời hạn.
+</Callout>

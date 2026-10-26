@@ -1,0 +1,32 @@
+---
+title: Sản phẩm cho cửa hàng
+description: "Các sản phẩm cửa hàng của PULSE xếp hạng danh mục cho từng lượt truy cập trực tiếp, ẩn danh. Decision API, Search, Recommendations và Category pages, mỗi điểm số đều kèm lý do."
+icon: Store
+---
+
+Một nghìn người mua vào cùng một trang và thấy cùng một lưới sản phẩm, dù họ đến vì những điều khác
+nhau. Các sản phẩm cho cửa hàng đọc điều mà lượt truy cập hiện tại cho thấy, từ các trang đã xem, bộ
+lọc đã đặt và từ khoá đã tìm, rồi sắp xếp sản phẩm của bạn theo đó. **Không đăng nhập, không cookie,
+không dữ liệu cá nhân**, và mỗi điểm số đều kèm các yếu tố tạo ra nó.
+
+| Sản phẩm | Xếp hạng gì | Lệnh gọi | Tính vào mức sử dụng |
+| --- | --- | --- | --- |
+| [Decision API](/vi/storefront/decision-api) | Chính phiên truy cập: lượt truy cập này đang tìm mua gì | `POST /track`, `POST /session` | Có |
+| [Search](/vi/storefront/search) | Kết quả tìm kiếm, từ công cụ của bạn hoặc của chúng tôi | `POST /search`, `POST /rerank`, `POST /suggest` | Có, `/suggest` miễn phí |
+| [Recommendations](/vi/storefront/recommendations) | Một dải gợi ý, kể cả ở lượt truy cập đầu tiên | `POST /catalog/ranked` với `recommendCount` | Có |
+| [Category pages](/vi/storefront/category-pages) | Lưới sản phẩm của trang ngành hàng và trang đích | `POST /catalog/ranked` với `categorySlug` | Có |
+
+Việc đo lường là miễn phí: `POST /event` và `POST /exposure` ghi lại những gì đã hiển thị và điều gì
+đã xảy ra, để bạn chứng minh được việc xếp hạng có hiệu quả, và chúng không bao giờ tính vào mức sử
+dụng.
+
+## Được làm để chạy cùng hệ thống bạn đang có
+
+- **Nó quay về thứ tự của chính bạn.** Nếu PULSE chậm hoặc không truy cập được, người mua sẽ thấy thứ
+  tự mà bạn vốn đã hiển thị.
+- **Luôn giữ lại một phần lượt truy cập**, xếp hạng không có PULSE, để sự khác biệt được đo thay vì
+  khẳng định.
+- **Nó đọc được tìm kiếm Đông Nam Á** bằng tiếng Việt, tiếng Thái, Bahasa và tiếng Anh, kể cả giá.
+
+Hãy làm đúng danh mục trước: việc xếp hạng chỉ đưa lên được những thông tin mà danh mục của bạn có
+ghi. Các [sản phẩm cho danh mục](/vi/catalogue) tìm và sửa các khoảng trống.

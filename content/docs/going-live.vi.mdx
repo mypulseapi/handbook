@@ -1,0 +1,105 @@
+---
+title: Đưa vào vận hành
+description: "Những gì cần kiểm tra trước khi đưa PULSE lên, những gì cần theo dõi trong tuần đầu, và những tuyên bố chúng tôi sẽ không đưa ra thay bạn."
+icon: ShieldCheck
+---
+
+Bạn đã chạy một bản kiểm tra, sửa một vài thứ, và có thể đã kết nối phần chạy trực tiếp. Trang này là
+điểm cuối của hành trình: những gì cần kiểm tra trước khi đưa tới người mua, và những gì nên chờ đợi
+sau đó.
+
+## Tôi nên kiểm tra gì trước khi đưa lên?
+
+<Steps>
+
+<Step>
+
+### Key đúng loại
+
+Key công khai (`pk_live_...`) được thiết kế để hiển thị trong mã nguồn trang. Key bí mật thì không, và
+chỉ thuộc về hướng dẫn phía máy chủ. Nếu một key bí mật đã lọt vào tệp giao diện hay gói mã phía
+client, hãy thu hồi ngay bây giờ thay vì sau khi triển khai.
+
+</Step>
+
+<Step>
+
+### Có một nhóm được giữ lại
+
+Quyết định tỷ lệ lưu lượng không bao giờ thấy thứ hạng của PULSE, và giữ nguyên nó. Không có nhóm đối
+chứng, bạn không phân biệt được một quý tốt với một bộ xếp hạng tốt, và sẽ không trả lời được câu hỏi
+đầu tiên đội tài chính đặt ra.
+
+</Step>
+
+<Step>
+
+### Thứ tự của chính bạn là phương án dự phòng
+
+Nếu bộ máy chậm hoặc không khả dụng, trang nên hiển thị thứ tự hiện có của bạn thay vì một kệ hàng
+trống. Kiểm tra bằng cách trỏ `endpoint` tới một cổng không có gì lắng nghe rồi tải trang.
+
+</Step>
+
+<Step>
+
+### Bạn thấy được khi `init()` thất bại
+
+`init()` gửi các tín hiệu tự động đúng một lần và tự nuốt lỗi của nó. Một phiên có `init()` thất bại
+sẽ thiếu dữ liệu suốt cả phiên, và không có gì trên trang báo cho bạn. Hãy ghi log lỗi, hoặc gọi lại
+[`captureAutoSignals()`](/vi/sdk#beyond-the-client) ở lần tải trang sau.
+
+</Step>
+
+<Step>
+
+### Lượt hiển thị được ghi lại
+
+Nếu bạn xếp hạng, hãy gọi `exposure()` với những gì thực sự đã hiển thị. Một thứ hạng không gắn được
+với điều người mua đã thấy thì không thể đánh giá về sau, và lệnh gọi có bộ đệm hầu như không tốn gì.
+
+</Step>
+
+</Steps>
+
+## Tôi nên theo dõi gì trong tuần đầu?
+
+| Theo dõi | Vì sao quan trọng |
+| --- | --- |
+| Phiên không có tín hiệu nào | Hầu như luôn do `init()` thất bại âm thầm, hoặc key giới hạn sai nguồn gốc |
+| Tỷ lệ không trả lời | Bộ máy từ chối xếp hạng là đang hoạt động đúng thiết kế. Một thay đổi đột ngột thường có nghĩa danh mục đã đổi, không phải bộ máy |
+| Mức sẵn sàng của bản kiểm tra, chạy lại | Danh mục xuống cấp. Sản phẩm mới về không được ghi, và một kệ hàng điểm cao quý trước lặng lẽ tụt xuống |
+| Tỷ lệ dùng phương án dự phòng | Bao lâu một lần thứ tự của chính bạn được hiển thị thay thế. Nên gần bằng không, và không phải lúc nào cũng vậy |
+
+## Bạn sẽ không tuyên bố điều gì thay tôi?
+
+Đáng đọc trước khi bạn nhắc lại bất cứ điều gì từ trang này trong nội bộ.
+
+<Callout type="warn" title="Không có con số tăng trưởng">
+  Chúng tôi chưa chạy thử nghiệm doanh thu trực tiếp nào. Chúng tôi sẽ không nêu mức tăng chuyển đổi,
+  mức giảm tỷ lệ trả hàng hay hệ số ROI, và bất kỳ con số nào bạn thấy ở nơi khác gắn với những từ đó
+  không đến từ chúng tôi.
+</Callout>
+
+Điều chúng tôi chứng minh được là một thuộc tính của danh mục: những yêu cầu nào nó giải quyết được và
+không giải quyết được, trước và sau một bản sửa. Điều đó được đo, tái lập được, và không giống với một
+lần bán hàng.
+
+Thêm ba giới hạn, nói rõ:
+
+- **Một thông tin chỉ có trong ảnh là thông tin chúng tôi báo được là đang thiếu nhưng chưa khôi phục
+  được cho bạn.** Trích xuất thuộc tính từ hình ảnh sản phẩm là nghiên cứu chúng tôi đang làm, chưa
+  phải tính năng đã phát hành.
+- **Việc mô phỏng một danh mục đầy đủ chỉ dùng được những giá trị kệ hàng của bạn đã ghi.** Khi các
+  giá trị đã ghi của một thuộc tính không đại diện cho phạm vi thật của nó, mô phỏng sẽ sai theo cách
+  chúng tôi gọi tên được nhưng chưa sửa được.
+- **Chúng tôi chưa có khách hàng nào để nêu tên.** Khi điều đó thay đổi, chúng tôi sẽ nói, với sự cho
+  phép của họ.
+
+## Tiếp theo đi đâu?
+
+<Cards>
+  <Card icon={<Braces />} title="Tài liệu API" href="/vi/api/v1" description="Mọi endpoint mà key công khai gọi được, kèm cấu trúc lỗi." />
+  <Card icon={<Boxes />} title="Tài liệu SDK" href="/vi/sdk" description="Mọi phương thức của client, và các hàm đi kèm." />
+  <Card icon={<Brain />} title="Suy luận hoạt động thế nào" href="/vi/concepts/how-it-works" description="Bộ máy đo gì, và khi nào nó sai." />
+</Cards>

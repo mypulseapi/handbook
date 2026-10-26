@@ -1,0 +1,48 @@
+---
+title: Decision Audit
+description: "Decision Audit của PULSE xếp hạng các thông tin sản phẩm còn thiếu trong danh mục theo số quyết định mua chúng làm mất, để đội của bạn sửa đúng cột trước. Một lệnh gọi API, một tệp CSV."
+icon: ClipboardCheck
+---
+
+Điểm độ đầy đủ cho bạn biết cột nào trống nhất. Decision Audit cho bạn biết thông tin còn thiếu nào
+đang **làm bạn mất doanh số**, và hai điều đó hiếm khi là cùng một cột. Trên kệ thử nghiệm 216 laptop
+của chính chúng tôi, bộ xử lý bị thiếu nhiều gấp đôi kích thước màn hình, nhưng kích thước màn hình
+xuất hiện trong 13 trên 32 yêu cầu mua còn bộ xử lý chỉ trong 2. Điền cột trống nhất trước và bạn làm
+phần việc dễ thấy nhất cho kết quả ít nhất.
+
+**Dành cho ai:** người phụ trách danh mục hoặc thương mại điện tử phải quyết định ngân sách nội dung
+quý này đi đâu, và lập trình viên kết nối tệp xuất.
+
+## Bạn nhận lại gì
+
+- Mọi thuộc tính theo **thứ tự ưu tiên**, xếp theo thông tin quyết định: người mua tiến gần quyết
+  định thêm bao nhiêu khi thông tin được ghi. [Điều đó nghĩa là gì](/vi/concepts/what-the-audit-measures).
+- **Nơi mỗi giá trị còn thiếu đang nằm sẵn**: trong chính tiêu đề và mô tả của bạn (tách ra, thường
+  xong trong ngày), trong nguồn cấp của nhà cung cấp (ánh xạ), hoặc không ở đâu cả (cần có người tìm).
+- Với `amortisationHorizon`, một **hành động** cho mỗi thuộc tính: ghi một lần, hoặc hỏi người mua.
+- Cảnh báo rõ ràng ở chỗ thứ hạng có thể sai, thay vì một con số tự tin.
+
+## Lệnh gọi
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "csv": "id,category,size,material\n1,helmet,L,abs\n2,helmet,,\n",
+    "source": "merchant",
+    "amortisationHorizon": 5000
+  }'
+```
+
+Một tệp xuất ngành hàng dưới dạng chuỗi CSV, tối đa 2 MB, khoảng 20.000 sản phẩm. Không có gì được
+lưu trừ khi bạn yêu cầu. Mọi trường: [`POST /catalog/audit`](/vi/api/v1/audit#post-catalogaudit).
+
+**Tính vào mức sử dụng:** có, một yêu cầu cho mỗi lần kiểm tra.
+
+## Tiếp theo
+
+<Cards>
+  <Card title="Chứng minh bản sửa" href="/vi/catalogue/decision-verification" description="Gửi tệp xuất đã sửa và xem chính xác điều gì đã thay đổi." />
+  <Card title="Lấy API key" href="/vi#get-your-account-ready" description="Tài khoản, gói và key, theo đúng thứ tự." />
+</Cards>

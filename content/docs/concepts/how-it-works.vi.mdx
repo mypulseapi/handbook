@@ -1,0 +1,47 @@
+---
+title: Suy luận hoạt động thế nào
+description: Tín hiệu vào, persona ra, danh mục của bạn được xếp hạng theo đó.
+icon: Brain
+---
+
+Hầu hết công cụ tìm kiếm và gợi ý đều trả lời, vì trả lời là tất cả những gì chúng làm được. Chúng
+xếp hạng một thứ gì đó cho mọi truy vấn, kể cả những truy vấn mà danh mục của bạn không có dữ liệu để
+giải quyết.
+
+PULSE làm được hai điều mà chúng không làm được.
+
+<Cards>
+  <Card icon={<Activity />} title="Suy luận ngay trong phiên" description="Persona tích luỹ từ hành vi trong một lượt truy cập, không cần danh tính và không cần lịch sử." />
+  <Card icon={<SearchX />} title="Biết khi nào không trả lời được" description="Nếu danh mục không giải quyết được một yêu cầu, đó là một sự thật để báo cáo chứ không phải một thứ hạng tồi." />
+</Cards>
+
+## Vòng lặp
+
+<Steps>
+<Step>
+### Một tín hiệu đến
+Một lượt xem ngành hàng, một bộ lọc giá, một loại thiết bị. Xem [Tín hiệu](/vi/concepts/signals).
+</Step>
+<Step>
+### Persona được cập nhật
+Mỗi tín hiệu làm thay đổi một nhóm điểm persona. Điểm giảm dần theo thời gian, nên một phiên đổi
+hướng sẽ được theo kịp thay vì bị lấy trung bình.
+</Step>
+<Step>
+### Sản phẩm được chấm điểm theo persona
+`search` xếp hạng các sản phẩm bạn gửi. `rankedCatalog` xếp hạng danh mục đã đồng bộ lên PULSE.
+</Step>
+<Step>
+### Lượt hiển thị được ghi lại
+Những gì thực sự được hiển thị là thứ giúp đo được chất lượng xếp hạng về sau. Xem
+[`exposure`](/vi/api/v1/exposure).
+</Step>
+</Steps>
+
+## Nó không phải là gì
+
+<Callout type="warn">
+  PULSE không phải là PIM và không thay thế bất cứ thứ gì bạn đang chạy. Nó đọc danh mục của bạn và
+  xếp hạng theo đó. Nếu một trường bị thiếu ở mọi nơi, việc xếp hạng không thể tự tạo ra nó, và nói
+  rõ điều đó chính là mục đích.
+</Callout>

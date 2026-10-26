@@ -1,0 +1,45 @@
+---
+title: Xác thực
+description: "Một header, một URL gốc, và thông tin xác thực nào mở được gì."
+icon: KeyRound
+---
+
+## URL gốc
+
+```bash
+https://api.thepulseapi.com/api/v1
+```
+
+## Header
+
+Xác thực bằng **`x-api-key`**. Không phải `Authorization: Bearer`.
+
+```bash title="A real request"
+curl -X POST "https://api.thepulseapi.com/api/v1/session" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{}'
+```
+
+## Lấy key
+
+Đăng nhập vào [bảng điều khiển](https://app.thepulseapi.com), mở **Integration → API keys**, và tạo
+một key.
+
+| | |
+| --- | --- |
+| **Định dạng** | Luôn là `pk_live_` theo sau là chuỗi ngẫu nhiên base64url |
+| **Công khai** | Được thiết kế để hiển thị trong mã trình duyệt. Nó gửi được tín hiệu và đọc được thứ hạng, không gì khác |
+| **Có phạm vi** | Thuộc về một tổ chức và không đọc được dữ liệu của tổ chức khác |
+| **Chỉ hiển thị một lần** | Giá trị đầy đủ chỉ được trả về khi tạo. Chỉ bản băm được lưu |
+| **Thu hồi được** | Việc thu hồi có hiệu lực ngay |
+
+<Callout type="warn" title="Không có key thử nghiệm">
+  Mọi key được cấp đều là `pk_live_`. Chưa có `pk_test_` và chưa có môi trường sandbox. Để thử nghiệm
+  không lẫn vào báo cáo, hãy tạo một **key riêng** cho phát triển và thu hồi khi xong.
+</Callout>
+
+## Những gì key công khai không làm được
+
+Thao tác ghi danh mục (`/products`, `/categories`) xác thực bằng phiên đăng nhập bảng điều khiển,
+không phải bằng key công khai. Chúng không thuộc tài liệu này.

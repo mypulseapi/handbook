@@ -1,0 +1,85 @@
+---
+title: Ruby
+description: net/http từ thư viện chuẩn. Không cần thêm gì vào Gemfile.
+icon: Leaf
+---
+
+```ruby title="lib/pulse.rb"
+require "json"
+require "net/http"
+require "uri"
+
+class Pulse
+  BASE = URI("https://api.thepulseapi.com/api/v1").freeze
+
+  def initialize(api_key:, organization_id:)
+    @api_key = api_key
+    @organization_id = organization_id
+  end
+
+  def track(session_id, signals)
+    post("/track", sessionId: session_id, signals: signals)
+  end
+
+  def ranked_catalog(session_id, limit: 24)
+    post("/catalog/ranked", sessionId: session_id, limit: limit)
+  end
+
+  def session(session_id)
+    post("/session", sessionId: session_id)
+  end
+
+  private
+
+  def post(path, **body)
+    # organizationId is required on nearly every endpoint and is read from the body,
+    # not from the key.
+    body[:organizationId] = @organization_id
+
+    request = Net::HTTP::Post.new(BASE.path + path)
+    request["Content-Type"] = "application/json"
+    request["x-api-key"] = @api_key
+    request.body = JSON.generate(body)
+
+    response = Net::HTTP.start(
+      BASE.host, BASE.port,
+      use_ssl: true,
+      open_timeout: 5,
+      read_timeout: 5,
+    ) { |http| http.request(request) }
+
+    raise "PULSE #{path}: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
+
+    JSON.parse(response.body)
+  end
+end
+```
+
+## Rails
+
+```ruby title="config/initializers/pulse.rb"
+PULSE = Pulse.new(
+  api_key: ENV.fetch("PULSE_API_KEY"),
+  organization_id: ENV.fetch("PULSE_ORG_ID"),
+)
+```
+
+```ruby title="app/controllers/catalog_controller.rb"
+def show
+  session_id = cookies[:pulse_session]
+  @products = if session_id
+    PULSE.ranked_catalog(session_id, limit: 24)["items"]
+  end
+rescue StandardError
+  # Personalisation is an enhancement. Catalogue order is a working page.
+  @products = nil
+ensure
+  @products ||= Product.where(category: params[:slug]).limit(24)
+end
+```
+
+<Callout title="Cả hai timeout">
+  `open_timeout` giới hạn việc kết nối và `read_timeout` giới hạn thời gian chờ phản hồi. Chỉ đặt cái
+  đầu, thì một máy chủ nhận kết nối rồi đứng im sẽ giữ yêu cầu cho tới khi thứ gì đó phía trên chịu
+  thua.
+</Callout>

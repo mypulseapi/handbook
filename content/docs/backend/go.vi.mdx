@@ -1,0 +1,97 @@
+---
+title: Go
+description: net/http và encoding/json. Không cần cài gì.
+icon: Zap
+---
+
+```go title="pulse/pulse.go"
+package pulse
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"time"
+)
+
+const base = "https://api.thepulseapi.com/api/v1"
+
+type Signal struct {
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
+type Client struct {
+	apiKey string
+	orgID  string
+	http   *http.Client
+}
+
+func New(apiKey, orgID string) *Client {
+	return &Client{
+		apiKey: apiKey,
+		orgID:  orgID,
+		// http.DefaultClient has no timeout at all, which is a goroutine leak waiting
+		// for a slow upstream. Always supply one.
+		http: &http.Client{Timeout: 5 * time.Second},
+	}
+}
+
+func (c *Client) post(ctx context.Context, path string, body map[string]any, out any) error {
+	// organizationId is read from the body rather than from the key, and is required
+	// on nearly every endpoint.
+	body["organizationId"] = c.orgID
+
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, base+path, bytes.NewReader(payload))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", c.apiKey)
+
+	res, err := c.http.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 300 {
+		return fmt.Errorf("pulse %s: %s", path, res.Status)
+	}
+	return json.NewDecoder(res.Body).Decode(out)
+}
+
+func (c *Client) Track(ctx context.Context, sessionID string, signals []Signal) (map[string]any, error) {
+	var out map[string]any
+	err := c.post(ctx, "/track", map[string]any{"sessionId": sessionID, "signals": signals}, &out)
+	return out, err
+}
+
+func (c *Client) RankedCatalog(ctx context.Context, sessionID string, limit int) (map[string]any, error) {
+	var out map[string]any
+	err := c.post(ctx, "/catalog/ranked", map[string]any{"sessionId": sessionID, "limit": limit}, &out)
+	return out, err
+}
+```
+
+```go
+p := pulse.New(os.Getenv("PULSE_API_KEY"), os.Getenv("PULSE_ORG_ID"))
+
+ranked, err := p.RankedCatalog(r.Context(), sessionID, 24)
+if err != nil {
+	// Serve the catalogue in its default order. Personalisation is an enhancement.
+	ranked = nil
+}
+```
+
+<Callout title="Truyền context của yêu cầu">
+  Truyền `r.Context()` xuyên suốt nghĩa là khi người mua rời trang, lệnh xếp hạng sẽ bị huỷ thay vì
+  tiếp tục chạy cho một phản hồi không ai đọc.
+</Callout>

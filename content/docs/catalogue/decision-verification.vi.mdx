@@ -1,0 +1,52 @@
+---
+title: Decision Verification
+description: "Decision Verification của PULSE đo lại danh mục sau khi sửa và chấm từng bản sửa được khai báo theo những gì thực sự thay đổi. Có bằng chứng mà không cần chờ lưu lượng."
+icon: GitCompare
+---
+
+Đội của bạn, một agency hay một công cụ làm giàu dữ liệu nói rằng các khoảng trống đã được lấp.
+Decision Verification kiểm tra điều đó. Gửi tệp xuất trước và sau khi làm, liệt kê những gì được khai
+báo, và nhận lại điều thực sự đã thay đổi, theo từng thuộc tính, cùng những yêu cầu mua mà danh mục
+giờ trả lời được.
+
+Nó **không cần lưu lượng và không cần thử nghiệm A/B**. Bằng chứng nằm trong dữ liệu, nên có ngay khi
+tệp xuất mới sẵn sàng.
+
+**Dành cho ai:** người phê duyệt công việc sửa dữ liệu, và bất kỳ ai trả tiền cho việc làm giàu dữ
+liệu và muốn thấy nó được giao đúng.
+
+## Bạn nhận lại gì
+
+- **Theo từng thuộc tính**, tỷ lệ sản phẩm mà người mua có thể quyết định được trước và sau: cái gì
+  `improved`, cái gì giảm, cái gì không đổi.
+- **Theo từng bản sửa được khai báo**, nó thực sự thêm được bao nhiêu sản phẩm, và bằng chứng mạnh đến
+  đâu.
+- **`unverifiedClaims`**: những gì được khai báo mà tệp xuất mới không cho thấy.
+- **Các yêu cầu mua** mà danh mục giờ trả lời được, và những yêu cầu mới không còn trả lời được.
+- Khi mỗi khai báo có số giờ, bạn thấy công sức đằng sau kết quả, cùng một dòng tiêu đề để báo cáo.
+
+## Lệnh gọi
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/verify" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "before": "id,category,size\n1,helmet,\n",
+    "after":  "id,category,size\n1,helmet,L\n",
+    "repairs": [{ "attribute": "size", "method": "manual", "actualHours": 3 }],
+    "category": "Helmets"
+  }'
+```
+
+Thêm `organizationId` để lưu kết quả; bỏ trống thì phản hồi sẽ nói không có gì được lưu. Mọi trường:
+[`POST /catalog/verify`](/vi/api/v1/audit#post-catalogverify).
+
+**Tính vào mức sử dụng:** có, một yêu cầu cho mỗi lần xác minh.
+
+## Tiếp theo
+
+<Cards>
+  <Card title="Luôn được đo" href="/vi/catalogue/decision-monitor" description="Cùng phép so sánh trên mỗi tệp xuất mới." />
+  <Card title="Kiểm tra hàng trả" href="/vi/catalogue/return-verification" description="Các khoảng trống bạn đã sửa có đi cùng hàng bị trả không?" />
+</Cards>
