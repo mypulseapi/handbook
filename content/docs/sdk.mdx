@@ -69,17 +69,17 @@ directly when you want a signal at a different moment, or want one the automatic
 | `captureTimeSignal()` | `Signal` | Time of day. Never null, there is always a clock |
 | `captureEnhancedReferrerSignals()` | `Signal[]` | Campaign and channel detail beyond the plain referrer |
 | `captureDeviceInfoAsync(): Promise` | `DeviceInfo` | Fuller device detail, including client hints |
-| `captureGeoInfo(): Promise` | `GeoInfo \| null` | Coarse location from the IP |
+| `captureGeoInfo(): Promise` | `null` | **Deprecated.** Always `null`: the Pulse API reads location from the request |
 | `geoToSignals(geo)` | `Signal[]` | Turn a `GeoInfo` into signals |
-| `captureWeatherInfo(lat, lon, apiKey?): Promise` | `WeatherInfo \| null` | Conditions at a point |
+| `captureWeatherInfo(lat, lon, apiKey?): Promise` | `WeatherInfo \| null` | **Deprecated.** The Pulse API adds weather itself |
 | `weatherToSignals(weather)` | `Signal[]` | Turn a `WeatherInfo` into signals |
 | `captureCulturalCalendar(countryCode)` | `Signal[]` | Seasonal and cultural events active today |
 | `parseUserAgent(ua)` | `DeviceInfo` | Parse a user agent string you already have |
 
-<Callout type="warn" title="captureWeatherInfo needs your own key">
-  It calls OpenWeatherMap and returns `null` without an `apiKey`, so nothing breaks if you leave
-  it out. The free tier is 1,000 calls a day, which is why the result is cached per session
-  rather than fetched per page.
+<Callout title="Location and weather need nothing from you">
+  The Pulse API works out the visitor's country and city from the request and adds the weather
+  there from its own cached reading, one lookup per city per hour. No key goes in the browser and
+  no call leaves the page. A MAC address is never available to any website, so nothing reads one.
 </Callout>
 
 <Callout>
