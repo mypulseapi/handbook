@@ -69,17 +69,18 @@ khi muốn có tín hiệu vào một thời điểm khác, hoặc muốn một 
 | `captureTimeSignal()` | `Signal` | Thời điểm trong ngày. Không bao giờ null, vì luôn có đồng hồ |
 | `captureEnhancedReferrerSignals()` | `Signal[]` | Chi tiết chiến dịch và kênh, ngoài nguồn giới thiệu thông thường |
 | `captureDeviceInfoAsync(): Promise` | `DeviceInfo` | Thông tin thiết bị đầy đủ hơn, gồm cả client hints |
-| `captureGeoInfo(): Promise` | `GeoInfo \| null` | Vị trí ước lượng từ IP |
+| `captureGeoInfo(): Promise` | `null` | **Không còn dùng.** Luôn trả `null`: Pulse API đọc vị trí từ chính yêu cầu |
 | `geoToSignals(geo)` | `Signal[]` | Chuyển một `GeoInfo` thành tín hiệu |
-| `captureWeatherInfo(lat, lon, apiKey?): Promise` | `WeatherInfo \| null` | Thời tiết tại một điểm |
+| `captureWeatherInfo(lat, lon, apiKey?): Promise` | `WeatherInfo \| null` | **Không còn dùng.** Pulse API tự thêm thời tiết |
 | `weatherToSignals(weather)` | `Signal[]` | Chuyển một `WeatherInfo` thành tín hiệu |
 | `captureCulturalCalendar(countryCode)` | `Signal[]` | Các sự kiện theo mùa và văn hoá diễn ra hôm nay |
 | `parseUserAgent(ua)` | `DeviceInfo` | Phân tích một chuỗi user agent bạn đã có |
 
-<Callout type="warn" title="captureWeatherInfo cần key riêng của bạn">
-  Nó gọi OpenWeatherMap và trả về `null` nếu không có `apiKey`, nên không có gì hỏng nếu bạn bỏ qua.
-  Gói miễn phí cho 1.000 lệnh gọi mỗi ngày, đó là lý do kết quả được lưu đệm theo phiên thay vì gọi
-  theo từng trang.
+<Callout title="Vị trí và thời tiết không cần bạn làm gì">
+  Pulse API xác định quốc gia và thành phố của khách từ chính yêu cầu, rồi thêm thời tiết tại đó từ
+  bản đọc được lưu đệm của chính nó, mỗi thành phố một lần mỗi giờ. Không có key nào nằm trong trình
+  duyệt và không có lệnh gọi nào rời khỏi trang. Không website nào đọc được địa chỉ MAC, nên không có
+  gì đọc nó.
 </Callout>
 
 <Callout>
