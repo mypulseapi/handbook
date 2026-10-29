@@ -22,16 +22,19 @@ jobs:
         env:
           AUTHOR: ${{ github.event.pull_request.user.login }}
           AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
-          # OWNER or MEMBER: a member of the mypulseapi organisation, covered by their employment terms
-          ASSOCIATION: ${{ github.event.pull_request.author_association }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           BODY: ${{ github.event.pull_request.body }}
         run: |
           if [ "$AUTHOR_TYPE" = Bot ]; then
             echo "$AUTHOR is a bot: no CLA needed."
             exit 0
           fi
-          if [ "$ASSOCIATION" = OWNER ] || [ "$ASSOCIATION" = MEMBER ]; then
-            echo "$AUTHOR is a member of the organisation: no CLA needed."
+          # Staff hold admin or maintain on the repository and contribute under their employment
+          # terms. author_association is no help here: it reads NONE for a private org member.
+          role=$(gh api "repos/$GH_REPO/collaborators/$AUTHOR/permission" -q .permission 2>/dev/null || echo none)
+          if [ "$role" = admin ] || [ "$role" = maintain ]; then
+            echo "$AUTHOR has $role on the repository: no CLA needed."
             exit 0
           fi
           if printf '%s\n' "$BODY" | grep -qiE '^[[:space:]]*[-*] \[x\] I have read and agree to the \[?PULSE Contributor License Agreement'; then
