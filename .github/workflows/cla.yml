@@ -22,10 +22,16 @@ jobs:
         env:
           AUTHOR: ${{ github.event.pull_request.user.login }}
           AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
+          # OWNER or MEMBER: a member of the mypulseapi organisation, covered by their employment terms
+          ASSOCIATION: ${{ github.event.pull_request.author_association }}
           BODY: ${{ github.event.pull_request.body }}
         run: |
           if [ "$AUTHOR_TYPE" = Bot ]; then
             echo "$AUTHOR is a bot: no CLA needed."
+            exit 0
+          fi
+          if [ "$ASSOCIATION" = OWNER ] || [ "$ASSOCIATION" = MEMBER ]; then
+            echo "$AUTHOR is a member of the organisation: no CLA needed."
             exit 0
           fi
           if printf '%s\n' "$BODY" | grep -qiE '^[[:space:]]*[-*] \[x\] I have read and agree to the \[?PULSE Contributor License Agreement'; then
