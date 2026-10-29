@@ -18,17 +18,17 @@ Two long-lived branches, and work only ever flows one way between them.
 | `main` | The release branch. Merging `develop` into it **deploys the site** |
 
 Both are protected: changes arrive only through a pull request, and neither can be force-pushed or deleted.
-Members with write access, such as
+A pull request into `develop` needs the checks to pass and one approval from
 [@mypulseapi/handbook-maintainers](https://github.com/orgs/mypulseapi/teams/handbook-maintainers),
-merge their own pull requests once the checks pass. A review is welcome but not required.
+who may merge their own pull requests without waiting for a second reviewer.
 
 ## Making a change
 
-1. Create a branch **from `develop`** (`fix/typo-onboarding`, `topic/release-process`). `main` is the default branch, so when you fork, untick **Copy the `main` branch only**, and pick `develop` as the base when you open the pull request.
+1. Create a branch **from `develop`** (`fix/typo-onboarding`, `topic/release-process`). `develop` is the default branch, so a fork and a new pull request start from it.
 2. Make the change. Keep a pull request to one topic.
-3. Open a pull request **against `develop`** and fill in the template. Link the issue it resolves (`Closes #12`).
-4. The checks run on your pull request: Markdown lint and a link check. A maintainer approves the first run for new contributors.
-5. A maintainer reviews it. Address any comments by pushing to the same branch; resolved threads are required before merging.
+3. Open a pull request **against `develop`** and fill in the template, including the box that agrees to the [PULSE Contributor License Agreement](https://github.com/mypulseapi/open-pulse/blob/main/CLA.md); maintainers of the repository can skip it. Link the issue it resolves (`Closes #12`).
+4. The checks run on your pull request: Markdown lint, a link check, the search index and the CLA box. For pull requests from forks, a maintainer approves the run first.
+5. A maintainer reviews it; a pull request into `develop` needs one approval. Address any comments by pushing to the same branch; resolved threads are required before merging.
 6. A maintainer squash-merges it. Your branch is deleted automatically.
 
 ## Releasing

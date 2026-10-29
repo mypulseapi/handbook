@@ -1,0 +1,45 @@
+name: CLA
+
+# Every contribution is accepted under the PULSE CLA (CLA.md in mypulseapi/open-pulse). The pull
+# request template carries the box to tick; this check keeps a pull request into develop
+# unmergeable until it is ticked. Editing the description runs it again.
+
+on:
+  pull_request:
+    branches: [develop]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  cla:
+    name: CLA
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: The pull request agrees to the CLA
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ "$AUTHOR_TYPE" = Bot ]; then
+            echo "$AUTHOR is a bot: no CLA needed."
+            exit 0
+          fi
+          # Staff hold admin or maintain on the repository and contribute under their employment
+          # terms. author_association is no help here: it reads NONE for a private org member.
+          role=$(gh api "repos/$GH_REPO/collaborators/$AUTHOR/permission" -q .permission 2>/dev/null || echo none)
+          if [ "$role" = admin ] || [ "$role" = maintain ]; then
+            echo "$AUTHOR has $role on the repository: no CLA needed."
+            exit 0
+          fi
+          if printf '%s\n' "$BODY" | grep -qiE '^[[:space:]]*[-*] \[x\] I have read and agree to the \[?PULSE Contributor License Agreement'; then
+            echo "CLA agreed by $AUTHOR."
+          else
+            echo "::error::Tick the box 'I have read and agree to the PULSE Contributor License Agreement' in the pull request description. This check runs again when you save the description."
+            exit 1
+          fi

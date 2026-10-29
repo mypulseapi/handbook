@@ -3,7 +3,7 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
-    # main is the default branch, but changes land on develop first.
+    # develop is the default branch; set here so updates never go straight to main.
     target-branch: develop
     schedule:
       interval: weekly
