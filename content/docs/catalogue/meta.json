@@ -8,6 +8,7 @@
     "decision-verification",
     "decision-monitor",
     "return-verification",
-    "promotion-audit"
+    "promotion-audit",
+    "visual-evidence"
   ]
 }

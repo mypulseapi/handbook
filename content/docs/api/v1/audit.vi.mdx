@@ -32,6 +32,7 @@ curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
     source: { type: "'merchant' | 'extracted' | 'enriched' | 'inferred'", default: 'merchant', description: 'Các giá trị đến từ đâu, điều quyết định chúng được tin tới mức nào. Tệp xuất danh mục là người bán khai báo những gì họ có. Một lần làm giàu dữ liệu tự kiểm tra kết quả của chính nó nên khai là enriched và nhận mức trọng số thấp hơn tương ứng.' },
     amortisationHorizon: { type: 'number', description: 'Một thông tin được ghi sẽ phục vụ bao nhiêu phiên trước khi lỗi thời. Cung cấp nó để nhận lại một hành động.' },
     filterable: { type: 'string[]', description: 'Các thuộc tính cửa hàng của bạn cho phép lọc. Khi được cung cấp, một thuộc tính đã ghi nhưng không có trong danh sách này được báo là invisible.' },
+    visual: { type: 'Record<string, Record<string, string | null>>', description: 'Truy cập sớm. Ảnh của mỗi sản phẩm cho thấy gì, theo từng thuộc tính: giá trị đọc được, hoặc null khi ảnh không cho thấy. Các dòng có thêm photo: shown, contradicts hoặc not-shown. Xem Visual Evidence.' },
     derivations: { type: '{ attribute: string; from: string[] }[]', description: 'Các thuộc tính tính được từ thuộc tính khác, ví dụ hạng cân nặng từ cân nặng. Khoảng trống ở thuộc tính có đầu vào đã biết được báo là compute thay vì record.' },
   }}
 />
