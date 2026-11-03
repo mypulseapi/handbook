@@ -32,6 +32,7 @@ curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
     source: { type: "'merchant' | 'extracted' | 'enriched' | 'inferred'", default: 'merchant', description: 'Where the values came from, which decides how far they are trusted. A catalogue export is the merchant declaring what they stock. An enrichment run auditing its own output should say enriched and take the lower weight that earns.' },
     amortisationHorizon: { type: 'number', description: 'How many sessions a recorded fact would serve before it goes stale. Supply it to get an action back.' },
     filterable: { type: 'string[]', description: 'The attributes your storefront offers as filters. Supplied, a recorded attribute missing from it is reported invisible.' },
+    visual: { type: 'Record<string, Record<string, string | null>>', description: 'Early access. What each product\'s photos show, per attribute: the value read off them, or null when they do not show it. Rows gain photo: shown, contradicts or not-shown. See Visual Evidence.' },
     derivations: { type: '{ attribute: string; from: string[] }[]', description: 'Attributes that can be computed from others, such as a weight class from weight. A gap on one whose inputs are known is reported as compute rather than record.' },
   }}
 />
