@@ -31,6 +31,8 @@ curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
     csv: { type: 'string', required: true, description: 'Dòng tiêu đề, rồi mỗi sản phẩm một dòng. Cột đầu là id; các cột còn lại là thuộc tính. Tối đa 2 MB, khoảng 20.000 sản phẩm với chừng mười hai cột.' },
     source: { type: "'merchant' | 'extracted' | 'enriched' | 'inferred'", default: 'merchant', description: 'Các giá trị đến từ đâu, điều quyết định chúng được tin tới mức nào. Tệp xuất danh mục là người bán khai báo những gì họ có. Một lần làm giàu dữ liệu tự kiểm tra kết quả của chính nó nên khai là enriched và nhận mức trọng số thấp hơn tương ứng.' },
     amortisationHorizon: { type: 'number', description: 'Một thông tin được ghi sẽ phục vụ bao nhiêu phiên trước khi lỗi thời. Cung cấp nó để nhận lại một hành động.' },
+    filterable: { type: 'string[]', description: 'Các thuộc tính cửa hàng của bạn cho phép lọc. Khi được cung cấp, một thuộc tính đã ghi nhưng không có trong danh sách này được báo là invisible.' },
+    derivations: { type: '{ attribute: string; from: string[] }[]', description: 'Các thuộc tính tính được từ thuộc tính khác, ví dụ hạng cân nặng từ cân nặng. Khoảng trống ở thuộc tính có đầu vào đã biết được báo là compute thay vì record.' },
   }}
 />
 
@@ -39,6 +41,34 @@ curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
   biết thông tin đó sẽ phục vụ bao nhiêu người mua, và chọn một con số thay bạn sẽ che đi giả định mà cả
   phép so sánh dựa vào.
 </Callout>
+
+### Trạng thái bằng chứng và hành động sửa
+
+Mọi phản hồi đều có `evidence`: với mỗi sản phẩm và thuộc tính chưa trả lời được, đó là loại khoảng trống
+nào và hành động nào đóng nó, kèm số đếm theo thuộc tính trong `byAttribute`. Các cột có tên như tiêu đề
+hoặc mô tả (`name`, `title`, `description`) được đọc là văn bản của sản phẩm, không phải thuộc tính.
+
+| Trạng thái | Ý nghĩa | Hành động |
+|---|---|---|
+| `missing` | Chưa được ghi, và không có trong văn bản sản phẩm | `record`, hoặc `compute` khi đầu vào trong `derivations` đã biết |
+| `buried` | Không có trong trường, nhưng tiêu đề hoặc mô tả chứa một giá trị thuộc tính này có ở sản phẩm khác (`found`) | `show` |
+| `invisible` | Đã ghi, nhưng không có trong `filterable`, nên người mua không lọc được | `show` |
+| `unresolved` | Có giá trị nhưng quá yếu hoặc quá cũ để quyết định | `ask` |
+| `conflicting` | Các nguồn tin cậy ngang nhau mâu thuẫn | `reconcile` |
+| `not-observable` | Không sản phẩm nào ghi và không văn bản nào nhắc tới | `abstain`: câu trả lời nên nói là không xác định được |
+
+Có hai hành động không phải khoảng trống. `generate` đánh dấu một thông tin đã ghi mà văn bản sản phẩm
+không hề nhắc tới, để nội dung được viết từ nó thay vì bịa ra. `dont-fix` thay hành động ở thuộc tính mà
+việc sửa hầu như không thay đổi những gì một câu hỏi có thể loại trừ.
+
+### Doanh thu bị ảnh hưởng
+
+Thêm cột `revenue`, hoặc `price` và `units_sold`, và phản hồi sẽ có `revenue`: tổng doanh thu của ngành
+hàng, doanh thu trên các sản phẩm có ít nhất một khoảng trống đáng sửa (`withGaps`), trên các sản phẩm
+không câu hỏi nào tìm tới được (`unresolvable`), và theo từng thuộc tính trong `byAttribute`, lớn nhất
+trước. Đây là phép cộng số liệu của chính bạn, không phải dự báo về những gì một lần sửa sẽ mang lại.
+`units_sold` và `revenue` không được coi là thuộc tính; `price` vẫn là thuộc tính, vì ngân sách là một yêu
+cầu. Các số như `20.990.000` và `20,990,000` đều được đọc đúng.
 
 ## `POST /catalog/verify`
 

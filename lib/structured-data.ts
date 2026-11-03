@@ -3,6 +3,7 @@ import { firstUrl, folderPath } from './page-tree';
 import {
   appName,
   companyName,
+  legalName,
   docsRoute,
   githubOrgUrl,
   linkedinUrl,
@@ -53,7 +54,7 @@ const organization = {
   '@type': 'Organization',
   '@id': `${siteOrigin}/#organization`,
   name: companyName,
-  legalName: 'Resolve Labs',
+  legalName,
   url: siteUrl,
   // Standard 5.3: an ImageObject with its own @id, never a bare string.
   logo: {

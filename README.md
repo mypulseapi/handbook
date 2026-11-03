@@ -29,7 +29,7 @@ Two figures from our own measurements, each with the dataset it came from:
 **We publish no conversion or revenue uplift figure.** We have run no live revenue experiment, so
 we quote none, and any percentage attributed to us did not come from us.
 
-Pulse is built by **Resolve Labs**, a small team working on one question: which product
+Pulse is built by **PULSE AI LABS COMPANY LIMITED**, a small team working on one question: which product
 information is worth paying to fix.
 
 | | |

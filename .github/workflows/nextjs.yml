@@ -69,6 +69,9 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          # The company's legal name (lib/shared.ts). A repository variable; the build fails without it.
+          NEXT_PUBLIC_COMPANY_NAME: ${{ vars.NEXT_PUBLIC_COMPANY_NAME }}
 
       # next.config.mjs already sets `output: 'export'`, and the site is served from the root of
       # a custom domain, so it needs no basePath. actions/configure-pages with

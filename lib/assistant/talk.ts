@@ -1,4 +1,5 @@
 import type { Answer } from "./answer";
+import { legalName } from "../shared";
 
 /**
  * The conversational layer, checked before any retrieval.
@@ -140,8 +141,8 @@ const TERMS: {
   {
     names: ["pulse", "thepulseapi", "pulse api"],
     reply: (l) => ({
-      en: `Pulse is a service for e-commerce merchants, made by Resolve Labs. It measures whether your product catalogue can answer the questions shoppers ask before they buy, tells you which missing fact costs the most buying decisions, proves whether each fix worked, and can rank your storefront for each live visit. Every product is an API.\n\nStart with the [catalogue products](${l.catalogue}) or the [storefront products](${l.storefront}).`,
-      vi: `Pulse là dịch vụ dành cho người bán thương mại điện tử, do Resolve Labs phát triển. Pulse đo xem danh mục sản phẩm của bạn có trả lời được những câu người mua hỏi trước khi mua hay không, chỉ ra thông tin còn thiếu nào làm mất nhiều quyết định mua nhất, chứng minh mỗi bản sửa có hiệu quả không, và có thể xếp hạng cửa hàng cho từng lượt truy cập. Mỗi sản phẩm là một API.\n\nBắt đầu với [sản phẩm cho danh mục](${l.catalogue}) hoặc [sản phẩm cho cửa hàng](${l.storefront}).`,
+      en: `Pulse is a service for e-commerce merchants, made by ${legalName}. It measures whether your product catalogue can answer the questions shoppers ask before they buy, tells you which missing fact costs the most buying decisions, proves whether each fix worked, and can rank your storefront for each live visit. Every product is an API.\n\nStart with the [catalogue products](${l.catalogue}) or the [storefront products](${l.storefront}).`,
+      vi: `Pulse là dịch vụ dành cho người bán thương mại điện tử, do ${legalName} phát triển. Pulse đo xem danh mục sản phẩm của bạn có trả lời được những câu người mua hỏi trước khi mua hay không, chỉ ra thông tin còn thiếu nào làm mất nhiều quyết định mua nhất, chứng minh mỗi bản sửa có hiệu quả không, và có thể xếp hạng cửa hàng cho từng lượt truy cập. Mỗi sản phẩm là một API.\n\nBắt đầu với [sản phẩm cho danh mục](${l.catalogue}) hoặc [sản phẩm cho cửa hàng](${l.storefront}).`,
     }),
   },
   {
@@ -354,6 +355,8 @@ const TERMS: {
   },
   {
     names: [
+      legalName.toLowerCase(),
+      // The company's earlier name, still how some people ask.
       "resolve labs",
       "founder",
       "founders",
@@ -371,8 +374,8 @@ const TERMS: {
     ],
     any: true,
     reply: (l) => ({
-      en: `Pulse is made by **Resolve Labs**, founded in March 2026, with headquarters in Singapore and engineering in Ho Chi Minh City. It started with a 216-product test shelf, where ranking the gaps by how much data was missing gave almost the opposite order to ranking them by what shoppers said they needed. [About us](${l.site}/about).`,
-      vi: `Pulse do **Resolve Labs** làm ra, thành lập tháng 3 năm 2026, trụ sở chính ở Singapore và đội kỹ thuật ở Thành phố Hồ Chí Minh. Mọi thứ bắt đầu từ một kệ thử nghiệm 216 sản phẩm, nơi xếp hạng khoảng trống theo lượng dữ liệu còn thiếu cho ra thứ tự gần như ngược với xếp theo điều người mua nói họ cần. [Về chúng tôi](${l.site}/about).`,
+      en: `Pulse is made by **${legalName}**, founded in March 2026, with headquarters in Singapore and engineering in Ho Chi Minh City. It started with a 216-product test shelf, where ranking the gaps by how much data was missing gave almost the opposite order to ranking them by what shoppers said they needed. [About us](${l.site}/about).`,
+      vi: `Pulse do **${legalName}** làm ra, thành lập tháng 3 năm 2026, trụ sở chính ở Singapore và đội kỹ thuật ở Thành phố Hồ Chí Minh. Mọi thứ bắt đầu từ một kệ thử nghiệm 216 sản phẩm, nơi xếp hạng khoảng trống theo lượng dữ liệu còn thiếu cho ra thứ tự gần như ngược với xếp theo điều người mua nói họ cần. [Về chúng tôi](${l.site}/about).`,
     }),
   },
   {
