@@ -31,6 +31,8 @@ curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
     csv: { type: 'string', required: true, description: 'Header row, then one row per product. Column one is the id; the rest are attributes. Capped at 2 MB, roughly 20,000 products with a dozen columns.' },
     source: { type: "'merchant' | 'extracted' | 'enriched' | 'inferred'", default: 'merchant', description: 'Where the values came from, which decides how far they are trusted. A catalogue export is the merchant declaring what they stock. An enrichment run auditing its own output should say enriched and take the lower weight that earns.' },
     amortisationHorizon: { type: 'number', description: 'How many sessions a recorded fact would serve before it goes stale. Supply it to get an action back.' },
+    filterable: { type: 'string[]', description: 'The attributes your storefront offers as filters. Supplied, a recorded attribute missing from it is reported invisible.' },
+    derivations: { type: '{ attribute: string; from: string[] }[]', description: 'Attributes that can be computed from others, such as a weight class from weight. A gap on one whose inputs are known is reported as compute rather than record.' },
   }}
 />
 
@@ -39,6 +41,35 @@ curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
   fact once" needs to know how many shoppers the fact would serve, and picking a number on your
   behalf would bury the assumption the whole comparison rests on.
 </Callout>
+
+### Evidence states and repair actions
+
+Every response carries `evidence`: for each product and attribute that cannot be answered, what
+kind of gap it is and the action that closes it, plus a count per attribute in `byAttribute`.
+Columns named like a title or description (`name`, `title`, `description`) are read as the
+product's own text rather than as attributes.
+
+| State | What it means | Action |
+|---|---|---|
+| `missing` | Not recorded, and not in the product's text | `record`, or `compute` when a `derivations` input is known |
+| `buried` | Not in the field, but the title or description holds a value this attribute takes elsewhere (`found`) | `show` |
+| `invisible` | Recorded, but not in `filterable`, so no shopper can filter on it | `show` |
+| `unresolved` | A value exists but is too weak or too old to decide on | `ask` |
+| `conflicting` | Equally trusted sources disagree | `reconcile` |
+| `not-observable` | No product records it and no text mentions it | `abstain`: an answer should say it cannot tell |
+
+Two actions are not gaps. `generate` marks a recorded fact the product's text never mentions, so
+copy can be written from it rather than invented. `dont-fix` replaces the action on an attribute
+whose repair would barely change what a question can rule out.
+
+### Revenue exposure
+
+Add a `revenue` column, or `price` and `units_sold`, and the response carries `revenue`: the
+category's total, the revenue on products with at least one gap worth fixing (`withGaps`), on
+products nothing can find (`unresolvable`), and per attribute in `byAttribute`, largest first. It
+adds up your own figures; it is not a forecast of what a repair would earn. `units_sold` and
+`revenue` are not treated as attributes; `price` still is, because a budget is a requirement.
+Amounts such as `20.990.000` and `20,990,000` both read correctly.
 
 ## `POST /catalog/verify`
 
