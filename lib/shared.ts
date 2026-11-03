@@ -22,9 +22,20 @@ export const appName = process.env.NEXT_PUBLIC_APP_NAME || 'PULSE Developers';
 
 /** Where this site is served from. Canonical URLs, the sitemap and JSON-LD all build on it. */
 export const siteOrigin = env(process.env.NEXT_PUBLIC_DOCS_URL, 'https://developer.thepulseapi.com');
-export const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || 'PULSE';
-/** The legal entity, which is not the brand. Used in the footer and the Organization node. */
-export const legalName = process.env.NEXT_PUBLIC_LEGAL_NAME || 'Resolve Labs';
+export const companyName = process.env.NEXT_PUBLIC_BRAND_NAME || 'PULSE';
+/**
+ * The legal entity, which is not the brand: the Organization node, "made by" in the docs and the
+ * assistant. `NEXT_PUBLIC_COMPANY_NAME`, the same variable and value peacock and the portals read.
+ * No fallback in a build, because a renamed company shipping the old name is worse than a failed one.
+ */
+export const legalName = (() => {
+  const value = (process.env.NEXT_PUBLIC_COMPANY_NAME ?? '').trim();
+  if (value) return value;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXT_PUBLIC_COMPANY_NAME is not set. It is the company\'s legal name.');
+  }
+  return 'the company (set NEXT_PUBLIC_COMPANY_NAME)';
+})();
 /**
  * The documentation is the site, so it is served from the root.
  *
