@@ -9,6 +9,7 @@ import { Banner } from 'fumadocs-ui/components/banner';
 import { InstallTabs, RunTabs } from './install-tabs';
 import { DocsChangelog } from './docs-changelog';
 import { Ext, Url } from './links';
+import { legalName } from '@/lib/shared';
 import { Activity, Atom, BellRing, Blocks, Bot, Braces, Brain, Boxes, ClipboardCheck, Code, Feather, GitCompare, Hash, KeyRound, Layers, Leaf, LifeBuoy, Rocket, Scale, SearchX, Server, Shield, ShieldCheck, Timer, Zap } from 'lucide-react';
 import type { MDXComponents } from 'mdx/types';
 
@@ -36,6 +37,8 @@ export function getMDXComponents(components?: MDXComponents) {
     // Cross-property links, read from the environment rather than written out. See ./links.tsx.
     Ext,
     Url,
+    // The company's legal name, from NEXT_PUBLIC_COMPANY_NAME, so no page spells it out.
+    LegalName: () => <>{legalName}</>,
     // Icons used inline in MDX. Registered by name so a typo fails the build.
     Activity,
     Atom,
