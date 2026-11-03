@@ -1,0 +1,62 @@
+---
+title: Visual Evidence
+description: PULSE Visual Evidence checks product photos against what buyers need to establish, finds facts a photo shows but your data lacks or contradicts, and names the photo to add. Early access.
+icon: Image
+---
+
+<Callout title="Early access">
+  Built and benchmarked on public product data; not yet run on a merchant's own catalogue. It is
+  offered first inside a [Decision Audit](/catalogue/decision-audit) pilot.
+</Callout>
+
+The [Decision Audit](/catalogue/decision-audit) reads your fields, titles and descriptions. Visual
+Evidence adds your **photos** as evidence, and answers three questions per buying requirement.
+
+1. **Does a photo show a fact your data lacks?** A port, a colour or a dimension diagram already in
+   the gallery and missing from the field a filter or an AI assistant reads.
+2. **Does a photo contradict your data?** The spec says two HDMI ports and the photo shows one.
+3. **Which photo should you add?** A fact a photo could show, that buyers depend on, and that no
+   photo shows yet.
+
+It also says what **no** photo can show, battery life or a weight, so those are recorded rather than
+read off a picture.
+
+## The call
+
+Photo observations go into the same audit, as `visual`: per product and attribute, the value read
+off its photos, or `null` when the photos were checked and do not show it.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "csv": "id,title,colour,ports\nsku-1,Laptop 14,navy,\nsku-2,Laptop 16,black,HDMI",
+    "visual": {
+      "sku-1": { "colour": "green", "ports": "HDMI, 2 x USB-C" },
+      "sku-2": { "ports": null }
+    }
+  }'
+```
+
+Each answer row in `evidence.rows` then carries `photo`:
+
+| `photo` | What it means | Action |
+| --- | --- | --- |
+| `shown` | In a photo, not in the field | `show`: lift it into the field (`found` holds the value) |
+| `contradicts` | A photo disagrees with the recorded value | `reconcile` |
+| `not-shown` | Recorded, but no photo shows it | `show`: add a photo that does |
+
+## How a model reads the photos
+
+A vision model lists what each photo shows; the requirement engine, not the model, decides what it
+means. Every model is scored first on our benchmark, which includes questions no photo can answer,
+and a correct "cannot tell" scores higher than a lucky guess. In the first run on public product
+data (Amazon Berkeley Objects and Amazon Reviews 2023, 149 questions), two models answered "cannot
+tell" 98% of the time when no photo could show the fact. That is public data and two models, not
+your catalogue, and the answers are not yet human-checked.
+
+<Callout title="It does not create images">
+  Visual Evidence tells you which photo matters and why. Your team or studio takes it, and the next
+  audit confirms the photo shows what it should.
+</Callout>

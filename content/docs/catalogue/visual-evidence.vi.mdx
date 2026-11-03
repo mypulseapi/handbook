@@ -1,0 +1,61 @@
+---
+title: Visual Evidence
+description: PULSE Visual Evidence kiểm tra ảnh sản phẩm theo những gì người mua cần biết, tìm thông tin ảnh cho thấy mà dữ liệu thiếu hoặc mâu thuẫn, và chỉ ra ảnh cần thêm. Truy cập sớm.
+icon: Image
+---
+
+<Callout title="Truy cập sớm">
+  Đã xây dựng và kiểm thử trên dữ liệu sản phẩm công khai; chưa chạy trên danh mục riêng của người
+  bán. Được cung cấp trước trong một đợt thí điểm [Decision Audit](/vi/catalogue/decision-audit).
+</Callout>
+
+[Decision Audit](/vi/catalogue/decision-audit) đọc các trường, tiêu đề và mô tả của bạn. Visual
+Evidence thêm **ảnh** làm bằng chứng, và trả lời ba câu hỏi cho mỗi yêu cầu mua hàng.
+
+1. **Ảnh có cho thấy thông tin mà dữ liệu thiếu không?** Một cổng kết nối, một màu hay một sơ đồ
+   kích thước đã có trong bộ ảnh nhưng thiếu ở trường mà bộ lọc hay trợ lý AI đọc.
+2. **Ảnh có mâu thuẫn với dữ liệu không?** Thông số ghi hai cổng HDMI mà ảnh chỉ có một.
+3. **Nên thêm ảnh nào?** Một thông tin ảnh có thể cho thấy, người mua cần, mà chưa ảnh nào cho thấy.
+
+Nó cũng cho biết điều **không** ảnh nào cho thấy được, như thời lượng pin hay cân nặng, để chúng được
+ghi vào dữ liệu thay vì đọc từ ảnh.
+
+## Lệnh gọi
+
+Các quan sát từ ảnh đi vào cùng một lần kiểm tra, qua `visual`: theo từng sản phẩm và thuộc tính, giá
+trị đọc được từ ảnh, hoặc `null` khi ảnh đã được xem mà không cho thấy.
+
+```bash
+curl -X POST "https://api.thepulseapi.com/api/v1/catalog/audit" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: pk_live_..." \
+  -d '{
+    "csv": "id,title,colour,ports\nsku-1,Laptop 14,navy,\nsku-2,Laptop 16,black,HDMI",
+    "visual": {
+      "sku-1": { "colour": "green", "ports": "HDMI, 2 x USB-C" },
+      "sku-2": { "ports": null }
+    }
+  }'
+```
+
+Mỗi dòng trong `evidence.rows` khi đó có thêm `photo`:
+
+| `photo` | Ý nghĩa | Hành động |
+| --- | --- | --- |
+| `shown` | Có trong ảnh, không có trong trường | `show`: đưa vào trường (`found` chứa giá trị) |
+| `contradicts` | Ảnh khác với giá trị đã ghi | `reconcile` |
+| `not-shown` | Đã ghi, nhưng không ảnh nào cho thấy | `show`: thêm một ảnh cho thấy nó |
+
+## Mô hình đọc ảnh thế nào
+
+Mô hình thị giác liệt kê mỗi ảnh cho thấy gì; bộ máy yêu cầu, không phải mô hình, quyết định ý nghĩa.
+Mỗi mô hình được chấm trước trên bộ kiểm thử của chúng tôi, gồm cả những câu không ảnh nào trả lời
+được, và một câu "không xác định được" đúng chỗ được điểm cao hơn một lần đoán trúng. Trong lần chạy
+đầu trên dữ liệu sản phẩm công khai (Amazon Berkeley Objects và Amazon Reviews 2023, 149 câu hỏi),
+hai mô hình trả lời "không xác định được" 98% số lần khi không ảnh nào cho thấy thông tin. Đó là dữ
+liệu công khai và hai mô hình, không phải danh mục của bạn, và câu trả lời chưa được người kiểm tra.
+
+<Callout title="Không tạo ảnh">
+  Visual Evidence cho biết ảnh nào quan trọng và vì sao. Đội của bạn hoặc studio sẽ chụp, và lần kiểm
+  tra sau xác nhận ảnh cho thấy đúng điều cần.
+</Callout>
