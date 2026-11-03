@@ -30,8 +30,10 @@ Xếp hạng các sản phẩm **bạn gửi**, theo phiên.
 ```ts
 const { results } = await pulse.search(products, { limit: 24 });
 
-results[0].scoreBreakdown; // the factors behind this score, each from 0 to 1
+results[0].breakdown; // the factors behind this score, each from 0 to 1
 ```
+
+SDK luôn yêu cầu `breakdown` trong mỗi lần tìm kiếm. Khi gọi HTTP trực tiếp, mặc định không có: gửi `"includeBreakdown": true` để nhận nó.
 
 ## `POST /rerank`
 
