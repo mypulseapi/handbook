@@ -30,8 +30,10 @@ Ranks products **you pass in**, against the session.
 ```ts
 const { results } = await pulse.search(products, { limit: 24 });
 
-results[0].scoreBreakdown; // the factors behind this score, each from 0 to 1
+results[0].breakdown; // the factors behind this score, each from 0 to 1
 ```
+
+The SDK asks for `breakdown` on every search. Over raw HTTP it is off by default: send `"includeBreakdown": true` to get it.
 
 ## `POST /rerank`
 
